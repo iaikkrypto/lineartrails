@@ -19,3 +19,8 @@
 *.exe
 *.out
 *.app
+lin
+
+# vim tmp files
+*.swp
+*~

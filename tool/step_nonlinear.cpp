@@ -17,12 +17,12 @@ LinearDistributionTable::LinearDistributionTable(std::function<BitVector(BitVect
     for (unsigned int a = 0; a < boxsize; ++a) {
       unsigned int facta = a & x;
       unsigned int asum = 0;
-      for (unsigned int j = 0; j < boxsize; ++j)
+      for (unsigned int j = 0; j < bitsize; ++j)
         asum ^= ((facta >> j) & 1);
       for (unsigned int b = 0; b < boxsize; ++b) {
         unsigned int factb = b & fun(x);
         unsigned int bsum = 0;
-        for (unsigned int j = 0; j < boxsize; ++j)
+        for (unsigned int j = 0; j < bitsize; ++j)
           bsum ^= ((factb >> j) & 1);
         ldt[a][b] += (asum == bsum);
       }

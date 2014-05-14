@@ -13,21 +13,19 @@ struct LinearDistributionTable {
 
   friend std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable& ldt);
 
-  std::vector<std::vector<unsigned>> ldt;
-  std::vector<std::vector<bool>> ldt_bool;
-  //std::unordered_map<Mask,Mask> ldt_map; // TODO define hash
+  std::vector<std::vector<signed>> ldt;
+  std::vector<std::vector<unsigned int>> ldt_bool;
 };
 
 struct NonlinearStep {
   NonlinearStep(std::function<BitVector(BitVector)> fun, unsigned bitsize);
-  bool AddMasks(Mask& x, Mask& y);
-  bool ExtractMasks(Mask& x, Mask& y);
+  bool PropagateMasks(Mask& x, Mask& y);
 
   friend std::ostream& operator<<(std::ostream& stream, const NonlinearStep& step);
 
-  std::function<BitVector(BitVector)> fun;
-  std::pair<Mask, Mask> inout;
-  unsigned bitsize;
+  void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
+  LinearDistributionTable ldt_;
+  unsigned bitsize_;
 };
 
 #endif // STEPLINEAR_H_

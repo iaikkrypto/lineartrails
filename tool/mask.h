@@ -37,4 +37,12 @@ struct Mask {
   WordMaskCare caremask;
 };
 
+struct StateMask {
+  std::vector<UpdatePos> diff(const StateMask& other);
+  void diff(const StateMask& other, UpdateQueue& queue);
+};
+
+struct AsconState : public StateMask {
+};
+
 #endif // MASK_H_

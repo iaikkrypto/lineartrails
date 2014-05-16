@@ -53,8 +53,7 @@ struct AsconSboxLayer : public Layer {
   AsconSboxLayer(StateMask *in, StateMask *out);
   bool Update(UpdatePos pos);
 
-  //std::array<NonlinearStep<5>, 64> sboxes;
-  std::array<NonlinearStep, 64> sboxes;
+  std::array<NonlinearStep<5>, 64> sboxes;
 };
 
 #endif // ASCON_H_

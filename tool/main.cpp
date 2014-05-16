@@ -44,9 +44,7 @@ void teststep_linear() {
 }
 
 void teststep_nonlinear() {
-  unsigned bitsize = 3;
-
-  NonlinearStep sys(testfun_nonlinear, bitsize);
+  NonlinearStep<3> sys(testfun_nonlinear);
     std::vector<std::pair<Mask, Mask>> testcases {
       {{BM_1, BM_DUNNO, BM_DUNNO},   {BM_1, BM_1, BM_0    }}, // should be 10?/110
       {{BM_0, BM_1, BM_1},   {BM_DUNNO, BM_1, BM_1    }}, // should be ###/###

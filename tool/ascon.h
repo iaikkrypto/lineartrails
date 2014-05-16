@@ -1,13 +1,18 @@
 #ifndef ASCON_H_
 #define ASCON_H_
 
+#include <vector>
+#include <array>
+
 #include "layer.h"
 #include "mask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
+#include "updatequeue.h"
 
 
 struct AsconState : public StateMask {
+  std::vector<UpdatePos> diff(const StateMask& other);
   typename std::array<Mask, 5>::iterator begin();
   typename std::array<Mask, 5>::const_iterator begin() const;
   typename std::array<Mask, 5>::iterator end();

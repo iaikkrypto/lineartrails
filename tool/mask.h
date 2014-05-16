@@ -42,8 +42,7 @@ struct Mask {
 };
 
 struct StateMask {
-  //std::vector<UpdatePos> diff(const StateMask& other) = 0; // TODO
-  //void diff(const StateMask& other, UpdateQueue& queue) = 0; // TODO
+  virtual std::vector<UpdatePos> diff(const StateMask& other) = 0;
 
   virtual Mask& operator[](const int index) = 0;
   virtual const Mask& operator[](const int index) const = 0;

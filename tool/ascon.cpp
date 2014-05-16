@@ -1,5 +1,19 @@
 #include "ascon.h"
 
+std::vector<UpdatePos> AsconState::diff(const StateMask& other) {
+  BitVector diffword;
+  std::vector<UpdatePos> result;
+  for (int i = 0; i < 5; ++i) {
+    diffword = (words[i].caremask.canbe1 ^ other[i].caremask.canbe1) | (words[i].caremask.care ^ other[i].caremask.care);
+    for (int b = 0; b < 63 && diffword; ++b) {
+      if (diffword & 1)
+        result.emplace_back(0, i, b, 0);
+      diffword >>= 1;
+    }
+  }
+  return result;
+}
+
 typename std::array<Mask, 5>::iterator AsconState::begin() {
   return words.begin();
 }

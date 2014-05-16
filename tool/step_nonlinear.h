@@ -9,6 +9,7 @@
 #include "mask.h"
 
 struct LinearDistributionTable {
+  LinearDistributionTable();
   LinearDistributionTable(std::function<BitVector(BitVector)> fun, unsigned bitsize);
 
   friend std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable& ldt);
@@ -18,8 +19,9 @@ struct LinearDistributionTable {
 };
 
 struct NonlinearStep {
+  NonlinearStep();
   NonlinearStep(std::function<BitVector(BitVector)> fun, unsigned bitsize);
-  bool PropagateMasks(Mask& x, Mask& y);
+  bool Update(Mask& x, Mask& y);
 
   friend std::ostream& operator<<(std::ostream& stream, const NonlinearStep& step);
 

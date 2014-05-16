@@ -1,5 +1,8 @@
 #include "step_nonlinear.h"
 
+LinearDistributionTable::LinearDistributionTable() {
+}
+
 LinearDistributionTable::LinearDistributionTable(std::function<BitVector(BitVector)> fun, unsigned bitsize) {
   unsigned int boxsize = (1 << (bitsize));
 
@@ -31,7 +34,7 @@ LinearDistributionTable::LinearDistributionTable(std::function<BitVector(BitVect
 
   for (unsigned int a = 0; a < boxsize; ++a)
     for (unsigned int b = 0; b < boxsize; ++b)
-      if(ldt[a][b] != 0)
+      if (ldt[a][b] != 0)
         ldt_bool[a][b] = ~0U;
 
 }
@@ -43,32 +46,35 @@ std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable& ld
 
 //-----------------------------------------------------------------------------
 
+NonlinearStep::NonlinearStep() : bitsize_(0) {
+}
+
 NonlinearStep::NonlinearStep(std::function<BitVector(BitVector)> fun, unsigned bitsize) : ldt_(fun, bitsize), bitsize_(bitsize) {
 }
 
 
-bool NonlinearStep::PropagateMasks(Mask& x, Mask& y) {
+bool NonlinearStep::Update(Mask& x, Mask& y) {
 std::vector<unsigned int> inmasks, outmasks;
 unsigned int inresult[2] = {0,0};
 unsigned int outresult[2] = {0,0};
 create_masks(inmasks,x);
 create_masks(outmasks,y);
 
-for(auto inmask : inmasks)
-  for(auto outmask : outmasks){
-      inresult[0] |= (~inmask) & ldt_.ldt_bool[inmask][outmask] ;
-      inresult[1] |= inmask & ldt_.ldt_bool[inmask][outmask] ;
-      outresult[0] |= (~outmask) & ldt_.ldt_bool[inmask][outmask] ;
-      outresult[1] |= outmask & ldt_.ldt_bool[inmask][outmask] ;
-    }
+for (auto inmask : inmasks)
+  for (auto outmask : outmasks) {
+      inresult[0] |= (~inmask) & ldt_.ldt_bool[inmask][outmask];
+      inresult[1] |= inmask & ldt_.ldt_bool[inmask][outmask];
+      outresult[0] |= (~outmask) & ldt_.ldt_bool[inmask][outmask];
+      outresult[1] |= outmask & ldt_.ldt_bool[inmask][outmask];
+  }
 
- for (unsigned int i = 0; i < bitsize_; ++i){
-   x.bitmasks[bitsize_ - i - 1] = ((inresult[1] & (1<<i)) | ((inresult[0] & (1<<i))<<1)) >> i;
-   y.bitmasks[bitsize_ - i - 1] = ((outresult[1] & (1<<i)) | ((outresult[0] & (1<<i))<<1)) >> i;
- }
+  for (unsigned int i = 0; i < bitsize_; ++i) {
+    x.bitmasks[bitsize_ - i - 1] = ((inresult[1] & (1<<i)) | ((inresult[0] & (1<<i))<<1)) >> i;
+    y.bitmasks[bitsize_ - i - 1] = ((outresult[1] & (1<<i)) | ((outresult[0] & (1<<i))<<1)) >> i;
+  }
 
- x.init_caremask();
- y.init_caremask();
+  x.init_caremask();
+  y.init_caremask();
 
   return true;
 }

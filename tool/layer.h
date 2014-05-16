@@ -2,23 +2,14 @@
 #define LAYER_H_
 
 #include "updatequeue.h"
+#include "mask.h"
 
 struct Layer {
-  Layer(State *in, State *out);
+  Layer(StateMask *in, StateMask *out);
+  virtual bool Update(UpdatePos pos);
 
-  bool Update(UpdatePos pos);
-
-  State *in;
-  State *out;
+  StateMask *in;
+  StateMask *out;
 };
-
-struct AsconLinearLayer : public Layer {
-
-};
-
-struct AsconSboxLayer : public Layer {
-
-};
-
 
 #endif // LAYER_H_

@@ -2,7 +2,10 @@
 #define MASK_H_
 
 #include <vector>
+#include <array>
 #include <iostream>
+
+#include "updatequeue.h"
 
 #define BM_DUNNO  3
 #define BM_0      2
@@ -38,11 +41,10 @@ struct Mask {
 };
 
 struct StateMask {
-  std::vector<UpdatePos> diff(const StateMask& other);
-  void diff(const StateMask& other, UpdateQueue& queue);
-};
+  //std::vector<UpdatePos> diff(const StateMask& other) = 0; // TODO
+  //void diff(const StateMask& other, UpdateQueue& queue) = 0; // TODO
 
-struct AsconState : public StateMask {
+  virtual Mask& operator[](const int index) = 0;
 };
 
 #endif // MASK_H_

@@ -20,8 +20,6 @@ BitVector testfun_nonlinear(BitVector in) {
 }
 
 void teststep_linear() {
-  unsigned bitsize = 2;
-
   std::vector<std::pair<Mask, Mask>> testcases {
     {{BM_DUNNO, BM_DUNNO},   {BM_1,     BM_0    }}, // should be 11/10
     {{BM_0,     BM_1    },   {BM_DUNNO, BM_DUNNO}}, // should be 01/01
@@ -32,7 +30,7 @@ void teststep_linear() {
   };
 
   for (auto challenge : testcases) {
-    LinSys sys(testfun_linear, bitsize);
+    LinearStep<2> sys(testfun_linear);
     bool sat = sys.AddMasks(challenge.first, challenge.second);
     //Mask in(bitsize), out(bitsize);
     Mask in(challenge.first), out(challenge.second);
@@ -40,14 +38,8 @@ void teststep_linear() {
     std::cout << challenge.first << "/" << challenge.second << " > ";
     if (sat)
       std::cout << in << "/" << out << std::endl;
-    else {
-      for (unsigned i = 0; i < bitsize; ++i)
-        std::cout << "#";
-      std::cout << "/";
-      for (unsigned i = 0; i < bitsize; ++i)
-        std::cout << "#";
-      std::cout << std::endl;
-    }
+    else
+      std::cout << "##/##" << std::endl;
   }
 }
 
@@ -63,7 +55,7 @@ void teststep_nonlinear() {
     };
     for (auto challenge : testcases) {
       std::cout << challenge.first << "/" << challenge.second << " > ";
-      sys.PropagateMasks(challenge.first, challenge.second);
+      sys.Update(challenge.first, challenge.second);
       std::cout << challenge.first << "/" << challenge.second << std::endl;
     }
 }

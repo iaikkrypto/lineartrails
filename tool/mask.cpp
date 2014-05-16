@@ -6,6 +6,9 @@ WordMaskCare::WordMaskCare(unsigned bitsize) : canbe1(~0ULL >> (64 - bitsize)), 
 WordMaskCare::WordMaskCare(const WordMaskCare& other) : canbe1(other.canbe1), care(other.care) {
 }
 
+WordMaskCare::WordMaskCare(BitVector canbe1, BitVector care) : canbe1(canbe1), care(care) {
+}
+
 void WordMaskCare::Reset() {
   canbe1 |= care;
   canbe1 |= (canbe1 >> 1);

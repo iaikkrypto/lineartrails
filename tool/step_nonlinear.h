@@ -15,6 +15,7 @@ template <unsigned bitsize>
 struct LinearDistributionTable {
   LinearDistributionTable() = default;
   LinearDistributionTable(std::function<BitVector(BitVector)> fun);
+  void Initialize(std::function<BitVector(BitVector)> fun);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearDistributionTable<bitsize>& ldt);
 
@@ -31,11 +32,11 @@ struct NonlinearStep {
 
   NonlinearStep() = default;
   NonlinearStep(std::function<BitVector(BitVector)> fun);
+  void Initialize(std::function<BitVector(BitVector)> fun);
   bool Update(Mask& x, Mask& y);
+  void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const NonlinearStep<bitsize>& step);
-
-  void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
 
   LinearDistributionTable<bitsize> ldt_;
 };

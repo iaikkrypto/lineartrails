@@ -20,11 +20,13 @@ Mask& AsconState::operator[](const int index) {
   return words[index];
 }
 
+const Mask& AsconState::operator[](const int index) const {
+  return words[index];
+}
+
 //-----------------------------------------------------------------------------
 
 AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
-    //: Layer(in, out)
-    //, sigmas{{{AsconSigma<0>}, {AsconSigma<1>}, {AsconSigma<2>}, {AsconSigma<3>}, {AsconSigma<4>}}} {
   sigmas[0].Initialize(AsconSigma<0>);
   sigmas[1].Initialize(AsconSigma<1>);
   sigmas[2].Initialize(AsconSigma<2>);
@@ -39,10 +41,41 @@ bool AsconLinearLayer::Update(UpdatePos pos) {
 //-----------------------------------------------------------------------------
 
 AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
-  // TODO
+  for (int i = 0; i < 64; i++)
+    sboxes[i].Initialize(AsconSbox);
 }
 
 bool AsconSboxLayer::Update(UpdatePos pos) {
-  // TODO
+  Mask copyin(GetVerticalMask(pos.bit, *in));
+  Mask copyout(GetVerticalMask(pos.bit, *out));
+  if (!sboxes[pos.bit].Update(copyin, copyout))
+    return false;
+  SetVerticalMask(pos.bit, *in, copyin);
+  SetVerticalMask(pos.bit, *out, copyout);
   return true;
 }
+
+Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
+  return Mask({s[4].bitmasks[b], s[3].bitmasks[b], s[2].bitmasks[b], s[1].bitmasks[b], s[0].bitmasks[b]});
+}
+
+void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
+  s[0].bitmasks[b] = mask.bitmasks[4];
+  s[1].bitmasks[b] = mask.bitmasks[3];
+  s[2].bitmasks[b] = mask.bitmasks[2];
+  s[3].bitmasks[b] = mask.bitmasks[1];
+  s[4].bitmasks[b] = mask.bitmasks[0];
+  BitVector m = ~(1 << b);
+  s[0].caremask.canbe1 = (s[0].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 4) & 1) << b);
+  s[1].caremask.canbe1 = (s[1].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 3) & 1) << b);
+  s[2].caremask.canbe1 = (s[2].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b);
+  s[3].caremask.canbe1 = (s[3].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b);
+  s[4].caremask.canbe1 = (s[4].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 0) & 1) << b);
+
+  s[0].caremask.care = (s[0].caremask.care & m) | (((mask.caremask.care >> 4) & 1) << b);
+  s[1].caremask.care = (s[1].caremask.care & m) | (((mask.caremask.care >> 3) & 1) << b);
+  s[2].caremask.care = (s[2].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
+  s[3].caremask.care = (s[3].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
+  s[4].caremask.care = (s[4].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b);
+}
+

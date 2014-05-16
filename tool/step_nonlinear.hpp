@@ -1,12 +1,16 @@
 
 template <unsigned bitsize>
 LinearDistributionTable<bitsize>::LinearDistributionTable(std::function<BitVector(BitVector)> fun) {
+  Initialize(fun);
+}
+
+template <unsigned bitsize>
+void LinearDistributionTable<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   unsigned int boxsize = (1 << (bitsize));
 
   //resize vector
   ldt.resize(boxsize, std::vector<signed>(boxsize));
   ldt_bool.resize(boxsize, std::vector<unsigned>(boxsize));
-
 
   //calc ldt
   for (unsigned int a = 0; a < boxsize; a++)
@@ -33,7 +37,6 @@ LinearDistributionTable<bitsize>::LinearDistributionTable(std::function<BitVecto
     for (unsigned int b = 0; b < boxsize; ++b)
       if (ldt[a][b] != 0)
         ldt_bool[a][b] = ~0U;
-
 }
 
 template <unsigned bitsize>
@@ -45,9 +48,14 @@ std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable<bit
 //-----------------------------------------------------------------------------
 
 template <unsigned bitsize>
-NonlinearStep<bitsize>::NonlinearStep(std::function<BitVector(BitVector)> fun) : ldt_(fun) {
+NonlinearStep<bitsize>::NonlinearStep(std::function<BitVector(BitVector)> fun) {
+  Initialize(fun);
 }
 
+template <unsigned bitsize>
+void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
+  ldt_.Initialize(fun);
+}
 
 template <unsigned bitsize>
 bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {

@@ -19,6 +19,7 @@ typedef uint64_t BitVector;            // n-bit vector
 struct WordMaskCare {
   WordMaskCare(unsigned bitsize);
   WordMaskCare(const WordMaskCare& other);
+  WordMaskCare(BitVector canbe1, BitVector care);
   void Reset();
 
   BitVector canbe1;                    // 1=canbe1, 0=mustbe1 // LSB = WordMask[0]!!!
@@ -45,6 +46,7 @@ struct StateMask {
   //void diff(const StateMask& other, UpdateQueue& queue) = 0; // TODO
 
   virtual Mask& operator[](const int index) = 0;
+  virtual const Mask& operator[](const int index) const = 0;
 };
 
 #endif // MASK_H_

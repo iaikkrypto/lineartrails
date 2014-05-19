@@ -1,5 +1,12 @@
 #include "mask.h" 
 
+  WordMaskCare& WordMaskCare::operator=(WordMaskCare rhs)
+  {
+    canbe1 = rhs.canbe1;
+    care = rhs.care;
+    return *this;
+  }
+
 WordMaskCare::WordMaskCare(unsigned bitsize) : canbe1(~0ULL >> (64 - bitsize)), care(0) {
 }
 
@@ -21,6 +28,12 @@ void WordMaskCare::Reset() {
 }
 
 //-----------------------------------------------------------------------------
+Mask& Mask::operator=(Mask rhs)
+{
+  bitmasks = rhs.bitmasks;
+  caremask = rhs.caremask;
+  return *this;
+}
 
 Mask::Mask(unsigned bitsize) : caremask(bitsize) {
   init_bitmasks();
@@ -41,12 +54,26 @@ Mask::Mask(WordMaskCare& other) : caremask(other) {
   init_bitmasks();
 }
 
+void Mask::set_bit(BitMask bit, const int index){
+  assert(bit <= 3 && bit >=0 && index >= 0 && index < 64);
+  bitmasks[index] = bit;
+  BitVector hole = ~0ULL - 1;
+  hole = (hole << index) | (hole >> (64-index));
+  caremask.canbe1 &= hole;
+  caremask.care &= hole;
+  caremask.canbe1 |= (bit & 1) << index;
+  caremask.care   |= (((BitVector)(bit != BM_DUNNO)) << index);
+
+}
+
 void Mask::init_caremask() {
   caremask.Reset();
   for (unsigned i = 0; i < bitmasks.size(); ++i) {
     caremask.canbe1 &= (~0 ^ (((BitVector)(bitmasks[i] == BM_0)) << i));
     caremask.care   |= (((BitVector)(bitmasks[i] != BM_DUNNO)) << i);
   }
+//  std::cout << std::hex << "canbe1: " << caremask.canbe1 << std::endl;
+//  std::cout << "care: " << caremask.care << std::dec << std::endl;
 }
 
 void Mask::init_bitmasks() {

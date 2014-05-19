@@ -1,3 +1,4 @@
+#include "mask.h"
 
 template <unsigned bitsize>
 LinearDistributionTable<bitsize>::LinearDistributionTable(std::function<BitVector(BitVector)> fun) {

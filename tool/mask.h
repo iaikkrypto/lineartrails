@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <assert.h>
 
 #include "updatequeue.h"
 
@@ -17,6 +18,7 @@ typedef std::vector<BitMask> WordMask;
 typedef uint64_t BitVector;            // n-bit vector
 
 struct WordMaskCare {
+  WordMaskCare& operator=(WordMaskCare rhs);
   WordMaskCare(unsigned bitsize);
   WordMaskCare(const WordMaskCare& other);
   WordMaskCare(BitVector canbe1, BitVector care);
@@ -27,6 +29,7 @@ struct WordMaskCare {
 };
 
 struct Mask {
+  Mask& operator=(Mask rhs);
   Mask(unsigned bitsize);
   Mask(const Mask& other);
   Mask(std::initializer_list<char> other);
@@ -34,6 +37,7 @@ struct Mask {
   Mask(WordMaskCare& other);
   void init_caremask();
   void init_bitmasks();
+  void set_bit(BitMask bit, const int index);
 
   friend std::ostream& operator<<(std::ostream& stream, const Mask& mask);
 

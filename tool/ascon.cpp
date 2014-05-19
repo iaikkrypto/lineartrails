@@ -1,5 +1,16 @@
 #include "ascon.h"
 
+
+AsconState::AsconState() : words{{Mask(64), Mask(64), Mask(64), Mask(64), Mask(64)}} {
+}
+
+AsconState& AsconState::operator=(AsconState rhs)
+{
+  for(int j = 0; j< 5; ++j)
+     words[j] = rhs.words[j];
+  return *this;
+}
+
 std::vector<UpdatePos> AsconState::diff(const StateMask& other) {
   BitVector diffword;
   std::vector<UpdatePos> result;
@@ -38,6 +49,26 @@ const Mask& AsconState::operator[](const int index) const {
   return words[index];
 }
 
+void AsconState::SetState(BitMask value){
+  for(int j = 0; j< 5; ++j){
+    for(int i = 0; i< 64; ++i)
+      words[j].bitmasks[i] = value;
+    words[j].init_caremask();
+  }
+}
+
+
+std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
+  char symbol[4] {'#', '1', '0', '?'};
+  for (Mask word : statemask.words){
+    for (BitMask m : word.bitmasks){
+      stream << symbol[m % 4];
+    }
+    stream << std::endl;
+  }
+  return stream;
+}
+
 //-----------------------------------------------------------------------------
 
 AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
@@ -53,6 +84,15 @@ bool AsconLinearLayer::Update(UpdatePos pos) {
 }
 
 //-----------------------------------------------------------------------------
+
+BitVector AsconSbox(BitVector in) {
+  // with x0 as MSB
+  static const BitVector sbox[32] = {
+       4, 11, 31, 20, 26, 21,  9,  2, 27,  5,  8, 18, 29,  3,  6, 28,
+      30, 19,  7, 14,  0, 13, 17, 24, 16, 12,  1, 25, 22, 10, 15, 23,
+  };
+  return sbox[in % 32];
+}
 
 AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
   for (int i = 0; i < 64; i++)

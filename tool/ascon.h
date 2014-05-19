@@ -12,6 +12,8 @@
 
 
 struct AsconState : public StateMask {
+  AsconState();
+  AsconState& operator=(AsconState rhs);
   std::vector<UpdatePos> diff(const StateMask& other);
   typename std::array<Mask, 5>::iterator begin();
   typename std::array<Mask, 5>::const_iterator begin() const;
@@ -19,6 +21,8 @@ struct AsconState : public StateMask {
   typename std::array<Mask, 5>::const_iterator end() const;
   Mask& operator[](const int index);
   const Mask& operator[](const int index) const;
+  friend std::ostream& operator<<(std::ostream& stream, const AsconState& statemask);
+  void SetState(BitMask value);
   std::array<Mask, 5> words;
 };
 
@@ -42,14 +46,6 @@ BitVector AsconSigma(BitVector in) {
 #endif
 }
 
-BitVector AsconSbox(BitVector in) {
-  // with x0 as MSB
-  static const BitVector sbox[32] = {
-       4, 11, 31, 20, 26, 21,  9,  2, 27,  5,  8, 18, 29,  3,  6, 28,
-      30, 19,  7, 14,  0, 13, 17, 24, 16, 12,  1, 25, 22, 10, 15, 23,
-  };
-  return sbox[in % 32];
-}
 
 
 struct AsconLinearLayer : public Layer {
@@ -65,7 +61,6 @@ struct AsconSboxLayer : public Layer {
 
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
-
   std::array<NonlinearStep<5>, 64> sboxes;
 };
 

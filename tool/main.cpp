@@ -4,6 +4,7 @@
 #include "mask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
+#include "ascon.h"
 
 // ==== Target Functions ====
 BitVector testfun_linear(BitVector in) {
@@ -58,12 +59,47 @@ void teststep_nonlinear() {
     }
 }
 
+void test_statetest(){
+  AsconState state0;
+  std::cout << state0 << std::endl << std::endl;
+  std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state0[0].caremask.care << std::dec << std::endl;
+  state0[0].set_bit(BM_1, 0);
+  std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state0[0].caremask.care << std::dec << std::endl;
+  state0[0].set_bit(BM_0, 1);
+  std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state0[0].caremask.care << std::dec << std::endl;
+  std::cout << state0 << std::endl << std::endl;
+  state0.SetState(BM_1);
+  std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state0[0].caremask.care << std::dec << std::endl;
+  std::cout << state0 << std::endl << std::endl;
+  state0.SetState(BM_0);
+  std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state0[0].caremask.care << std::dec << std::endl;
+  std::cout << state0 << std::endl << std::endl;
+
+  std::cout << "Introducing second state" << std::endl;
+  AsconState state1;
+  std::cout << std::hex << "canbe1: " << state1[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state1[0].caremask.care << std::dec << std::endl;
+  std::cout << state1 << std::endl << std::endl;
+
+  state1 = state0;
+
+  std::cout << std::hex << "canbe1: " << state1[0].caremask.canbe1 << std::endl;
+  std::cout << "care: " << state1[0].caremask.care << std::dec << std::endl;
+  std::cout << state1 << std::endl << std::endl;
+}
+
 // ==== Main / Search ====
 int main() {
   std::cout << "linear_test" << std::endl;
   teststep_linear();
   std::cout << "nonlinear_test" << std::endl;
   teststep_nonlinear();
-
+  std::cout << "sbox layer test" << std::endl;
+  test_statetest();
   return 0;
 }

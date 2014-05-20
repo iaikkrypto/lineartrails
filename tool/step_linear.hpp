@@ -9,24 +9,24 @@ Row<bitsize> Row<bitsize>::GetPivotRow() {
   if (x) {
     BitVector xp = x;
     xp |= xp >> 1;
-#if (bitsize > 2)
-    xp |= xp >> 2;
-    xp |= xp >> 4;
-    xp |= xp >> 8;
-    xp |= xp >> 16;
-    xp |= xp >> 32;
-#endif
+    if (bitsize > 2) {
+      xp |= xp >> 2;
+      xp |= xp >> 4;
+      xp |= xp >> 8;
+      xp |= xp >> 16;
+      xp |= xp >> 32;
+    }
     return Row<bitsize>(xp-(xp>>1), 0, 0);
   } else if (y) {
     BitVector yp = y;
     yp |= yp >> 1;
-#if (bitsize > 2)
-    yp |= yp >> 2;
-    yp |= yp >> 4;
-    yp |= yp >> 8;
-    yp |= yp >> 16;
-    yp |= yp >> 32;
-#endif
+    if (bitsize > 2) {
+      yp |= yp >> 2;
+      yp |= yp >> 4;
+      yp |= yp >> 8;
+      yp |= yp >> 16;
+      yp |= yp >> 32;
+    }
     return Row<bitsize>(0, yp-(yp>>1), 0);
   } else {
     return Row<bitsize>(0, 0, rhs);
@@ -107,11 +107,13 @@ std::ostream& operator<<(std::ostream& stream, const Row<bitsize>& row) {
   // prints in expected order (but not in memory order)
   //for (int xshift = (int)row.bitsize - 1; xshift >= 0; --xshift)
   for (unsigned xshift = 0; xshift < bitsize; ++xshift)
-    stream << ((row.x >> xshift) & 1) << " ";
+    stream << ((row.x >> xshift) & 1);
+    //stream << ((row.x >> xshift) & 1) << " ";
   stream << " ";
   //for (int yshift = (int)row.bitsize - 1; yshift >= 0; --yshift)
   for (unsigned yshift = 0; yshift < bitsize; ++yshift)
-    stream << ((row.y >> yshift) & 1) << " ";
+    stream << ((row.y >> yshift) & 1);
+    //stream << ((row.y >> yshift) & 1) << " ";
   stream << " " << row.rhs;
   return stream;
 }

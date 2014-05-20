@@ -32,19 +32,20 @@ struct AsconState : public StateMask {
 template <unsigned round>
 BitVector AsconSigma(BitVector in) {
   return in;
-#if (round == 0)
-  return in ^ ROTR(in, 19) ^ ROTR(in, 28);
-#elif (round == 1)
-  return in ^ ROTR(in, 61) ^ ROTR(in, 39);
-#elif (round == 2)
-  return in ^ ROTR(in,  1) ^ ROTR(in,  6);
-#elif (round == 3)
-  return in ^ ROTR(in, 10) ^ ROTR(in, 17);
-#elif (round == 4)
-  return in ^ ROTR(in,  7) ^ ROTR(in, 41);
-#else
-#error Ascon Sigma: Bad round number
-#endif
+  switch (round) {
+    case 0: 
+      return in ^ ROTR(in, 19) ^ ROTR(in, 28);
+    case 1: 
+      return in ^ ROTR(in, 61) ^ ROTR(in, 39);
+    case 2: 
+      return in ^ ROTR(in,  1) ^ ROTR(in,  6);
+    case 3: 
+      return in ^ ROTR(in, 10) ^ ROTR(in, 17);
+    case 4: 
+      return in ^ ROTR(in,  7) ^ ROTR(in, 41);
+    default: 
+      return 0;
+  }
 }
 
 

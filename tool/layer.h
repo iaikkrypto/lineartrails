@@ -6,7 +6,7 @@
 
 struct Layer {
   Layer(StateMask *in, StateMask *out);
-  virtual bool Update(UpdatePos pos);
+  virtual bool Update(UpdatePos pos) = 0;
 
   StateMask *in;
   StateMask *out;

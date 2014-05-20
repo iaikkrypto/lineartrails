@@ -120,25 +120,42 @@ void test_linearlayer(){
 
   statein.SetState(BM_0);
   statein[0].set_bit(BM_1,0);
-  statein[0].set_bit(BM_1,9);
+  statein[0].set_bit(BM_1,19);
   statein[0].set_bit(BM_1,28);
 
   std::cout << "Input state:" << std::endl << statein << std::endl;
   std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
 
-  LinearStep<64> sys(AsconSigma<0>);
-//    std::cout << sys << std::endl;
-  bool sat = sys.AddMasks(statein[1], stateout[1]);
-  std::cout << sys << std::endl;
-  sat &= sys.ExtractMasks(statein[1], stateout[1]);
+  AsconLinearLayer layer1(&statein, &stateout);
 
-//  AsconLinearLayer layer1(&statein, &stateout);
-//
-//  for(int i = 0; i < 5; ++i)
-//    layer1.Update(UpdatePos (0,i,0,1));
-//
+  for(int i = 0; i < 5; ++i)
+    layer1.Update(UpdatePos (0,i,0,1));
+
   std::cout << "Input state:" << std::endl << statein << std::endl;
   std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+}
+
+void test_permutation(){
+  AsconPermutation perm(1);
+
+  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+
+  perm.state_masks_[1].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[1].words[3].set_bit(BM_0, 0);
+  perm.state_masks_[1].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[1].words[3].set_bit(BM_0, 19);
+  perm.state_masks_[1].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[1].words[3].set_bit(BM_0, 28);
+
+  perm.checkchar();
+
+
 }
 
 // ==== Main / Search ====
@@ -147,9 +164,12 @@ int main() {
   teststep_linear();
   std::cout << "nonlinear_test" << std::endl;
   teststep_nonlinear();
-  std::cout << "sbox layer test" << std::endl;
-  test_sboxlayer();
-  std::cout << "linear layer test" << std::endl;
-  test_linearlayer();
+//  std::cout << "sbox layer test" << std::endl;
+//  test_sboxlayer();
+//  std::cout << "linear layer test" << std::endl;
+//  test_linearlayer();
+    std::cout << "permutation test" << std::endl;
+    test_permutation();
+
   return 0;
 }

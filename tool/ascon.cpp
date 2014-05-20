@@ -119,7 +119,7 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
   s[2].bitmasks[b] = mask.bitmasks[2];
   s[3].bitmasks[b] = mask.bitmasks[1];
   s[4].bitmasks[b] = mask.bitmasks[0];
-  BitVector m = ~(1 << b);
+  BitVector m = ~(1ULL << b);
   s[0].caremask.canbe1 = (s[0].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 4) & 1) << b);
   s[1].caremask.canbe1 = (s[1].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 3) & 1) << b);
   s[2].caremask.canbe1 = (s[2].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b);
@@ -131,5 +131,80 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
   s[2].caremask.care = (s[2].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
   s[3].caremask.care = (s[3].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
   s[4].caremask.care = (s[4].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b);
+}
+
+//-----------------------------------------------------------------------------
+
+AsconPermutation::AsconPermutation(int number_steps) {
+  state_masks_.resize(2 * number_steps + 1);
+  for (int i = 0; i < number_steps; ++i) {
+    layers_.emplace_back( new
+        AsconSboxLayer(&(state_masks_[i]), &(state_masks_[i + 1])));
+    layers_.emplace_back( new
+        AsconLinearLayer(&(state_masks_[i + 1]), &(state_masks_[i + 2])));
+  }
+  touch_all();
+}
+
+int AsconPermutation::checkchar() {
+  std::cout << "Characteristic before propagation" << std::endl << *this;
+  update();
+  std::cout << "Characteristic after propagation" << std::endl << *this;
+  return 0;
+}
+int AsconPermutation::start_guessing(int print_interval) {
+
+  return 0;
+}
+int AsconPermutation::update() {
+  //TODO: Better update
+  AsconState tempin, tempout;
+  while (toupdate_linear == true || toupdate_nonlinear == true) {
+    if (toupdate_nonlinear == true) {
+      toupdate_nonlinear = false;
+      for (size_t layer = 0; layer < layers_.size(); layer += 2) {
+        tempin = *((AsconState*) layers_[layer]->in);
+        tempout = *((AsconState*) layers_[layer]->out);
+        for (int i = 0; i < 64; ++i)
+          layers_[layer]->Update(UpdatePos(0, 0, i, 1));
+        if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
+            || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
+          toupdate_linear = true;
+      }
+    }
+    if (toupdate_linear == true) {
+      toupdate_linear = false;
+      for (size_t layer = 1; layer < layers_.size(); layer += 2) {
+        tempin = *((AsconState*) layers_[layer]->in);
+        tempout = *((AsconState*) layers_[layer]->out);
+        for (int i = 0; i < 5; ++i)
+          layers_[layer]->Update(UpdatePos(0, i, 0, 1));
+        if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
+            || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
+          toupdate_nonlinear = true;
+      }
+    }
+  }
+  return 0;
+}
+
+void AsconPermutation::touch_all() {
+//for(int i = 0; i< state_masks_.size(); ++i){
+//  for(int j = 0; j<64; ++j)
+//    queue_nonlinear_.add_item(UpdatePos(i, 0, j, 0));
+//  for(int j = 0; j<5; ++j)
+//      queue_linear_.add_item(UpdatePos(i, j, 0, 0));
+//
+//}
+  toupdate_linear = true;
+  toupdate_nonlinear = true;
+}
+
+std::ostream& operator<<(std::ostream& stream,
+                         const AsconPermutation& permutation) {
+  int i = 0;
+  for (AsconState state : permutation.state_masks_)
+    stream << "State Mask " << ++i << std::endl << state << std::endl;
+  return stream;
 }
 

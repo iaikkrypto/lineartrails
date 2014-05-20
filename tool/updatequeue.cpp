@@ -19,3 +19,6 @@ UpdatePos UpdateQueue::next() {
   return pos;
 }
 
+bool UpdateQueue::empty(){
+  return queue.empty();
+}

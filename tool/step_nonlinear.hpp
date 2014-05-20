@@ -79,8 +79,8 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
     y.bitmasks[bitsize - i - 1] = ((outresult[1] & (1<<i)) | ((outresult[0] & (1<<i))<<1)) >> i;
   }
 
-  x.init_caremask();
-  y.init_caremask();
+  x.reinit_caremask();
+  y.reinit_caremask();
 
   return true;
 }

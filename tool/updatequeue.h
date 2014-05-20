@@ -19,6 +19,7 @@ struct UpdateQueue {
 
   void add_item(UpdatePos pos);
   UpdatePos next();
+  bool empty();
 
   std::priority_queue<UpdatePos> queue;
 };

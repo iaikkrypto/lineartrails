@@ -9,6 +9,8 @@
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "updatequeue.h"
+#include "permutation.h"
+#include "memory"
 
 
 struct AsconState : public StateMask {
@@ -31,7 +33,6 @@ struct AsconState : public StateMask {
 
 template <unsigned round>
 BitVector AsconSigma(BitVector in) {
-  return in;
   switch (round) {
     case 0: 
       return in ^ ROTR(in, 19) ^ ROTR(in, 28);
@@ -52,18 +53,31 @@ BitVector AsconSigma(BitVector in) {
 
 struct AsconLinearLayer : public Layer {
   AsconLinearLayer(StateMask *in, StateMask *out);
-  bool Update(UpdatePos pos);
+  virtual bool Update(UpdatePos pos);
 
   std::array<LinearStep<64>, 5> sigmas;
 };
 
 struct AsconSboxLayer : public Layer {
   AsconSboxLayer(StateMask *in, StateMask *out);
-  bool Update(UpdatePos pos);
+  virtual bool Update(UpdatePos pos);
 
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
   std::array<NonlinearStep<5>, 64> sboxes;
+};
+
+struct AsconPermutation : public Permutation {
+  AsconPermutation(int number_steps);
+  virtual int checkchar();
+  virtual int start_guessing(int print_interval);
+  virtual int update();
+  void touch_all();
+  friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
+
+  std::vector<AsconState> state_masks_;
+  bool toupdate_linear;
+  bool toupdate_nonlinear;
 };
 
 #endif // ASCON_H_

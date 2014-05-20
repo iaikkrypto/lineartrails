@@ -48,7 +48,6 @@ struct Mask {
 
 struct StateMask {
   virtual std::vector<UpdatePos> diff(const StateMask& other) = 0;
-
   virtual Mask& operator[](const int index) = 0;
   virtual const Mask& operator[](const int index) const = 0;
 };

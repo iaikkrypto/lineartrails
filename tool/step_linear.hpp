@@ -132,7 +132,7 @@ void LinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   rows.clear();
   rows.reserve(bitsize);
   for (unsigned i = 0; i < bitsize; ++i)
-    rows.emplace_back(1 << i, fun(1 << i), 0); // lower triangle version
+    rows.emplace_back(1ULL << i, fun(1ULL << i), 0); // lower triangle version
 }
 
 template<unsigned bitsize>
@@ -140,19 +140,19 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
   BitVector care = x.caremask.care;
   BitVector pat = 1;
   for (unsigned xshift = 0; xshift < bitsize; ++xshift, pat <<= 1) {
-    if (!(care & ((~0U) << xshift)))
+    if (!(care & ((~0ULL) << xshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize>(pat, 0, (pat & x.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize>(pat, 0ULL, (pat & x.caremask.canbe1) != 0)))
         return false;
   }
   care = y.caremask.care;
   pat = 1;
   for (unsigned yshift = 0; yshift < bitsize; ++yshift, pat <<= 1) {
-    if (!(care & ((~0U) << yshift)))
+    if (!(care & ((~0ULL) << yshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize>(0, pat, (pat & y.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize>(0ULL, pat, (pat & y.caremask.canbe1) != 0)))
         return false;
   }
   return true;

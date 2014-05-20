@@ -53,7 +53,7 @@ void AsconState::SetState(BitMask value){
   for(int j = 0; j< 5; ++j){
     for(int i = 0; i< 64; ++i)
       words[j].bitmasks[i] = value;
-    words[j].init_caremask();
+    words[j].reinit_caremask();
   }
 }
 

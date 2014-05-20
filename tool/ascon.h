@@ -31,6 +31,7 @@ struct AsconState : public StateMask {
 
 template <unsigned round>
 BitVector AsconSigma(BitVector in) {
+  return in;
 #if (round == 0)
   return in ^ ROTR(in, 19) ^ ROTR(in, 28);
 #elif (round == 1)

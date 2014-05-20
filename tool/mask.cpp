@@ -66,6 +66,12 @@ void Mask::set_bit(BitMask bit, const int index){
 
 }
 
+void Mask::reinit_caremask(){
+  caremask.canbe1= ~0ULL >> (64 - bitmasks.size());
+  caremask.care = 0;
+  init_caremask();
+}
+
 void Mask::init_caremask() {
   caremask.Reset();
   for (unsigned i = 0; i < bitmasks.size(); ++i) {

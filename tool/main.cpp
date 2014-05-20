@@ -93,6 +93,54 @@ void test_statetest(){
   std::cout << state1 << std::endl << std::endl;
 }
 
+void test_sboxlayer(){
+  AsconState statein, stateout;
+
+  statein.SetState(BM_0);
+  statein[0].set_bit(BM_1,2);
+  statein[1].set_bit(BM_1,2);
+
+  stateout[0].set_bit(BM_1,2);
+  stateout[3].set_bit(BM_0,2); //result= sbox in 3 to out 1
+
+  std::cout << "Input state:" << std::endl << statein << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+
+  AsconSboxLayer layer1(&statein, &stateout);
+
+  for(int i = 0; i < 64; ++i)
+    layer1.Update(UpdatePos (0,0,i,1));
+
+  std::cout << "Input state:" << std::endl << statein << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+}
+
+void test_linearlayer(){
+  AsconState statein, stateout;
+
+  statein.SetState(BM_0);
+  statein[0].set_bit(BM_1,0);
+  statein[0].set_bit(BM_1,9);
+  statein[0].set_bit(BM_1,28);
+
+  std::cout << "Input state:" << std::endl << statein << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+
+  LinearStep<64> sys(AsconSigma<0>);
+//    std::cout << sys << std::endl;
+  bool sat = sys.AddMasks(statein[1], stateout[1]);
+  std::cout << sys << std::endl;
+  sat &= sys.ExtractMasks(statein[1], stateout[1]);
+
+//  AsconLinearLayer layer1(&statein, &stateout);
+//
+//  for(int i = 0; i < 5; ++i)
+//    layer1.Update(UpdatePos (0,i,0,1));
+//
+  std::cout << "Input state:" << std::endl << statein << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+}
+
 // ==== Main / Search ====
 int main() {
   std::cout << "linear_test" << std::endl;
@@ -100,6 +148,8 @@ int main() {
   std::cout << "nonlinear_test" << std::endl;
   teststep_nonlinear();
   std::cout << "sbox layer test" << std::endl;
-  test_statetest();
+  test_sboxlayer();
+  std::cout << "linear layer test" << std::endl;
+  test_linearlayer();
   return 0;
 }

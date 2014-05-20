@@ -36,6 +36,7 @@ struct Mask {
   Mask(WordMask& other);
   Mask(WordMaskCare& other);
   void init_caremask();
+  void reinit_caremask();
   void init_bitmasks();
   void set_bit(BitMask bit, const int index);
 

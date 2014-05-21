@@ -16,7 +16,7 @@
 
 struct AsconState : public StateMask {
   AsconState();
-  AsconState& operator=(AsconState rhs);
+  AsconState& operator=(const AsconState& rhs);
   std::vector<UpdatePos> diff(const StateMask& other);
   typename std::array<Mask, 5>::iterator begin();
   typename std::array<Mask, 5>::const_iterator begin() const;
@@ -82,6 +82,7 @@ struct AsconPermutation : public Permutation {
   virtual bool update();
   void touchall();
   void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
+  void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
 
   std::vector<AsconSboxLayer> sbox_layers_;

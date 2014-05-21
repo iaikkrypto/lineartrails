@@ -133,8 +133,8 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
 
   for (auto inmask : inmasks)
     for (auto outmask : outmasks) {
-       if(branch_number < ldt_.ldt[inmask][outmask]){
-         branch_number = ldt_.ldt[inmask][outmask];
+       if(branch_number < std::abs(ldt_.ldt[inmask][outmask])){
+         branch_number = std::abs(ldt_.ldt[inmask][outmask]);
          best_inmask = inmask;
          best_outmask = outmask;
        }
@@ -149,6 +149,8 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
     is_active_ = true;
   else
     is_active_ = false;
+
+  is_guessable_ = false;
 
   x.reinit_caremask();
   y.reinit_caremask();

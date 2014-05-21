@@ -4,7 +4,7 @@
 AsconState::AsconState() : words{{Mask(64), Mask(64), Mask(64), Mask(64), Mask(64)}} {
 }
 
-AsconState& AsconState::operator=(AsconState rhs)
+AsconState& AsconState::operator=(const AsconState& rhs)
 {
   for(int j = 0; j< 5; ++j)
      words[j] = rhs.words[j];
@@ -151,13 +151,13 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
   s[0].caremask.canbe1 = (s[0].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 4) & 1) << b);
   s[1].caremask.canbe1 = (s[1].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 3) & 1) << b);
   s[2].caremask.canbe1 = (s[2].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b);
-  s[3].caremask.canbe1 = (s[3].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b);
+  s[3].caremask.canbe1 = (s[3].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 1) & 1) << b);
   s[4].caremask.canbe1 = (s[4].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 0) & 1) << b);
 
   s[0].caremask.care = (s[0].caremask.care & m) | (((mask.caremask.care >> 4) & 1) << b);
   s[1].caremask.care = (s[1].caremask.care & m) | (((mask.caremask.care >> 3) & 1) << b);
   s[2].caremask.care = (s[2].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
-  s[3].caremask.care = (s[3].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
+  s[3].caremask.care = (s[3].caremask.care & m) | (((mask.caremask.care >> 1) & 1) << b);
   s[4].caremask.care = (s[4].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b);
 }
 
@@ -314,6 +314,21 @@ void AsconPermutation::SboxStatus(std::vector<SboxPos>& active,
         else
           inactive.emplace_back(layer, pos);
       }
+}
 
+void AsconPermutation::SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive){
+  active.clear();
+  inactive.clear();
+  active.resize(sbox_layers_.size());
+  inactive.resize(sbox_layers_.size());
+
+  for (size_t layer = 0; layer < sbox_layers_.size(); ++layer)
+    for (int pos = 0; pos < 64; ++pos)
+      if (sbox_layers_[layer].SboxGuessable(pos)) {
+        if (sbox_layers_[layer].SboxActive(pos))
+          active[layer].emplace_back(layer, pos);
+        else
+          inactive[layer].emplace_back(layer, pos);
+      }
 }
 

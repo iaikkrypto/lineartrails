@@ -18,7 +18,7 @@ typedef std::vector<BitMask> WordMask;
 typedef uint64_t BitVector;            // n-bit vector
 
 struct WordMaskCare {
-  WordMaskCare& operator=(WordMaskCare rhs);
+  WordMaskCare& operator=(const WordMaskCare& rhs);
   WordMaskCare(unsigned bitsize);
   WordMaskCare(const WordMaskCare& other);
   WordMaskCare(BitVector canbe1, BitVector care);
@@ -29,7 +29,7 @@ struct WordMaskCare {
 };
 
 struct Mask {
-  Mask& operator=(Mask rhs);
+  Mask& operator=(const Mask& rhs);
   Mask(unsigned bitsize);
   Mask(const Mask& other);
   Mask(std::initializer_list<char> other);

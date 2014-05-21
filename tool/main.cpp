@@ -256,6 +256,56 @@ void test_active_guess(){
   std::cout << "result" << std::endl << temp << std::endl;
 }
 
+
+void test_active_guess_layered(){
+  AsconPermutation perm(2);
+
+//  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+
+  perm.checkchar();
+
+  std::vector<std::vector<SboxPos>> active;
+  std::vector<std::vector<SboxPos>> inactive;
+
+  perm.SboxStatus(active, inactive);
+  std::default_random_engine generator;
+
+  AsconPermutation temp(2);
+  temp = perm;
+  for(int layer = 0; layer < 2; ++layer)
+  while (active[layer].size() != 0 || inactive[layer].size() != 0) {
+    while (inactive[layer].size() != 0) {
+      std::uniform_int_distribution<int> guessbox(0, inactive[layer].size() - 1);
+      if (temp.guessbestsbox(inactive[layer][guessbox(generator)]) == false) {
+        temp = perm;
+        layer = -1;
+        active[layer].clear();
+        break;
+      }
+      temp.SboxStatus(active, inactive);
+    }
+    while (active[layer].size() != 0) {
+      std::uniform_int_distribution<int> guessbox(0, active[layer].size() - 1);
+      if (temp.guessbestsbox(active[layer][guessbox(generator)]) == false) {
+        temp = perm;
+        layer = -1;
+        temp.SboxStatus(active, inactive);
+        break;
+      }
+      temp.SboxStatus(active, inactive);
+    }
+  }
+  std::cout << "result" << std::endl << temp << std::endl;
+}
+
+
+
 // ==== Main / Search ====
 int main() {
 //  std::cout << "linear_test" << std::endl;
@@ -276,6 +326,9 @@ int main() {
 
   std::cout << "active guess" << std::endl;
   test_active_guess();
+
+  std::cout << "active guess layered" << std::endl;
+  test_active_guess_layered();
 
   return 0;
 }

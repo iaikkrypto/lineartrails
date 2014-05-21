@@ -238,7 +238,7 @@ void test_active_guess(){
         active.clear();
         break;
       }
-//      std::cout << "inactive" << std::endl << temp << std::endl;
+      std::cout << "inactive " << inactive.size() << std::endl << temp << std::endl;
       temp.SboxStatus(active, inactive);
     }
 
@@ -250,6 +250,7 @@ void test_active_guess(){
         temp.SboxStatus(active, inactive);
         break;
       }
+//      std::cout << "active" << active.size() << std::endl << temp << std::endl;
       temp.SboxStatus(active, inactive);
     }
   }
@@ -327,8 +328,8 @@ int main() {
   std::cout << "active guess" << std::endl;
   test_active_guess();
 
-  std::cout << "active guess layered" << std::endl;
-  test_active_guess_layered();
+//  std::cout << "active guess layered" << std::endl;
+//  test_active_guess_layered();
 
   return 0;
 }

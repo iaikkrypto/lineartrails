@@ -223,6 +223,13 @@ std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys) {
 }
 
 template <unsigned bitsize>
+LinearStep<bitsize>& LinearStep<bitsize>::operator=(const LinearStep<bitsize>& rhs){
+  rows = rhs.rows;
+  fun_ = rhs.fun_;
+  return *this;
+}
+
+template <unsigned bitsize>
 bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
   Initialize(fun_); //TODO: Remove this hack
   if (AddMasks(x, y))

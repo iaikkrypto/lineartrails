@@ -56,6 +56,7 @@ struct LinearStep {
   bool AddRow(const Row<bitsize>& row);
   bool ExtractMasks(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
+  LinearStep<bitsize>& operator=(const LinearStep<bitsize>& rhs);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize>& sys);
 

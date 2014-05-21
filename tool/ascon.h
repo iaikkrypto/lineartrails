@@ -53,6 +53,7 @@ BitVector AsconSigma(BitVector in) {
 
 
 struct AsconLinearLayer : public Layer {
+  AsconLinearLayer& operator=(const AsconLinearLayer& rhs);
   AsconLinearLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
 
@@ -60,6 +61,7 @@ struct AsconLinearLayer : public Layer {
 };
 
 struct AsconSboxLayer : public Layer {
+  AsconSboxLayer& operator=(const AsconSboxLayer& rhs);
   AsconSboxLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
   void GuessBox(UpdatePos pos);
@@ -78,6 +80,8 @@ struct AsconPermutation : public Permutation {
   void touchall();
   friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
 
+  std::vector<AsconSboxLayer> sbox_layers_;
+  std::vector<AsconLinearLayer> linear_layers_;
   std::vector<AsconState> state_masks_;
   bool toupdate_linear;
   bool toupdate_nonlinear;

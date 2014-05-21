@@ -70,7 +70,10 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
 }
 
 //-----------------------------------------------------------------------------
-
+AsconLinearLayer& AsconLinearLayer::operator=(const AsconLinearLayer& rhs){
+  sigmas = rhs.sigmas;
+  return *this;
+}
 AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
   sigmas[0].Initialize(AsconSigma<0>);
   sigmas[1].Initialize(AsconSigma<1>);
@@ -85,6 +88,7 @@ bool AsconLinearLayer::Update(UpdatePos pos) {
 
 //-----------------------------------------------------------------------------
 
+
 BitVector AsconSbox(BitVector in) {
   // with x0 as MSB
   static const BitVector sbox[32] = {
@@ -92,6 +96,11 @@ BitVector AsconSbox(BitVector in) {
       30, 19,  7, 14,  0, 13, 17, 24, 16, 12,  1, 25, 22, 10, 15, 23,
   };
   return sbox[in % 32];
+}
+
+AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs){
+  sboxes = rhs.sboxes;
+  return *this;
 }
 
 AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
@@ -149,10 +158,8 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
 AsconPermutation::AsconPermutation(int number_steps) {
   state_masks_.resize(2 * number_steps + 1);
   for (int i = 0; i < number_steps; ++i) {
-    layers_.emplace_back( new
-        AsconSboxLayer(&(state_masks_[i]), &(state_masks_[i + 1])));
-    layers_.emplace_back( new
-        AsconLinearLayer(&(state_masks_[i + 1]), &(state_masks_[i + 2])));
+    sbox_layers_.emplace_back(&(state_masks_[i]), &(state_masks_[i + 1]));
+    linear_layers_.emplace_back(&(state_masks_[i + 1]), &(state_masks_[i + 2]));
   }
   touchall();
 }
@@ -161,13 +168,8 @@ AsconPermutation& AsconPermutation::operator=(AsconPermutation& rhs){
  state_masks_ = rhs.state_masks_;
  toupdate_linear = rhs.toupdate_linear;
  toupdate_nonlinear = rhs.toupdate_nonlinear;
-layers_.clear();
- for (size_t i = 0; i < (state_masks_.size()>>1); ++i) {
-   layers_.emplace_back( new
-       AsconSboxLayer(&(state_masks_[i]), &(state_masks_[i + 1])));
-   layers_.emplace_back( new
-       AsconLinearLayer(&(state_masks_[i + 1]), &(state_masks_[i + 2])));
- }
+ sbox_layers_ = rhs.sbox_layers_;
+ linear_layers_ = rhs.linear_layers_;
  return *this;
 }
 
@@ -182,7 +184,7 @@ bool AsconPermutation::randomsboxguess() {
 
 
   std::default_random_engine generator;
-  std::uniform_int_distribution<int> layer(0,layers_.size()/2);
+  std::uniform_int_distribution<int> layer(0,sbox_layers_.size());
   int picklayer = layer(generator) << 1;
   BitVector guessable = 0;
   std::vector<uint8_t> guessable_pos;
@@ -203,16 +205,15 @@ bool AsconPermutation::randomsboxguess() {
   std::uniform_int_distribution<int> sbox(0,guessable_pos.size()-1);
   AsconState tempin, tempout;
 
-    tempin = *((AsconState*) layers_[picklayer]->in);
-    tempout = *((AsconState*) layers_[picklayer]->out);
+    tempin = *((AsconState*) sbox_layers_[picklayer].in);
+    tempout = *((AsconState*) sbox_layers_[picklayer].out);
 
-    layers_[picklayer]->GuessBox(UpdatePos(0, 0, guessable_pos[sbox(generator)], 0));
+    sbox_layers_[picklayer].GuessBox(UpdatePos(0, 0, guessable_pos[sbox(generator)], 0));
 
-    if (tempin.diff(*((AsconState*) layers_[picklayer]->in)).size() != 0
-        || tempout.diff(*((AsconState*) layers_[picklayer]->out)).size() != 0)
+    if (tempin.diff(*((AsconState*) sbox_layers_[picklayer].in)).size() != 0
+        || tempout.diff(*((AsconState*) sbox_layers_[picklayer].out)).size() != 0)
       toupdate_linear = true;
 
-//    touchall();
     return update();
 }
 bool AsconPermutation::anythingtoguess(){
@@ -231,25 +232,25 @@ bool AsconPermutation::update() {
   while (toupdate_linear == true || toupdate_nonlinear == true) {
     if (toupdate_nonlinear == true) {
       toupdate_nonlinear = false;
-      for (size_t layer = 0; layer < layers_.size(); layer += 2) {
-        tempin = *((AsconState*) layers_[layer]->in);
-        tempout = *((AsconState*) layers_[layer]->out);
+      for (size_t layer = 0; layer < sbox_layers_.size(); ++layer) {
+        tempin = *((AsconState*) sbox_layers_[layer].in);
+        tempout = *((AsconState*) sbox_layers_[layer].out);
         for (int i = 0; i < 64; ++i)
-          correct &= layers_[layer]->Update(UpdatePos(0, 0, i, 1));
-        if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
-            || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
+          correct &= sbox_layers_[layer].Update(UpdatePos(0, 0, i, 1));
+        if (tempin.diff(*((AsconState*) sbox_layers_[layer].in)).size() != 0
+            || tempout.diff(*((AsconState*) sbox_layers_[layer].out)).size() != 0)
           toupdate_linear = true;
       }
     }
     if (toupdate_linear == true) {
       toupdate_linear = false;
-      for (size_t layer = 1; layer < layers_.size(); layer += 2) {
-        tempin = *((AsconState*) layers_[layer]->in);
-        tempout = *((AsconState*) layers_[layer]->out);
+      for (size_t layer = 0; layer < linear_layers_.size(); ++layer) {
+        tempin = *((AsconState*) linear_layers_[layer].in);
+        tempout = *((AsconState*) linear_layers_[layer].out);
         for (int i = 0; i < 5; ++i)
-          correct &= layers_[layer]->Update(UpdatePos(0, i, 0, 1));
-        if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
-            || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
+          correct &= linear_layers_[layer].Update(UpdatePos(0, i, 0, 1));
+        if (tempin.diff(*((AsconState*) linear_layers_[layer].in)).size() != 0
+            || tempout.diff(*((AsconState*) linear_layers_[layer].out)).size() != 0)
           toupdate_nonlinear = true;
       }
     }

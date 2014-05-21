@@ -16,6 +16,7 @@ struct LinearDistributionTable {
   LinearDistributionTable() = default;
   LinearDistributionTable(std::function<BitVector(BitVector)> fun);
   void Initialize(std::function<BitVector(BitVector)> fun);
+  LinearDistributionTable<bitsize>& operator=(const LinearDistributionTable<bitsize>& rhs);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearDistributionTable<bitsize>& ldt);
 
@@ -36,6 +37,7 @@ struct NonlinearStep {
   bool Update(Mask& x, Mask& y);
   void TakeBestBox(Mask& x, Mask& y);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
+  NonlinearStep<bitsize>& operator=(const NonlinearStep<bitsize>& rhs);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const NonlinearStep<bitsize>& step);
 

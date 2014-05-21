@@ -13,7 +13,6 @@ struct Permutation {
   virtual bool checkchar() = 0;
   virtual bool update() = 0;
 
-  std::vector<std::unique_ptr<Layer>> layers_;
   UpdateQueue queue_linear_;
   UpdateQueue queue_nonlinear_;
 };

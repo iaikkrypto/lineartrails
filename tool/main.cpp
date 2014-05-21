@@ -181,20 +181,52 @@ void test_guess(){
   std::cout << "result" << std::endl << temp << std::endl;
 }
 
+void test_active(){
+  AsconPermutation perm(1);
+
+//  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  perm.checkchar();
+
+  std::vector<SboxPos> active;
+  std::vector<SboxPos> inactive;
+
+  perm.SboxStatus(active, inactive);
+
+  std::cout << "active sboxes: ";
+  for(auto pos : active)
+    std::cout << (int) pos.pos_ << ", ";
+  std::cout << std::endl;
+
+  std::cout << "inactive sboxes: ";
+    for(auto pos : inactive)
+      std::cout << (int) pos.pos_ << ", ";
+    std::cout << std::endl;
+
+}
+
 // ==== Main / Search ====
 int main() {
-  std::cout << "linear_test" << std::endl;
-  teststep_linear();
-  std::cout << "nonlinear_test" << std::endl;
-  teststep_nonlinear();
+//  std::cout << "linear_test" << std::endl;
+//  teststep_linear();
+//  std::cout << "nonlinear_test" << std::endl;
+//  teststep_nonlinear();
 //  std::cout << "sbox layer test" << std::endl;
 //  test_sboxlayer();
 //  std::cout << "linear layer test" << std::endl;
 //  test_linearlayer();
-  std::cout << "permutation test" << std::endl;
-  test_permutation();
-  std::cout << "guess test" << std::endl;
-  test_guess();
+//  std::cout << "permutation test" << std::endl;
+//  test_permutation();
+//  std::cout << "guess test" << std::endl;
+//  test_guess();
+
+  std::cout << "active test" << std::endl;
+  test_active();
 
   return 0;
 }

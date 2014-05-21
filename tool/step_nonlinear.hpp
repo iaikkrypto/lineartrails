@@ -62,6 +62,7 @@ NonlinearStep<bitsize>::NonlinearStep(std::function<BitVector(BitVector)> fun) {
 
 template <unsigned bitsize>
 void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
+  is_active_ = false;
   ldt_.Initialize(fun);
 }
 
@@ -94,12 +95,20 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
   if ((inresult[0] | inresult[1]) == 0 || (outresult[0] | outresult[1]) == 0)
     return false;
 
+  if (x.caremask.canbe1 == 0
+      || (x.caremask.canbe1 == (~0ULL >> (64 - bitsize)) && x.caremask.care == 0
+          && y.caremask.canbe1 == (~0ULL >> (64 - bitsize))
+          && y.caremask.care == 0))
+    is_active_ = false;
+  else
+    is_active_ = true;
   return true;
 }
 
 template <unsigned bitsize>
 NonlinearStep<bitsize>& NonlinearStep<bitsize>::operator=(const NonlinearStep<bitsize>& rhs){
   ldt_ = rhs.ldt_;
+  is_active_ = rhs.is_active_;
   return *this;
 }
 
@@ -125,6 +134,11 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
     x.bitmasks[bitsize - i - 1] = (((best_inmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
     y.bitmasks[bitsize - i - 1] = (((best_outmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
   }
+
+  if(best_inmask)
+    is_active_ = true;
+  else
+    is_active_ = false;
 
   x.reinit_caremask();
   y.reinit_caremask();

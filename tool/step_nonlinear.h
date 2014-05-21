@@ -42,6 +42,7 @@ struct NonlinearStep {
   friend std::ostream& operator<<<>(std::ostream& stream, const NonlinearStep<bitsize>& step);
 
   LinearDistributionTable<bitsize> ldt_;
+  bool is_active_;
 };
 
 #include "step_nonlinear.hpp"

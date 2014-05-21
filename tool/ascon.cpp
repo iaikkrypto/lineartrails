@@ -118,6 +118,10 @@ bool AsconSboxLayer::Update(UpdatePos pos) {
   return true;
 }
 
+bool AsconSboxLayer::SboxActive(int pos){
+  return sboxes[pos].is_active_;
+}
+
 void AsconSboxLayer::GuessBox(UpdatePos pos) {
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
@@ -180,6 +184,7 @@ bool AsconPermutation::checkchar() {
   std::cout << "Characteristic after propagation" << std::endl << *this;
   return correct;
 }
+
 bool AsconPermutation::randomsboxguess() {
 
 
@@ -276,5 +281,18 @@ std::ostream& operator<<(std::ostream& stream,
   for (AsconState state : permutation.state_masks_)
     stream << "State Mask " << ++i << std::endl << state << std::endl;
   return stream;
+}
+
+void AsconPermutation::SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive){
+  active.clear();
+  inactive.clear();
+
+  for(size_t layer = 0; layer < sbox_layers_.size(); ++layer)
+    for(int pos = 0; pos < 64; ++pos)
+      if(sbox_layers_[layer].SboxActive(pos))
+              active.emplace_back(layer,pos);
+      else
+        inactive.emplace_back(layer,pos);
+
 }
 

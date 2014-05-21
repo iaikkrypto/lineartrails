@@ -65,6 +65,7 @@ struct AsconSboxLayer : public Layer {
   AsconSboxLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
   void GuessBox(UpdatePos pos);
+  bool SboxActive(int pos);
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
   std::array<NonlinearStep<5>, 64> sboxes;
@@ -78,6 +79,7 @@ struct AsconPermutation : public Permutation {
   bool anythingtoguess();
   virtual bool update();
   void touchall();
+  void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
 
   std::vector<AsconSboxLayer> sbox_layers_;

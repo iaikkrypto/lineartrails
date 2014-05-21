@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include "mask.h"
 #include "step_linear.h"
@@ -185,11 +186,11 @@ void test_active(){
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
   perm.checkchar();
 
   std::vector<SboxPos> active;
@@ -212,13 +213,13 @@ void test_active(){
 void test_active_guess(){
   AsconPermutation perm(2);
 
-  perm.state_masks_[0].SetState(BM_0);
+//  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
 
   perm.checkchar();
 
@@ -226,7 +227,7 @@ void test_active_guess(){
   std::vector<SboxPos> inactive;
 
   perm.SboxStatus(active, inactive);
-  std::default_random_engine generator;
+  std::mt19937 generator(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
   AsconPermutation temp(2);
   temp = perm;

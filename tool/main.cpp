@@ -176,7 +176,6 @@ void test_guess(){
   while(temp.anythingtoguess() == true){
     if(temp.randomsboxguess() == false)
       temp = perm;
-//    std::cout << temp << std::endl;
   }
   std::cout << "result" << std::endl << temp << std::endl;
 }
@@ -210,6 +209,52 @@ void test_active(){
 
 }
 
+void test_active_guess(){
+  AsconPermutation perm(1);
+
+//  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  perm.checkchar();
+
+  std::vector<SboxPos> active;
+  std::vector<SboxPos> inactive;
+
+  perm.SboxStatus(active, inactive);
+  std::default_random_engine generator;
+
+  AsconPermutation temp(1);
+  temp = perm;
+  while (active.size() != 0 || inactive.size() != 0) {
+    while (inactive.size() != 0) {
+      std::uniform_int_distribution<int> guessbox(0, inactive.size() - 1);
+      if (temp.guessbestsbox(inactive[guessbox(generator)]) == false) {
+        temp = perm;
+        active.clear();
+        break;
+      }
+//      std::cout << "inactive" << std::endl << temp << std::endl;
+      temp.SboxStatus(active, inactive);
+    }
+
+//    std::cout << "result" << std::endl << temp << std::endl;
+    while (active.size() != 0) {
+      std::uniform_int_distribution<int> guessbox(0, active.size() - 1);
+      if (temp.guessbestsbox(active[guessbox(generator)]) == false) {
+        temp = perm;
+        temp.SboxStatus(active, inactive);
+        break;
+      }
+      temp.SboxStatus(active, inactive);
+    }
+  }
+  std::cout << "result" << std::endl << temp << std::endl;
+}
+
 // ==== Main / Search ====
 int main() {
 //  std::cout << "linear_test" << std::endl;
@@ -225,8 +270,11 @@ int main() {
 //  std::cout << "guess test" << std::endl;
 //  test_guess();
 
-  std::cout << "active test" << std::endl;
-  test_active();
+//  std::cout << "active test" << std::endl;
+//  test_active();
+
+  std::cout << "active guess" << std::endl;
+  test_active_guess();
 
   return 0;
 }

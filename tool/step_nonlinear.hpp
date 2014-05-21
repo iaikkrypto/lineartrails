@@ -63,6 +63,7 @@ NonlinearStep<bitsize>::NonlinearStep(std::function<BitVector(BitVector)> fun) {
 template <unsigned bitsize>
 void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   is_active_ = false;
+  is_guessable_ = true;
   ldt_.Initialize(fun);
 }
 
@@ -102,6 +103,15 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
     is_active_ = false;
   else
     is_active_ = true;
+
+  is_guessable_ = false;
+  for(unsigned int i = 0; i < bitsize; ++i)
+    if(x.bitmasks[bitsize - i - 1] == BM_DUNNO || y.bitmasks[bitsize - i - 1] == BM_DUNNO){
+      is_guessable_ = true;
+      break;
+    }
+
+
   return true;
 }
 

@@ -43,6 +43,7 @@ struct NonlinearStep {
 
   LinearDistributionTable<bitsize> ldt_;
   bool is_active_;
+  bool is_guessable_;
 };
 
 #include "step_nonlinear.hpp"

@@ -122,6 +122,10 @@ bool AsconSboxLayer::SboxActive(int pos){
   return sboxes[pos].is_active_;
 }
 
+bool AsconSboxLayer::SboxGuessable(int pos){
+  return sboxes[pos].is_guessable_;
+}
+
 void AsconSboxLayer::GuessBox(UpdatePos pos) {
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
@@ -185,9 +189,22 @@ bool AsconPermutation::checkchar() {
   return correct;
 }
 
+bool AsconPermutation::guessbestsbox(SboxPos pos) {
+  AsconState tempin, tempout;
+
+    tempin = *((AsconState*) sbox_layers_[pos.layer_].in);
+    tempout = *((AsconState*) sbox_layers_[pos.layer_].out);
+
+    sbox_layers_[pos.layer_].GuessBox(UpdatePos(0, 0, pos.pos_, 0));
+
+    if (tempin.diff(*((AsconState*) sbox_layers_[pos.layer_].in)).size() != 0
+        || tempout.diff(*((AsconState*) sbox_layers_[pos.layer_].out)).size() != 0)
+      toupdate_linear = true;
+    return update();
+}
+
+
 bool AsconPermutation::randomsboxguess() {
-
-
   std::default_random_engine generator;
   std::uniform_int_distribution<int> layer(0,sbox_layers_.size());
   int picklayer = layer(generator) << 1;
@@ -221,6 +238,7 @@ bool AsconPermutation::randomsboxguess() {
 
     return update();
 }
+
 bool AsconPermutation::anythingtoguess(){
   for (AsconState state : state_masks_){
     for(int i = 0; i < 5; ++i)
@@ -283,16 +301,19 @@ std::ostream& operator<<(std::ostream& stream,
   return stream;
 }
 
-void AsconPermutation::SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive){
+void AsconPermutation::SboxStatus(std::vector<SboxPos>& active,
+                                  std::vector<SboxPos>& inactive) {
   active.clear();
   inactive.clear();
 
-  for(size_t layer = 0; layer < sbox_layers_.size(); ++layer)
-    for(int pos = 0; pos < 64; ++pos)
-      if(sbox_layers_[layer].SboxActive(pos))
-              active.emplace_back(layer,pos);
-      else
-        inactive.emplace_back(layer,pos);
+  for (size_t layer = 0; layer < sbox_layers_.size(); ++layer)
+    for (int pos = 0; pos < 64; ++pos)
+      if (sbox_layers_[layer].SboxGuessable(pos)) {
+        if (sbox_layers_[layer].SboxActive(pos))
+          active.emplace_back(layer, pos);
+        else
+          inactive.emplace_back(layer, pos);
+      }
 
 }
 

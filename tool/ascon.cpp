@@ -166,8 +166,8 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
 AsconPermutation::AsconPermutation(int number_steps) {
   state_masks_.resize(2 * number_steps + 1);
   for (int i = 0; i < number_steps; ++i) {
-    sbox_layers_.emplace_back(&(state_masks_[i]), &(state_masks_[i + 1]));
-    linear_layers_.emplace_back(&(state_masks_[i + 1]), &(state_masks_[i + 2]));
+    sbox_layers_.emplace_back(&(state_masks_[2*i]), &(state_masks_[2*i + 1]));
+    linear_layers_.emplace_back(&(state_masks_[2*i + 1]), &(state_masks_[2*i + 2]));
   }
   touchall();
 }

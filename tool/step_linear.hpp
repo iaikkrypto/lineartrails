@@ -125,12 +125,13 @@ LinearStep<bitsize>::LinearStep() {
 }
 
 template<unsigned bitsize>
-LinearStep<bitsize>::LinearStep(std::function<BitVector(BitVector)> fun) {
+LinearStep<bitsize>::LinearStep(std::function<BitVector(BitVector)> fun):fun_(fun) {
   Initialize(fun);
 }
 
 template<unsigned bitsize>
 void LinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
+  fun_ = fun;
   rows.clear();
   rows.reserve(bitsize);
   for (unsigned i = 0; i < bitsize; ++i)
@@ -223,6 +224,7 @@ std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys) {
 
 template <unsigned bitsize>
 bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
+  Initialize(fun_); //TODO: Remove this hack
   if (AddMasks(x, y))
     return ExtractMasks(x, y);
   return false;

@@ -148,8 +148,12 @@ void test_permutation(){
 
   perm.state_masks_[1].words[0].set_bit(BM_1, 0);
   perm.state_masks_[1].words[3].set_bit(BM_0, 0);
+  perm.checkchar();
+  perm.touchall();
   perm.state_masks_[1].words[0].set_bit(BM_1, 19);
   perm.state_masks_[1].words[3].set_bit(BM_0, 19);
+  perm.checkchar();
+  perm.touchall();
   perm.state_masks_[1].words[0].set_bit(BM_1, 28);
   perm.state_masks_[1].words[3].set_bit(BM_0, 28);
 

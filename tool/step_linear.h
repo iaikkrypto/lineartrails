@@ -59,6 +59,7 @@ struct LinearStep {
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize>& sys);
 
+  std::function<BitVector(BitVector)> fun_;
   std::vector<Row<bitsize>> rows;
 };
 

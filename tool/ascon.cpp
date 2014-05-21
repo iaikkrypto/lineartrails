@@ -212,11 +212,8 @@ bool AsconPermutation::randomsboxguess() {
         || tempout.diff(*((AsconState*) layers_[picklayer]->out)).size() != 0)
       toupdate_linear = true;
 
-    touchall();
-    bool ret = update();
-    std::cout << *this << std::endl;
-
-    return ret;
+//    touchall();
+    return update();
 }
 bool AsconPermutation::anythingtoguess(){
   for (AsconState state : state_masks_){

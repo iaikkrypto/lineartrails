@@ -8,3 +8,7 @@ Layer::Layer(StateMask *in, StateMask *out) : in(in), out(out) {
 //  // return false if contradictory
 //  return true;
 //}
+
+void Layer::GuessBox(UpdatePos pos){
+
+}

@@ -60,29 +60,62 @@ void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun)
 
 template <unsigned bitsize>
 bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
-  std::vector<unsigned int> inmasks, outmasks; // TODO check datatype!
-  unsigned int inresult[2] = {0,0}; // TODO check datatype!
-  unsigned int outresult[2] = {0,0};
-  create_masks(inmasks,x);
-  create_masks(outmasks,y);
+  std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
+  unsigned int inresult[2] = { 0, 0 };  // TODO check datatype!
+  unsigned int outresult[2] = { 0, 0 };
+  create_masks(inmasks, x);
+  create_masks(outmasks, y);
 
   for (auto inmask : inmasks)
     for (auto outmask : outmasks) {
-        inresult[0] |= (~inmask) & ldt_.ldt_bool[inmask][outmask];
-        inresult[1] |= inmask & ldt_.ldt_bool[inmask][outmask];
-        outresult[0] |= (~outmask) & ldt_.ldt_bool[inmask][outmask];
-        outresult[1] |= outmask & ldt_.ldt_bool[inmask][outmask];
+      inresult[0] |= (~inmask) & ldt_.ldt_bool[inmask][outmask];
+      inresult[1] |= inmask & ldt_.ldt_bool[inmask][outmask];
+      outresult[0] |= (~outmask) & ldt_.ldt_bool[inmask][outmask];
+      outresult[1] |= outmask & ldt_.ldt_bool[inmask][outmask];
     }
 
   for (unsigned int i = 0; i < bitsize; ++i) {
-    x.bitmasks[bitsize - i - 1] = ((inresult[1] & (1<<i)) | ((inresult[0] & (1<<i))<<1)) >> i;
-    y.bitmasks[bitsize - i - 1] = ((outresult[1] & (1<<i)) | ((outresult[0] & (1<<i))<<1)) >> i;
+    x.bitmasks[bitsize - i - 1] = ((inresult[1] & (1 << i))
+        | ((inresult[0] & (1 << i)) << 1)) >> i;
+    y.bitmasks[bitsize - i - 1] = ((outresult[1] & (1 << i))
+        | ((outresult[0] & (1 << i)) << 1)) >> i;
   }
 
   x.reinit_caremask();
   y.reinit_caremask();
 
+  if ((inresult[0] | inresult[1]) == 0 || (outresult[0] | outresult[1]) == 0)
+    return false;
+
   return true;
+}
+
+template <unsigned bitsize>
+void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
+  std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
+  create_masks(inmasks, x);
+  create_masks(outmasks, y);
+    int branch_number = 0;
+    unsigned int best_inmask = 0;
+    unsigned int best_outmask = 0;
+
+  for (auto inmask : inmasks)
+    for (auto outmask : outmasks) {
+       if(branch_number < ldt_.ldt[inmask][outmask]){
+         branch_number = ldt_.ldt[inmask][outmask];
+         best_inmask = inmask;
+         best_outmask = outmask;
+       }
+    }
+
+  for (unsigned int i = 0; i < bitsize; ++i) {
+    x.bitmasks[bitsize - i - 1] = (((best_inmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
+    y.bitmasks[bitsize - i - 1] = (((best_outmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
+  }
+
+  x.reinit_caremask();
+  y.reinit_caremask();
+
 }
 
 template <unsigned bitsize>

@@ -10,9 +10,8 @@
 #include "memory"
 
 struct Permutation {
-  virtual int checkchar() = 0;
-  virtual int start_guessing(int print_interval) = 0;
-  virtual int update() = 0;
+  virtual bool checkchar() = 0;
+  virtual bool update() = 0;
 
   std::vector<std::unique_ptr<Layer>> layers_;
   UpdateQueue queue_linear_;

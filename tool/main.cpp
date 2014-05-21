@@ -154,8 +154,27 @@ void test_permutation(){
   perm.state_masks_[1].words[3].set_bit(BM_0, 28);
 
   perm.checkchar();
+}
 
+void test_guess(){
+  AsconPermutation perm(1);
 
+  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  perm.checkchar();
+  AsconPermutation temp(1);
+  temp = perm;
+  while(temp.anythingtoguess() == true){
+    if(temp.randomsboxguess() == false)
+      temp = perm;
+//    std::cout << temp << std::endl;
+  }
+  std::cout << "result" << std::endl << temp << std::endl;
 }
 
 // ==== Main / Search ====
@@ -168,8 +187,10 @@ int main() {
 //  test_sboxlayer();
 //  std::cout << "linear layer test" << std::endl;
 //  test_linearlayer();
-    std::cout << "permutation test" << std::endl;
-    test_permutation();
+  std::cout << "permutation test" << std::endl;
+  test_permutation();
+  std::cout << "guess test" << std::endl;
+  test_guess();
 
   return 0;
 }

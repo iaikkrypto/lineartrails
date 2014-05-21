@@ -7,7 +7,7 @@
 struct Layer {
   Layer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos) = 0;
-
+  virtual void GuessBox(UpdatePos pos);
   StateMask *in;
   StateMask *out;
 };

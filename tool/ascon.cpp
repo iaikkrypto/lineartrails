@@ -109,6 +109,17 @@ bool AsconSboxLayer::Update(UpdatePos pos) {
   return true;
 }
 
+void AsconSboxLayer::GuessBox(UpdatePos pos) {
+  Mask copyin(GetVerticalMask(pos.bit, *in));
+  Mask copyout(GetVerticalMask(pos.bit, *out));
+
+  sboxes[pos.bit].TakeBestBox(copyin, copyout);
+
+  SetVerticalMask(pos.bit, *in, copyin);
+  SetVerticalMask(pos.bit, *out, copyout);
+
+}
+
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
   return Mask({s[4].bitmasks[b], s[3].bitmasks[b], s[2].bitmasks[b], s[1].bitmasks[b], s[0].bitmasks[b]});
 }
@@ -143,21 +154,82 @@ AsconPermutation::AsconPermutation(int number_steps) {
     layers_.emplace_back( new
         AsconLinearLayer(&(state_masks_[i + 1]), &(state_masks_[i + 2])));
   }
-  touch_all();
+  touchall();
 }
 
-int AsconPermutation::checkchar() {
+AsconPermutation& AsconPermutation::operator=(AsconPermutation& rhs){
+ state_masks_ = rhs.state_masks_;
+ toupdate_linear = rhs.toupdate_linear;
+ toupdate_nonlinear = rhs.toupdate_nonlinear;
+layers_.clear();
+ for (size_t i = 0; i < (state_masks_.size()>>1); ++i) {
+   layers_.emplace_back( new
+       AsconSboxLayer(&(state_masks_[i]), &(state_masks_[i + 1])));
+   layers_.emplace_back( new
+       AsconLinearLayer(&(state_masks_[i + 1]), &(state_masks_[i + 2])));
+ }
+ return *this;
+}
+
+bool AsconPermutation::checkchar() {
+  bool correct;
   std::cout << "Characteristic before propagation" << std::endl << *this;
-  update();
+  correct = update();
   std::cout << "Characteristic after propagation" << std::endl << *this;
-  return 0;
+  return correct;
 }
-int AsconPermutation::start_guessing(int print_interval) {
+bool AsconPermutation::randomsboxguess() {
 
-  return 0;
+
+  std::default_random_engine generator;
+  std::uniform_int_distribution<int> layer(0,layers_.size()/2);
+  int picklayer = layer(generator) << 1;
+  BitVector guessable = 0;
+  std::vector<uint8_t> guessable_pos;
+
+  for(int j = 0; j< 2; ++j){
+    guessable = 0;
+      for(int i = 0; i < 5; ++i)
+        guessable |= ~state_masks_[picklayer+j].words[i].caremask.care;
+
+  for(uint8_t i = 0; i < 64; ++i)
+    if(((guessable >> i) & 1) == 1 )
+      guessable_pos.push_back(i);
+
+  }
+  if(guessable_pos.size() == 0)
+    return true;
+
+  std::uniform_int_distribution<int> sbox(0,guessable_pos.size()-1);
+  AsconState tempin, tempout;
+
+    tempin = *((AsconState*) layers_[picklayer]->in);
+    tempout = *((AsconState*) layers_[picklayer]->out);
+
+    layers_[picklayer]->GuessBox(UpdatePos(0, 0, guessable_pos[sbox(generator)], 0));
+
+    if (tempin.diff(*((AsconState*) layers_[picklayer]->in)).size() != 0
+        || tempout.diff(*((AsconState*) layers_[picklayer]->out)).size() != 0)
+      toupdate_linear = true;
+
+    touchall();
+    bool ret = update();
+    std::cout << *this << std::endl;
+
+    return ret;
 }
-int AsconPermutation::update() {
+bool AsconPermutation::anythingtoguess(){
+  for (AsconState state : state_masks_){
+    for(int i = 0; i < 5; ++i)
+      if(state.words[i].caremask.care != (~0ULL))
+        return true;
+  }
+  return false;
+}
+
+bool AsconPermutation::update() {
   //TODO: Better update
+  bool correct = true;
   AsconState tempin, tempout;
   while (toupdate_linear == true || toupdate_nonlinear == true) {
     if (toupdate_nonlinear == true) {
@@ -166,7 +238,7 @@ int AsconPermutation::update() {
         tempin = *((AsconState*) layers_[layer]->in);
         tempout = *((AsconState*) layers_[layer]->out);
         for (int i = 0; i < 64; ++i)
-          layers_[layer]->Update(UpdatePos(0, 0, i, 1));
+          correct &= layers_[layer]->Update(UpdatePos(0, 0, i, 1));
         if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
             || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
           toupdate_linear = true;
@@ -178,17 +250,17 @@ int AsconPermutation::update() {
         tempin = *((AsconState*) layers_[layer]->in);
         tempout = *((AsconState*) layers_[layer]->out);
         for (int i = 0; i < 5; ++i)
-          layers_[layer]->Update(UpdatePos(0, i, 0, 1));
+          correct &= layers_[layer]->Update(UpdatePos(0, i, 0, 1));
         if (tempin.diff(*((AsconState*) layers_[layer]->in)).size() != 0
             || tempout.diff(*((AsconState*) layers_[layer]->out)).size() != 0)
           toupdate_nonlinear = true;
       }
     }
   }
-  return 0;
+  return true;
 }
 
-void AsconPermutation::touch_all() {
+void AsconPermutation::touchall() {
 //for(int i = 0; i< state_masks_.size(); ++i){
 //  for(int j = 0; j<64; ++j)
 //    queue_nonlinear_.add_item(UpdatePos(i, 0, j, 0));

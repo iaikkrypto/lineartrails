@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include <random>
 
 #include "layer.h"
 #include "mask.h"
@@ -61,18 +62,20 @@ struct AsconLinearLayer : public Layer {
 struct AsconSboxLayer : public Layer {
   AsconSboxLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
-
+  void GuessBox(UpdatePos pos);
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
   std::array<NonlinearStep<5>, 64> sboxes;
 };
 
 struct AsconPermutation : public Permutation {
+  AsconPermutation& operator=(AsconPermutation& rhs);
   AsconPermutation(int number_steps);
-  virtual int checkchar();
-  virtual int start_guessing(int print_interval);
-  virtual int update();
-  void touch_all();
+  virtual bool checkchar();
+  bool randomsboxguess();
+  bool anythingtoguess();
+  virtual bool update();
+  void touchall();
   friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
 
   std::vector<AsconState> state_masks_;

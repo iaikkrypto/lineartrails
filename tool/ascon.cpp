@@ -74,7 +74,16 @@ AsconLinearLayer& AsconLinearLayer::operator=(const AsconLinearLayer& rhs){
   sigmas = rhs.sigmas;
   return *this;
 }
+
+AsconLinearLayer::AsconLinearLayer() {
+  Init();
+}
+
 AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+  Init();
+}
+
+void AsconLinearLayer::Init(){
   sigmas[0].Initialize(AsconSigma<0>);
   sigmas[1].Initialize(AsconSigma<1>);
   sigmas[2].Initialize(AsconSigma<2>);
@@ -103,10 +112,18 @@ AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs){
   return *this;
 }
 
+AsconSboxLayer::AsconSboxLayer(){
+  InitSboxes();
+}
+
 AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+ InitSboxes();
+}
+
+void AsconSboxLayer::InitSboxes(){
   std::shared_ptr<LinearDistributionTable<5>> ldt(new LinearDistributionTable<5>(AsconSbox));
-  for (int i = 0; i < 64; i++)
-    sboxes[i].Initialize(ldt);
+    for (int i = 0; i < 64; i++)
+      sboxes[i].Initialize(ldt);
 }
 
 bool AsconSboxLayer::Update(UpdatePos pos) {
@@ -160,176 +177,5 @@ void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
   s[2].caremask.care = (s[2].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b);
   s[3].caremask.care = (s[3].caremask.care & m) | (((mask.caremask.care >> 1) & 1) << b);
   s[4].caremask.care = (s[4].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b);
-}
-
-//-----------------------------------------------------------------------------
-
-AsconPermutation::AsconPermutation(int number_steps) {
-  state_masks_.resize(2 * number_steps + 1);
-  for (int i = 0; i < number_steps; ++i) {
-    sbox_layers_.emplace_back(&(state_masks_[2*i]), &(state_masks_[2*i + 1]));
-    linear_layers_.emplace_back(&(state_masks_[2*i + 1]), &(state_masks_[2*i + 2]));
-  }
-  touchall();
-}
-
-AsconPermutation& AsconPermutation::operator=(AsconPermutation& rhs){
- state_masks_ = rhs.state_masks_;
- toupdate_linear = rhs.toupdate_linear;
- toupdate_nonlinear = rhs.toupdate_nonlinear;
- sbox_layers_ = rhs.sbox_layers_;
- linear_layers_ = rhs.linear_layers_;
- return *this;
-}
-
-bool AsconPermutation::checkchar() {
-  bool correct;
-  std::cout << "Characteristic before propagation" << std::endl << *this;
-  correct = update();
-  std::cout << "Characteristic after propagation" << std::endl << *this;
-  return correct;
-}
-
-bool AsconPermutation::guessbestsbox(SboxPos pos) {
-  AsconState tempin, tempout;
-
-    tempin = *((AsconState*) sbox_layers_[pos.layer_].in);
-    tempout = *((AsconState*) sbox_layers_[pos.layer_].out);
-
-    sbox_layers_[pos.layer_].GuessBox(UpdatePos(0, 0, pos.pos_, 0));
-
-    if (tempin.diff(*((AsconState*) sbox_layers_[pos.layer_].in)).size() != 0
-        || tempout.diff(*((AsconState*) sbox_layers_[pos.layer_].out)).size() != 0)
-      toupdate_linear = true;
-    return update();
-}
-
-
-bool AsconPermutation::randomsboxguess() {
-  std::default_random_engine generator;
-  std::uniform_int_distribution<int> layer(0,sbox_layers_.size());
-  int picklayer = layer(generator) << 1;
-  BitVector guessable = 0;
-  std::vector<uint8_t> guessable_pos;
-
-  for(int j = 0; j< 2; ++j){
-    guessable = 0;
-      for(int i = 0; i < 5; ++i)
-        guessable |= ~state_masks_[picklayer+j].words[i].caremask.care;
-
-  for(uint8_t i = 0; i < 64; ++i)
-    if(((guessable >> i) & 1) == 1 )
-      guessable_pos.push_back(i);
-
-  }
-  if(guessable_pos.size() == 0)
-    return true;
-
-  std::uniform_int_distribution<int> sbox(0,guessable_pos.size()-1);
-  AsconState tempin, tempout;
-
-    tempin = *((AsconState*) sbox_layers_[picklayer].in);
-    tempout = *((AsconState*) sbox_layers_[picklayer].out);
-
-    sbox_layers_[picklayer].GuessBox(UpdatePos(0, 0, guessable_pos[sbox(generator)], 0));
-
-    if (tempin.diff(*((AsconState*) sbox_layers_[picklayer].in)).size() != 0
-        || tempout.diff(*((AsconState*) sbox_layers_[picklayer].out)).size() != 0)
-      toupdate_linear = true;
-
-    return update();
-}
-
-bool AsconPermutation::anythingtoguess(){
-  for (AsconState state : state_masks_){
-    for(int i = 0; i < 5; ++i)
-      if(state.words[i].caremask.care != (~0ULL))
-        return true;
-  }
-  return false;
-}
-
-bool AsconPermutation::update() {
-  //TODO: Better update
-  bool correct = true;
-  AsconState tempin, tempout;
-  while (toupdate_linear == true || toupdate_nonlinear == true) {
-    if (toupdate_nonlinear == true) {
-      toupdate_nonlinear = false;
-      for (size_t layer = 0; layer < sbox_layers_.size(); ++layer) {
-        tempin = *((AsconState*) sbox_layers_[layer].in);
-        tempout = *((AsconState*) sbox_layers_[layer].out);
-        for (int i = 0; i < 64; ++i)
-          correct &= sbox_layers_[layer].Update(UpdatePos(0, 0, i, 1));
-        if (tempin.diff(*((AsconState*) sbox_layers_[layer].in)).size() != 0
-            || tempout.diff(*((AsconState*) sbox_layers_[layer].out)).size() != 0)
-          toupdate_linear = true;
-      }
-    }
-    if (toupdate_linear == true) {
-      toupdate_linear = false;
-      for (size_t layer = 0; layer < linear_layers_.size(); ++layer) {
-        tempin = *((AsconState*) linear_layers_[layer].in);
-        tempout = *((AsconState*) linear_layers_[layer].out);
-        for (int i = 0; i < 5; ++i)
-          correct &= linear_layers_[layer].Update(UpdatePos(0, i, 0, 1));
-        if (tempin.diff(*((AsconState*) linear_layers_[layer].in)).size() != 0
-            || tempout.diff(*((AsconState*) linear_layers_[layer].out)).size() != 0)
-          toupdate_nonlinear = true;
-      }
-    }
-  }
-  return true;
-}
-
-void AsconPermutation::touchall() {
-//for(int i = 0; i< state_masks_.size(); ++i){
-//  for(int j = 0; j<64; ++j)
-//    queue_nonlinear_.add_item(UpdatePos(i, 0, j, 0));
-//  for(int j = 0; j<5; ++j)
-//      queue_linear_.add_item(UpdatePos(i, j, 0, 0));
-//
-//}
-  toupdate_linear = true;
-  toupdate_nonlinear = true;
-}
-
-std::ostream& operator<<(std::ostream& stream,
-                         const AsconPermutation& permutation) {
-  int i = 0;
-  for (AsconState state : permutation.state_masks_)
-    stream << "State Mask " << ++i << std::endl << state << std::endl;
-  return stream;
-}
-
-void AsconPermutation::SboxStatus(std::vector<SboxPos>& active,
-                                  std::vector<SboxPos>& inactive) {
-  active.clear();
-  inactive.clear();
-
-  for (size_t layer = 0; layer < sbox_layers_.size(); ++layer)
-    for (int pos = 0; pos < 64; ++pos)
-      if (sbox_layers_[layer].SboxGuessable(pos)) {
-        if (sbox_layers_[layer].SboxActive(pos))
-          active.emplace_back(layer, pos);
-        else
-          inactive.emplace_back(layer, pos);
-      }
-}
-
-void AsconPermutation::SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive){
-  active.clear();
-  inactive.clear();
-  active.resize(sbox_layers_.size());
-  inactive.resize(sbox_layers_.size());
-
-  for (size_t layer = 0; layer < sbox_layers_.size(); ++layer)
-    for (int pos = 0; pos < 64; ++pos)
-      if (sbox_layers_[layer].SboxGuessable(pos)) {
-        if (sbox_layers_[layer].SboxActive(pos))
-          active[layer].emplace_back(layer, pos);
-        else
-          inactive[layer].emplace_back(layer, pos);
-      }
 }
 

@@ -54,6 +54,8 @@ BitVector AsconSigma(BitVector in) {
 
 struct AsconLinearLayer : public Layer {
   AsconLinearLayer& operator=(const AsconLinearLayer& rhs);
+  AsconLinearLayer();
+  void Init();
   AsconLinearLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
 
@@ -62,7 +64,9 @@ struct AsconLinearLayer : public Layer {
 
 struct AsconSboxLayer : public Layer {
   AsconSboxLayer& operator=(const AsconSboxLayer& rhs);
+  AsconSboxLayer();
   AsconSboxLayer(StateMask *in, StateMask *out);
+  void InitSboxes();
   virtual bool Update(UpdatePos pos);
   void GuessBox(UpdatePos pos);
   bool SboxActive(int pos);
@@ -70,26 +74,6 @@ struct AsconSboxLayer : public Layer {
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
   std::array<NonlinearStep<5>, 64> sboxes;
-};
-
-struct AsconPermutation : public Permutation {
-  AsconPermutation& operator=(AsconPermutation& rhs);
-  AsconPermutation(int number_steps);
-  virtual bool checkchar();
-  bool randomsboxguess() __attribute__((deprecated));
-  bool guessbestsbox(SboxPos pos);
-  bool anythingtoguess();
-  virtual bool update();
-  void touchall();
-  void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
-  void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
-  friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation& permutation);
-
-  std::vector<AsconSboxLayer> sbox_layers_;
-  std::vector<AsconLinearLayer> linear_layers_;
-  std::vector<AsconState> state_masks_;
-  bool toupdate_linear;
-  bool toupdate_nonlinear;
 };
 
 #endif // ASCON_H_

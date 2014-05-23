@@ -11,9 +11,10 @@ struct SboxPos {
 };
 
 struct Layer {
+  Layer() = default;
   Layer(StateMask *in, StateMask *out);
+  void SetMasks(StateMask *inmask, StateMask *outmask);
   virtual bool Update(UpdatePos pos) = 0;
-  virtual void GuessBox(UpdatePos pos);
   StateMask *in;
   StateMask *out;
 };

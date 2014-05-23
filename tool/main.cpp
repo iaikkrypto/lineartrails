@@ -6,6 +6,7 @@
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "ascon.h"
+#include "ascon_permutation.h"
 
 // ==== Target Functions ====
 BitVector testfun_linear(BitVector in) {
@@ -137,7 +138,7 @@ void test_linearlayer(){
 }
 
 void test_permutation(){
-  AsconPermutation perm(1);
+  AsconPermutation<1> perm;
 
   perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
@@ -161,28 +162,9 @@ void test_permutation(){
   perm.checkchar();
 }
 
-void test_guess(){
-  AsconPermutation perm(1);
-
-  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
-  perm.checkchar();
-  AsconPermutation temp(1);
-  temp = perm;
-  while(temp.anythingtoguess() == true){
-    if(temp.randomsboxguess() == false)
-      temp = perm;
-  }
-  std::cout << "result" << std::endl << temp << std::endl;
-}
 
 void test_active(){
-  AsconPermutation perm(1);
+  AsconPermutation<1> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
@@ -211,7 +193,7 @@ void test_active(){
 }
 
 void test_active_guess(){
-  AsconPermutation perm(2);
+  AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
@@ -229,7 +211,7 @@ void test_active_guess(){
   perm.SboxStatus(active, inactive);
   std::mt19937 generator(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
-  AsconPermutation temp(2);
+  AsconPermutation<2> temp;
   temp = perm;
   while (active.size() != 0 || inactive.size() != 0) {
     while (inactive.size() != 0) {
@@ -260,7 +242,7 @@ void test_active_guess(){
 
 
 void test_active_guess_layered(){
-  AsconPermutation perm(2);
+  AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
@@ -278,7 +260,7 @@ void test_active_guess_layered(){
   perm.SboxStatus(active, inactive);
   std::default_random_engine generator;
 
-  AsconPermutation temp(2);
+  AsconPermutation<2> temp;
   temp = perm;
   for(int layer = 0; layer < 2; ++layer)
   while (active[layer].size() != 0 || inactive[layer].size() != 0) {
@@ -320,8 +302,6 @@ int main() {
 //  test_linearlayer();
 //  std::cout << "permutation test" << std::endl;
 //  test_permutation();
-//  std::cout << "guess test" << std::endl;
-//  test_guess();
 
 //  std::cout << "active test" << std::endl;
 //  test_active();

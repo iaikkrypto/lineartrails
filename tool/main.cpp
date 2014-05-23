@@ -329,8 +329,8 @@ int main() {
   std::cout << "active guess" << std::endl;
   test_active_guess();
 
-//  std::cout << "active guess layered" << std::endl;
-//  test_active_guess_layered();
+  std::cout << "active guess layered" << std::endl;
+  test_active_guess_layered();
 
   return 0;
 }

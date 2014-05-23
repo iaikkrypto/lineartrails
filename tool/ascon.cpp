@@ -104,8 +104,9 @@ AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs){
 }
 
 AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+  std::shared_ptr<LinearDistributionTable<5>> ldt(new LinearDistributionTable<5>(AsconSbox));
   for (int i = 0; i < 64; i++)
-    sboxes[i].Initialize(AsconSbox);
+    sboxes[i].Initialize(ldt);
 }
 
 bool AsconSboxLayer::Update(UpdatePos pos) {

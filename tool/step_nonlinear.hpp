@@ -64,7 +64,14 @@ template <unsigned bitsize>
 void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   is_active_ = false;
   is_guessable_ = true;
-  ldt_.Initialize(fun);
+  ldt_.reset(new LinearDistributionTable<bitsize>(fun));
+}
+
+template <unsigned bitsize>
+void NonlinearStep<bitsize>::Initialize(std::shared_ptr<LinearDistributionTable<bitsize>> ldt) {
+  is_active_ = false;
+  is_guessable_ = true;
+  ldt_ = ldt;
 }
 
 template <unsigned bitsize>
@@ -74,13 +81,12 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
   unsigned int outresult[2] = { 0, 0 };
   create_masks(inmasks, x);
   create_masks(outmasks, y);
-
-  for (auto inmask : inmasks)
-    for (auto outmask : outmasks) {
-      inresult[0] |= (~inmask) & ldt_.ldt_bool[inmask][outmask];
-      inresult[1] |= inmask & ldt_.ldt_bool[inmask][outmask];
-      outresult[0] |= (~outmask) & ldt_.ldt_bool[inmask][outmask];
-      outresult[1] |= outmask & ldt_.ldt_bool[inmask][outmask];
+  for (const auto& inmask : inmasks)
+    for (const auto& outmask : outmasks) {
+      inresult[0] |= (~inmask) & ldt_->ldt_bool[inmask][outmask];
+      inresult[1] |= inmask & ldt_->ldt_bool[inmask][outmask];
+      outresult[0] |= (~outmask) & ldt_->ldt_bool[inmask][outmask];
+      outresult[1] |= outmask & ldt_->ldt_bool[inmask][outmask];
     }
 
   for (unsigned int i = 0; i < bitsize; ++i) {
@@ -129,10 +135,10 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
     unsigned int best_inmask = 0;
     unsigned int best_outmask = 0;
 
-  for (auto inmask : inmasks)
-    for (auto outmask : outmasks) {
-       if(branch_number < std::abs(ldt_.ldt[inmask][outmask])){
-         branch_number = std::abs(ldt_.ldt[inmask][outmask]);
+  for (const auto& inmask : inmasks)
+    for (const auto& outmask : outmasks) {
+       if(branch_number < std::abs(ldt_->ldt[inmask][outmask])){
+         branch_number = std::abs(ldt_->ldt[inmask][outmask]);
          best_inmask = inmask;
          best_outmask = outmask;
        }

@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <math.h>
+#include <memory>
 
 #include "mask.h"
 
@@ -35,6 +36,7 @@ struct NonlinearStep {
   NonlinearStep() = default;
   NonlinearStep(std::function<BitVector(BitVector)> fun);
   void Initialize(std::function<BitVector(BitVector)> fun);
+  void Initialize(std::shared_ptr<LinearDistributionTable<bitsize>> ldt);
   bool Update(Mask& x, Mask& y);
   void TakeBestBox(Mask& x, Mask& y);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
@@ -42,7 +44,7 @@ struct NonlinearStep {
 
   friend std::ostream& operator<<<>(std::ostream& stream, const NonlinearStep<bitsize>& step);
 
-  LinearDistributionTable<bitsize> ldt_;
+  std::shared_ptr<LinearDistributionTable<bitsize>> ldt_;
   bool is_active_;
   bool is_guessable_;
 };

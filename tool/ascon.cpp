@@ -1,5 +1,6 @@
 #include "ascon.h"
 
+#define TERMINALCOLORS
 
 AsconState::AsconState() : words{{Mask(64), Mask(64), Mask(64), Mask(64), Mask(64)}} {
 }
@@ -59,7 +60,11 @@ void AsconState::SetState(BitMask value){
 
 
 std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
+#ifndef TERMINALCOLORS
   char symbol[4] {'#', '1', '0', '?'};
+#else
+  std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
+#endif
   for (Mask word : statemask.words){
     for (BitMask m : word.bitmasks){
       stream << symbol[m % 4];

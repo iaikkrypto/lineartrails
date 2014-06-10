@@ -28,6 +28,11 @@ struct WordMaskCare {
   BitVector care;                      // 1=0/1, 0=?)
 };
 
+struct ProbabilityPair{
+  char sign; //could have stored in one, but meh.
+  double bias; //ld of bias
+};
+
 struct Mask {
   Mask& operator=(const Mask& rhs);
   Mask(unsigned bitsize);

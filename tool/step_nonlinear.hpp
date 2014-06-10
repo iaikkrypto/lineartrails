@@ -120,6 +120,22 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
 }
 
 template <unsigned bitsize>
+ProbabilityPair NonlinearStep<bitsize>::GetProbability(Mask& x, Mask& y) {
+  std::vector<unsigned int> inmasks, outmasks;
+  create_masks(inmasks, x);
+  create_masks(outmasks, y);
+
+  //TODO: Maybe calculate some probability if undefined bits are present
+  if(inmasks.size() > 1)
+    return ProbabilityPair {1,-1};
+
+  return ProbabilityPair {(char)(ldt_->ldt[inmasks[0]][outmasks[0]]
+      / std::abs(ldt_->ldt[inmasks[0]][outmasks[0]])), (double) (std::log2((double)std::abs(
+      ldt_->ldt[inmasks[0]][outmasks[0]])) - bitsize)};
+
+}
+
+template <unsigned bitsize>
 NonlinearStep<bitsize>& NonlinearStep<bitsize>::operator=(const NonlinearStep<bitsize>& rhs){
   ldt_ = rhs.ldt_;
   is_active_ = rhs.is_active_;

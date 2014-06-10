@@ -237,7 +237,8 @@ void test_active_guess(){
       temp.SboxStatus(active, inactive);
     }
   }
-  std::cout << "result" << std::endl << temp << std::endl;
+  std::cout << "result" << std::endl;
+  temp.PrintWithProbability();
 }
 
 
@@ -285,7 +286,8 @@ void test_active_guess_layered(){
       temp.SboxStatus(active, inactive);
     }
   }
-  std::cout << "result" << std::endl << temp << std::endl;
+  std::cout << "result" << std::endl;
+  temp.PrintWithProbability();
 }
 
 

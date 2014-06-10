@@ -71,6 +71,7 @@ struct AsconSboxLayer : public Layer {
   void GuessBox(UpdatePos pos);
   bool SboxActive(int pos);
   bool SboxGuessable(int pos);
+  ProbabilityPair GetProbability();
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
   std::array<NonlinearStep<5>, 64> sboxes;

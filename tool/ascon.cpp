@@ -141,6 +141,22 @@ bool AsconSboxLayer::Update(UpdatePos pos) {
   return true;
 }
 
+ProbabilityPair AsconSboxLayer::GetProbability(){
+  ProbabilityPair prob {1,0.0};
+
+  for (int i = 0; i < 64; ++i){
+    Mask copyin(GetVerticalMask(i, *in));
+    Mask copyout(GetVerticalMask(i, *out));
+    ProbabilityPair temp_prob = sboxes[i].GetProbability(copyin, copyout);
+    prob.sign *= temp_prob.sign;
+    prob.bias += temp_prob.bias;
+  }
+
+  prob.bias += 63;
+
+  return prob;
+}
+
 bool AsconSboxLayer::SboxActive(int pos){
   return sboxes[pos].is_active_;
 }

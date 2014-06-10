@@ -94,9 +94,9 @@ template<unsigned rounds>
 void AsconPermutation<rounds>::PrintWithProbability() {
   ProbabilityPair prob { 1, 0.0 };
   ProbabilityPair temp_prob;
-  for (int i = 0; i < 2 * rounds; ++i) {
+  for (int i = 0; i <= 2 * rounds; ++i) {
     std::cout << "State Mask " << i + 1;
-    if (i % 2 == 0) {
+    if (i % 2 == 0 && i < 2 * rounds) {
       temp_prob = sbox_layers_[i / 2].GetProbability();
       prob.sign *= temp_prob.sign;
       prob.bias += temp_prob.bias;

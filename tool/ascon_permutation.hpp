@@ -81,7 +81,7 @@ bool AsconPermutation<rounds>::update() {
       }
     }
   }
-  return true;
+  return correct;
 }
 
 template<unsigned rounds>

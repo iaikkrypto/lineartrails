@@ -31,20 +31,21 @@ struct AsconState : public StateMask {
 
 
 #define ROTR(x,n) (((x)>>(n))|((x)<<(64-(n))))
+#define ROTL(x,n) (((x)<<(n))|((x)>>(64-(n))))
 
 template <unsigned round>
 BitVector AsconSigma(BitVector in) {
   switch (round) {
     case 0: 
-      return in ^ ROTR(in, 19) ^ ROTR(in, 28);
+      return in ^ ROTL(in, 19) ^ ROTL(in, 28);
     case 1: 
-      return in ^ ROTR(in, 61) ^ ROTR(in, 39);
+      return in ^ ROTL(in, 61) ^ ROTL(in, 39);
     case 2: 
-      return in ^ ROTR(in,  1) ^ ROTR(in,  6);
+      return in ^ ROTL(in,  1) ^ ROTL(in,  6);
     case 3: 
-      return in ^ ROTR(in, 10) ^ ROTR(in, 17);
+      return in ^ ROTL(in, 10) ^ ROTL(in, 17);
     case 4: 
-      return in ^ ROTR(in,  7) ^ ROTR(in, 41);
+      return in ^ ROTL(in,  7) ^ ROTL(in, 41);
     default: 
       return 0;
   }

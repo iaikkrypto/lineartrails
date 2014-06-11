@@ -90,9 +90,9 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
     }
 
   for (unsigned int i = 0; i < bitsize; ++i) {
-    x.bitmasks[bitsize - i - 1] = ((inresult[1] & (1 << i))
+    x.bitmasks[i] = ((inresult[1] & (1 << i))
         | ((inresult[0] & (1 << i)) << 1)) >> i;
-    y.bitmasks[bitsize - i - 1] = ((outresult[1] & (1 << i))
+    y.bitmasks[i] = ((outresult[1] & (1 << i))
         | ((outresult[0] & (1 << i)) << 1)) >> i;
   }
 
@@ -110,7 +110,7 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
 
   is_guessable_ = false;
   for(unsigned int i = 0; i < bitsize; ++i)
-    if(x.bitmasks[bitsize - i - 1] == BM_DUNNO || y.bitmasks[bitsize - i - 1] == BM_DUNNO){
+    if(x.bitmasks[i] == BM_DUNNO || y.bitmasks[i] == BM_DUNNO){
       is_guessable_ = true;
       break;
     }
@@ -161,8 +161,8 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
     }
 
   for (unsigned int i = 0; i < bitsize; ++i) {
-    x.bitmasks[bitsize - i - 1] = (((best_inmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
-    y.bitmasks[bitsize - i - 1] = (((best_outmask & (1 << i)) >> i) == 1 ? BM_1 : BM_0);
+    x.bitmasks[i] = (((best_inmask  >> i)&1) == 1 ? BM_1 : BM_0);
+    y.bitmasks[i] = (((best_outmask  >> i)&1) == 1 ? BM_1 : BM_0);
   }
 
   if(best_inmask)
@@ -184,7 +184,7 @@ void NonlinearStep<bitsize>::create_masks(std::vector<unsigned int> &masks,
   if (pos < bitsize) {
     switch (reference.bitmasks[pos]) {
       case BM_1:
-        current_mask |= (1 << (bitsize - pos - 1));
+        current_mask |= (1 << pos);
         create_masks(masks, reference, ++pos, current_mask);
         break;
       case BM_0:
@@ -192,7 +192,7 @@ void NonlinearStep<bitsize>::create_masks(std::vector<unsigned int> &masks,
         break;
       case BM_DUNNO:
         create_masks(masks, reference, ++pos, current_mask);
-        current_mask |= (1 << (bitsize - (--pos) - 1));
+        current_mask |= (1 << ((--pos)));
         create_masks(masks, reference, ++pos, current_mask);
         break;
     }

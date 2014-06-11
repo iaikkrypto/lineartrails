@@ -141,23 +141,23 @@ void test_permutation(){
   AsconPermutation<1> perm;
 
   perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 7);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 7);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 41);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 41);
 
-  perm.state_masks_[1].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[1].words[3].set_bit(BM_0, 0);
+  perm.state_masks_[1].words[4].set_bit(BM_1, 0);
+  perm.state_masks_[1].words[1].set_bit(BM_0, 0);
   perm.checkchar();
   perm.touchall();
-  perm.state_masks_[1].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[1].words[3].set_bit(BM_0, 19);
+  perm.state_masks_[1].words[4].set_bit(BM_1, 7);
+  perm.state_masks_[1].words[1].set_bit(BM_0, 7);
   perm.checkchar();
   perm.touchall();
-  perm.state_masks_[1].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[1].words[3].set_bit(BM_0, 28);
+  perm.state_masks_[1].words[4].set_bit(BM_1, 41);
+  perm.state_masks_[1].words[1].set_bit(BM_0, 41);
 
   perm.checkchar();
 }
@@ -246,12 +246,12 @@ void test_active_guess_layered(){
   AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 7);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 7);
+  perm.state_masks_[0].words[3].set_bit(BM_1, 41);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 41);
 
   perm.checkchar();
 
@@ -310,9 +310,9 @@ int main() {
 
   std::cout << "active guess" << std::endl;
   test_active_guess();
-
-  std::cout << "active guess layered" << std::endl;
-  test_active_guess_layered();
+//
+//  std::cout << "active guess layered" << std::endl;
+//  test_active_guess_layered();
 
   return 0;
 }

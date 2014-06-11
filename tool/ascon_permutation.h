@@ -8,7 +8,7 @@
 
 template <unsigned rounds>
 struct AsconPermutation : public Permutation {
-  AsconPermutation<rounds>& operator=(AsconPermutation<rounds>& rhs);
+  AsconPermutation<rounds>& operator=(const AsconPermutation<rounds>& rhs);
   AsconPermutation();
   virtual bool checkchar();
   bool guessbestsbox(SboxPos pos);
@@ -16,6 +16,7 @@ struct AsconPermutation : public Permutation {
   void touchall();
   void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
+  AsconPermutation<rounds>* clone() const;
 
   void PrintWithProbability();
   ProbabilityPair GetProbability();

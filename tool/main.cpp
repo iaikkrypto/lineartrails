@@ -7,6 +7,7 @@
 #include "step_nonlinear.h"
 #include "ascon.h"
 #include "ascon_permutation.h"
+#include "search.h"
 
 // ==== Target Functions ====
 BitVector testfun_linear(BitVector in) {
@@ -192,7 +193,7 @@ void test_active(){
 
 }
 
-void test_active_guess(){
+void test_active_guess(unsigned int iterations){
   AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
@@ -202,43 +203,9 @@ void test_active_guess(){
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
 //  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  Search my_search(perm);
 
-  perm.checkchar();
-
-  std::vector<SboxPos> active;
-  std::vector<SboxPos> inactive;
-
-  perm.SboxStatus(active, inactive);
-  std::mt19937 generator(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-
-  AsconPermutation<2> temp;
-  temp = perm;
-  while (active.size() != 0 || inactive.size() != 0) {
-    while (inactive.size() != 0) {
-      std::uniform_int_distribution<int> guessbox(0, inactive.size() - 1);
-      if (temp.guessbestsbox(inactive[guessbox(generator)]) == false) {
-        temp = perm;
-        active.clear();
-        break;
-      }
-      std::cout << "inactive " << inactive.size() << std::endl << temp << std::endl;
-      temp.SboxStatus(active, inactive);
-    }
-
-//    std::cout << "result" << std::endl << temp << std::endl;
-    while (active.size() != 0) {
-      std::uniform_int_distribution<int> guessbox(0, active.size() - 1);
-      if (temp.guessbestsbox(active[guessbox(generator)]) == false) {
-        temp = perm;
-        temp.SboxStatus(active, inactive);
-        break;
-      }
-//      std::cout << "active" << active.size() << std::endl << temp << std::endl;
-      temp.SboxStatus(active, inactive);
-    }
-  }
-  std::cout << "result" << std::endl;
-  temp.PrintWithProbability();
+  my_search.RandomSearch1(iterations);
 }
 
 
@@ -293,7 +260,11 @@ void test_active_guess_layered(){
 
 
 // ==== Main / Search ====
-int main() {
+int main(int argc, char* argv[]) {
+  unsigned int iterations = -1;
+  if (argc >= 2)
+    iterations = atoi(argv[1]);
+
 //  std::cout << "linear_test" << std::endl;
 //  teststep_linear();
 //  std::cout << "nonlinear_test" << std::endl;
@@ -309,7 +280,8 @@ int main() {
 //  test_active();
 
   std::cout << "active guess" << std::endl;
-  test_active_guess();
+  test_active_guess(iterations);
+
 //
 //  std::cout << "active guess layered" << std::endl;
 //  test_active_guess_layered();

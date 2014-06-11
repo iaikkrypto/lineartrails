@@ -8,8 +8,9 @@ AsconPermutation<rounds>::AsconPermutation() {
   }
   touchall();
 }
+
 template <unsigned rounds>
-AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(AsconPermutation<rounds>& rhs){
+AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(const AsconPermutation<rounds>& rhs){
  state_masks_ = rhs.state_masks_;
  toupdate_linear = rhs.toupdate_linear;
  toupdate_nonlinear = rhs.toupdate_nonlinear;
@@ -17,6 +18,15 @@ AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(AsconPermutation<r
  linear_layers_ = rhs.linear_layers_;
  return *this;
 }
+
+template <unsigned rounds>
+AsconPermutation<rounds>* AsconPermutation<rounds>::clone() const{
+  //TODO: create copy constructor
+  AsconPermutation<rounds> *perm = new AsconPermutation<rounds>();
+  *perm = *this;
+  return perm;
+}
+
 template <unsigned rounds>
 bool AsconPermutation<rounds>::checkchar() {
   bool correct;

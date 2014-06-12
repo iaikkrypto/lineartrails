@@ -102,8 +102,8 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
   if ((inresult[0] | inresult[1]) == 0 || (outresult[0] | outresult[1]) == 0)
     return false;
 
-  if ( ((~x.caremask.canbe1) | (~x.caremask.care))  == (~0ULL >> (64 - bitsize))
-      && ((~y.caremask.canbe1) | (~y.caremask.care))  == (~0ULL >> (64 - bitsize)))
+  if ( (((~x.caremask.canbe1) | (~x.caremask.care)) & (~0ULL >> (64 - bitsize)))  == (~0ULL >> (64 - bitsize))
+      && (((~y.caremask.canbe1) | (~y.caremask.care)) & (~0ULL >> (64 - bitsize)))  == (~0ULL >> (64 - bitsize)))
     is_active_ = false;
   else
     is_active_ = true;

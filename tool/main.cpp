@@ -194,7 +194,7 @@ void test_active(){
 }
 
 void test_active_guess(unsigned int iterations){
-  AsconPermutation<2> perm;
+  AsconPermutation<3> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0].words[0].set_bit(BM_1, 0);
@@ -210,19 +210,29 @@ void test_active_guess(unsigned int iterations){
 
 
 void test_heuristic_guess(unsigned int iterations){
-  AsconPermutation<2> perm;
 
-//  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
-//  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
-//  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
-//  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
-//  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
-//  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
-  Search my_search(perm);
+
+
+  //searchmasks for 2 rounds
+//  AsconPermutation<2> perm;
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1}}};
-  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{1,0}},{{0,1},{0,1}}};
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{1,0}},{{0,1},{0,1}}};
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{0,0}},{{0,0},{1,0}},{{0,1},{0,1}}};
+
+  //searchmasks for 3 rounds
+//  AsconPermutation<3> perm;
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1}}};
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{2,0},{3,0}},{{0,1},{0,1},{0,1}}};
+
+  //searchmasks for 4 rounds
+  AsconPermutation<4> perm;
+  perm.state_masks_[4].words[0].set_bit(BM_1, 0);
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
+  std::vector<std::vector<std::array<int, 2>>>weights = { { {100,0}, {150,0}, {200,0}, {10,0}}, { {100,0}, {150,0}, {200,0}, {100,0}}, { {0,1}, {0,1}, {0,1}, {0,1}}};
+
+  Search my_search(perm);
 
  my_search.HeuristicSearch1(iterations,weights);
 }

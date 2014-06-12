@@ -209,6 +209,25 @@ void test_active_guess(unsigned int iterations){
 }
 
 
+void test_heuristic_guess(unsigned int iterations){
+  AsconPermutation<2> perm;
+
+//  perm.state_masks_[0].SetState(BM_0);
+  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
+//  perm.state_masks_[0].words[0].set_bit(BM_1, 28);
+//  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
+  Search my_search(perm);
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1}}};
+  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{1,0}},{{0,1},{0,1}}};
+//  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{0,0}},{{0,0},{1,0}},{{0,1},{0,1}}};
+
+ my_search.HeuristicSearch1(iterations,weights);
+}
+
+
 void test_active_guess_layered(){
   AsconPermutation<2> perm;
 
@@ -279,8 +298,11 @@ int main(int argc, char* argv[]) {
 //  std::cout << "active test" << std::endl;
 //  test_active();
 
-  std::cout << "active guess" << std::endl;
-  test_active_guess(iterations);
+//  std::cout << "active guess" << std::endl;
+//  test_active_guess(iterations);
+
+    std::cout << "heuristic guess" << std::endl;
+    test_heuristic_guess(iterations);
 
 //
 //  std::cout << "active guess layered" << std::endl;

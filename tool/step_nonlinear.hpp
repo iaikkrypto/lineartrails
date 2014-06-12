@@ -128,7 +128,8 @@ ProbabilityPair NonlinearStep<bitsize>::GetProbability(Mask& x, Mask& y) {
   //TODO: Maybe calculate some probability if undefined bits are present
   if(inmasks.size() > 1)
     return ProbabilityPair {1,-1};
-
+ if(ldt_->ldt[inmasks[0]][outmasks[0]] == 0);
+    return ProbabilityPair {1,-1};
   return ProbabilityPair {(char)(ldt_->ldt[inmasks[0]][outmasks[0]]
       / std::abs(ldt_->ldt[inmasks[0]][outmasks[0]])), (double) (std::log2((double)std::abs(
       ldt_->ldt[inmasks[0]][outmasks[0]])) - bitsize)};

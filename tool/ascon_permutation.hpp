@@ -10,6 +10,20 @@ AsconPermutation<rounds>::AsconPermutation() {
 }
 
 template <unsigned rounds>
+AsconPermutation<rounds>::AsconPermutation(const AsconPermutation& other) {
+  for (int i = 0; i < rounds; ++i) {
+    sbox_layers_[i].SetMasks(&(state_masks_[2*i]), &(state_masks_[2*i + 1]));
+    linear_layers_[i].SetMasks(&(state_masks_[2*i + 1]), &(state_masks_[2*i + 2]));
+  }
+  state_masks_ = other.state_masks_;
+  toupdate_linear = other.toupdate_linear;
+  toupdate_nonlinear = other.toupdate_nonlinear;
+  sbox_layers_ = other.sbox_layers_;
+  linear_layers_ = other.linear_layers_;
+
+}
+
+template <unsigned rounds>
 AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(const AsconPermutation<rounds>& rhs){
  state_masks_ = rhs.state_masks_;
  toupdate_linear = rhs.toupdate_linear;
@@ -21,10 +35,7 @@ AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(const AsconPermuta
 
 template <unsigned rounds>
 AsconPermutation<rounds>* AsconPermutation<rounds>::clone() const{
-  //TODO: create copy constructor
-  AsconPermutation<rounds> *perm = new AsconPermutation<rounds>();
-  *perm = *this;
-  return perm;
+  return new AsconPermutation(*this);
 }
 
 template <unsigned rounds>

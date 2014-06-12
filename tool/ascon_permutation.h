@@ -10,6 +10,7 @@ template <unsigned rounds>
 struct AsconPermutation : public Permutation {
   AsconPermutation<rounds>& operator=(const AsconPermutation<rounds>& rhs);
   AsconPermutation();
+  AsconPermutation(const AsconPermutation& other);
   virtual bool checkchar();
   bool guessbestsbox(SboxPos pos);
   virtual bool update();

@@ -70,6 +70,7 @@ struct AsconSboxLayer : public Layer {
   void InitSboxes();
   virtual bool Update(UpdatePos pos);
   void GuessBox(UpdatePos pos);
+  int GuessBox(UpdatePos pos, int mask_pos);
   bool SboxActive(int pos);
   bool SboxGuessable(int pos);
   ProbabilityPair GetProbability();

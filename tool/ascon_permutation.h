@@ -13,6 +13,7 @@ struct AsconPermutation : public Permutation {
   AsconPermutation(const AsconPermutation& other);
   virtual bool checkchar();
   bool guessbestsbox(SboxPos pos);
+  bool guessbestsbox(SboxPos pos, int num_alternatives);
   virtual bool update();
   void touchall();
   void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);

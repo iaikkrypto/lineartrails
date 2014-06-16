@@ -58,7 +58,7 @@ void Search::RandomSearch1(unsigned int iterations) {
 
 //Search without stack using weighted guesses
 //TODO: Separate finding guess pos from actual guessing
-void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights) {
+void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, int try_one_box) {
 
   std::unique_ptr<Permutation> working_copy;
   std::unique_ptr<Permutation> temp_copy;
@@ -111,7 +111,7 @@ void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<s
                   }
                   else{
                     std::uniform_int_distribution<int> guessbox(0, active_boxes[active][layer].size() - 1);
-                    if (temp_copy->guessbestsbox(active_boxes[active][layer][guessbox(generator)]) == false) {
+                    if (temp_copy->guessbestsbox(active_boxes[active][layer][guessbox(generator)],try_one_box) == false) {
                       current_setting = num_settings + 1;
                       fail = true;
                     }

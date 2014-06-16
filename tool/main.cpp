@@ -209,7 +209,7 @@ void test_active_guess(unsigned int iterations){
 }
 
 
-void test_heuristic_guess(unsigned int iterations){
+void test_heuristic_guess(unsigned int iterations, int try_one_box){
 
 
 
@@ -228,13 +228,20 @@ void test_heuristic_guess(unsigned int iterations){
 
   //searchmasks for 4 rounds
   AsconPermutation<4> perm;
+  perm.state_masks_[3].SetState(BM_0);
+  perm.state_masks_[3].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[3].words[0].set_bit(BM_1, 36);
+  perm.state_masks_[3].words[0].set_bit(BM_1, 54);
+  perm.state_masks_[4].SetState(BM_0);
   perm.state_masks_[4].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[4].words[0].set_bit(BM_1, 9);
+  perm.state_masks_[4].words[0].set_bit(BM_1, 28);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
   std::vector<std::vector<std::array<int, 2>>>weights = { { {100,0}, {150,0}, {200,0}, {10,0}}, { {100,0}, {150,0}, {200,0}, {100,0}}, { {0,1}, {0,1}, {0,1}, {0,1}}};
 
   Search my_search(perm);
 
- my_search.HeuristicSearch1(iterations,weights);
+ my_search.HeuristicSearch1(iterations,weights,try_one_box);
 }
 
 
@@ -291,8 +298,11 @@ void test_active_guess_layered(){
 // ==== Main / Search ====
 int main(int argc, char* argv[]) {
   unsigned int iterations = -1;
+  int try_one_box = 1;
   if (argc >= 2)
     iterations = atoi(argv[1]);
+  if(argc >=3)
+    try_one_box = atoi(argv[2]);
 
 //  std::cout << "linear_test" << std::endl;
 //  teststep_linear();
@@ -312,7 +322,7 @@ int main(int argc, char* argv[]) {
 //  test_active_guess(iterations);
 
     std::cout << "heuristic guess" << std::endl;
-    test_heuristic_guess(iterations);
+    test_heuristic_guess(iterations, try_one_box);
 
 //
 //  std::cout << "active guess layered" << std::endl;

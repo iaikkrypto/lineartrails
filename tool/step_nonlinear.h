@@ -7,6 +7,9 @@
 #include <unordered_map>
 #include <math.h>
 #include <memory>
+#include <map>
+#include <assert.h>
+#include <iterator>
 
 #include "mask.h"
 
@@ -40,6 +43,7 @@ struct NonlinearStep {
   ProbabilityPair GetProbability(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
   void TakeBestBox(Mask& x, Mask& y);
+  int TakeBestBox(Mask& x, Mask& y, int pos);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
   NonlinearStep<bitsize>& operator=(const NonlinearStep<bitsize>& rhs);
 

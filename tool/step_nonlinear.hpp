@@ -179,6 +179,42 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
 }
 
 template <unsigned bitsize>
+int NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y, int pos) {
+  std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
+  create_masks(inmasks, x);
+  create_masks(outmasks, y);
+  std::multimap<int,std::pair<unsigned int,unsigned int>,std::greater<int>> valid_masks;
+
+
+  for (const auto& inmask : inmasks)
+    for (const auto& outmask : outmasks) {
+       if(0 < std::abs(ldt_->ldt[inmask][outmask])){
+         valid_masks.insert(std::pair<int,std::pair<unsigned int,unsigned int>>(std::abs(ldt_->ldt[inmask][outmask]),std::pair<unsigned int, unsigned int>(inmask,outmask)));
+       }
+    }
+
+  assert(pos<valid_masks.size());
+
+  for (unsigned int i = 0; i < bitsize; ++i) {
+    x.bitmasks[i] = (((std::next(valid_masks.begin(),pos)->second.first  >> i)&1) == 1 ? BM_1 : BM_0);
+    y.bitmasks[i] = (((std::next(valid_masks.begin(),pos)->second.second  >> i)&1) == 1 ? BM_1 : BM_0);
+  }
+
+  if(std::next(valid_masks.begin(),pos)->second.first)
+    is_active_ = true;
+  else
+    is_active_ = false;
+
+  is_guessable_ = false;
+
+  x.reinit_caremask();
+  y.reinit_caremask();
+
+  return valid_masks.size();
+
+}
+
+template <unsigned bitsize>
 void NonlinearStep<bitsize>::create_masks(std::vector<unsigned int> &masks,
                                           Mask& reference, unsigned int pos,
                                           unsigned int current_mask) {

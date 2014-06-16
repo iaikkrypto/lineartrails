@@ -16,6 +16,7 @@ struct Permutation {
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive) = 0;
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive) = 0;
   virtual bool guessbestsbox(SboxPos pos) = 0;
+  virtual bool guessbestsbox(SboxPos pos, int num_alternatives) = 0;
   virtual void PrintWithProbability() = 0;
   virtual ProbabilityPair GetProbability() = 0;
 

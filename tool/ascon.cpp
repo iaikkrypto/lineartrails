@@ -176,6 +176,18 @@ void AsconSboxLayer::GuessBox(UpdatePos pos) {
 
 }
 
+int AsconSboxLayer::GuessBox(UpdatePos pos, int mask_pos) {
+  int choises;
+  Mask copyin(GetVerticalMask(pos.bit, *in));
+  Mask copyout(GetVerticalMask(pos.bit, *out));
+
+  choises = sboxes[pos.bit].TakeBestBox(copyin, copyout, mask_pos);
+
+  SetVerticalMask(pos.bit, *in, copyin);
+  SetVerticalMask(pos.bit, *out, copyout);
+  return choises;
+}
+
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
   return Mask({s[4].bitmasks[b], s[3].bitmasks[b], s[2].bitmasks[b], s[1].bitmasks[b], s[0].bitmasks[b]});
 }

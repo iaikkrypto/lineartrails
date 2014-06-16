@@ -50,15 +50,36 @@ template <unsigned rounds>
 bool AsconPermutation<rounds>::guessbestsbox(SboxPos pos) {
   AsconState tempin, tempout;
 
-    tempin = *((AsconState*) sbox_layers_[pos.layer_].in);
-    tempout = *((AsconState*) sbox_layers_[pos.layer_].out);
+//    tempin = *((AsconState*) sbox_layers_[pos.layer_].in);
+//    tempout = *((AsconState*) sbox_layers_[pos.layer_].out);
 
-    sbox_layers_[pos.layer_].GuessBox(UpdatePos(0, 0, pos.pos_, 0));
+    sbox_layers_[pos.layer_].GuessBox(UpdatePos(0, 0, pos.pos_, 0),0);
 
-    if (tempin.diff(*((AsconState*) sbox_layers_[pos.layer_].in)).size() != 0
-        || tempout.diff(*((AsconState*) sbox_layers_[pos.layer_].out)).size() != 0)
+//    if (tempin.diff(*((AsconState*) sbox_layers_[pos.layer_].in)).size() != 0
+//        || tempout.diff(*((AsconState*) sbox_layers_[pos.layer_].out)).size() != 0)
       toupdate_linear = true;
     return update();
+}
+
+template<unsigned rounds>
+bool AsconPermutation<rounds>::guessbestsbox(SboxPos pos,
+                                             int num_alternatives) {
+  bool update_works = false;
+  AsconPermutation<rounds> temp = *this;
+
+  for (int i = 0; i < num_alternatives; ++i) {
+    int total_alternatives = sbox_layers_[pos.layer_].GuessBox(
+        UpdatePos(0, 0, pos.pos_, 0), i);
+    num_alternatives =
+        total_alternatives < num_alternatives ?
+            total_alternatives : num_alternatives;
+    toupdate_linear = true;
+    update_works = update();
+    if (update_works)
+      return update_works;
+    *this = temp;
+  }
+  return false;
 }
 
 template <unsigned rounds>

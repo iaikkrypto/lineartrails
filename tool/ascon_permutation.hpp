@@ -136,20 +136,27 @@ template<unsigned rounds>
 void AsconPermutation<rounds>::PrintWithProbability() {
   ProbabilityPair prob { 1, 0.0 };
   ProbabilityPair temp_prob;
+  int active_sboxes = 0;
   for (int i = 0; i <= 2 * rounds; ++i) {
     std::cout << "State Mask " << i + 1;
     if (i % 2 == 0 && i < 2 * rounds) {
       temp_prob = sbox_layers_[i / 2].GetProbability();
+      int active_sboxes_layer = 0;
+      for (int j = 0; j < 64; ++j)
+        active_sboxes_layer += (int) sbox_layers_[i / 2].SboxActive(j);
+      active_sboxes += active_sboxes_layer;
       prob.sign *= temp_prob.sign;
       prob.bias += temp_prob.bias;
       std::cout << " sign: " << (int) temp_prob.sign << " bias: "
-                << temp_prob.bias;
+                << temp_prob.bias << " active sboxes: " << active_sboxes_layer;
     }
     std::cout << std::endl << state_masks_[i] << std::endl;
   }
   prob.bias += rounds - 1;
   std::cout << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
-            << std::endl;
+      << " active sboxes: " << active_sboxes << std::endl << std::endl;
+
+  std::cout << "----------------------------------------------------------------" << std::endl;
 }
 
 template <unsigned rounds>

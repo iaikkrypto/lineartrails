@@ -25,4 +25,9 @@ void Layer::SetMasks(StateMask *inmask, StateMask *outmask) {
 LinearLayer::LinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
 }
 
+//-----------------------------------------------------------------------------
+
+SboxLayerBase::SboxLayerBase(StateMask *in, StateMask *out) : Layer(in, out) {
+}
+
 

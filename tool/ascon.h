@@ -10,7 +10,6 @@
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "updatequeue.h"
-#include "permutation.h"
 #include "memory"
 
 
@@ -56,6 +55,7 @@ BitVector AsconSigma(BitVector in) {
 struct AsconLinearLayer : public LinearLayer {
   AsconLinearLayer& operator=(const AsconLinearLayer& rhs);
   AsconLinearLayer();
+  virtual AsconLinearLayer* clone();
   void Init();
   AsconLinearLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
@@ -68,6 +68,7 @@ struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer& operator=(const AsconSboxLayer& rhs);
   AsconSboxLayer();
   AsconSboxLayer(StateMask *in, StateMask *out);
+  virtual AsconSboxLayer* clone();
   void InitSboxes();
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);

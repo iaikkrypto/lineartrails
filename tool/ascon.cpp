@@ -84,6 +84,13 @@ AsconLinearLayer::AsconLinearLayer() {
   Init();
 }
 
+AsconLinearLayer* AsconLinearLayer::clone(){
+  //TODO: write copy constructor
+  AsconLinearLayer* obj = new AsconLinearLayer(in,out);
+  obj->sigmas = this->sigmas;
+  return obj;
+}
+
 AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : LinearLayer(in, out) {
   Init();
 }
@@ -129,6 +136,13 @@ void AsconSboxLayer::InitSboxes(){
   std::shared_ptr<LinearDistributionTable<5>> ldt(new LinearDistributionTable<5>(AsconSbox));
     for (int i = 0; i < 64; i++)
       sboxes[i].Initialize(ldt);
+}
+
+AsconSboxLayer* AsconSboxLayer::clone(){
+  //TODO: write copy constructor
+  AsconSboxLayer* obj = new AsconSboxLayer(in,out);
+  obj->sboxes = this->sboxes;
+  return obj;
 }
 
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {

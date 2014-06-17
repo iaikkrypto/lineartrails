@@ -5,19 +5,20 @@
 
 #include "ascon.h"
 #include "mask.h"
+#include "permutation.h"
 
 template <unsigned rounds>
-struct AsconPermutation : public Permutation {
+struct AsconPermutation : public Permutation<rounds> {
   AsconPermutation<rounds>& operator=(const AsconPermutation<rounds>& rhs);
   AsconPermutation();
   AsconPermutation(const AsconPermutation& other);
   virtual bool checkchar();
-  bool guessbestsbox(SboxPos pos);
-  bool guessbestsbox(SboxPos pos, int num_alternatives);
+  virtual bool guessbestsbox(SboxPos pos);
+  virtual bool guessbestsbox(SboxPos pos, int num_alternatives);
   virtual bool update();
   void touchall();
-  void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
-  void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
+  virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
+  virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   AsconPermutation<rounds>* clone() const;
 
   void PrintWithProbability();
@@ -30,8 +31,6 @@ struct AsconPermutation : public Permutation {
     return stream;
   }
 
-  std::array<AsconSboxLayer,rounds> sbox_layers_;
-  std::array<AsconLinearLayer, rounds> linear_layers_;
   std::array<AsconState, 2 * rounds + 1> state_masks_;
   bool toupdate_linear;
   bool toupdate_nonlinear;

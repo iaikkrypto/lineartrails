@@ -7,12 +7,12 @@
 
 #include "search.h"
 
-Search::Search(Permutation &perm) : perm_(&perm) {
+Search::Search(PermutationBase &perm) : perm_(&perm) {
 
 }
 
 void Search::RandomSearch1(unsigned int iterations) {
-  std::unique_ptr<Permutation> working_copy, temp_copy;
+  std::unique_ptr<PermutationBase> working_copy, temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
   working_copy->checkchar();
@@ -60,8 +60,8 @@ void Search::RandomSearch1(unsigned int iterations) {
 //TODO: Separate finding guess pos from actual guessing
 void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, int try_one_box) {
 
-  std::unique_ptr<Permutation> working_copy;
-  std::unique_ptr<Permutation> temp_copy;
+  std::unique_ptr<PermutationBase> working_copy;
+  std::unique_ptr<PermutationBase> temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
   working_copy->checkchar();

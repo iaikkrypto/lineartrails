@@ -16,6 +16,7 @@ struct Layer {
   Layer(StateMask *in, StateMask *out);
   void SetMasks(StateMask *inmask, StateMask *outmask);
   virtual bool Update(UpdatePos pos) = 0;
+  virtual Layer* clone() = 0;
   StateMask *in;
   StateMask *out;
 };
@@ -23,12 +24,28 @@ struct Layer {
 struct LinearLayer: public Layer {
   LinearLayer() = default;
   LinearLayer(StateMask *in, StateMask *out);
+  virtual LinearLayer* clone() = 0;
   virtual bool Update(UpdatePos pos) = 0;
 
 };
 
+struct SboxLayerBase: public Layer {
+  SboxLayerBase() = default;
+  SboxLayerBase(StateMask *in, StateMask *out);
+  virtual bool Update(UpdatePos pos)= 0;
+  virtual void InitSboxes() = 0;
+  virtual void GuessBox(UpdatePos pos)= 0;
+  virtual int GuessBox(UpdatePos pos, int mask_pos)= 0;
+  virtual bool SboxActive(int pos)= 0;
+  virtual bool SboxGuessable(int pos)= 0;
+  virtual SboxLayerBase* clone() = 0;
+  virtual ProbabilityPair GetProbability()= 0;
+  virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
+  virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
+};
+
 template <unsigned bits, unsigned boxes>
-struct SboxLayer: public Layer {
+struct SboxLayer: public SboxLayerBase {
   SboxLayer() = default;
   SboxLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
@@ -37,6 +54,7 @@ struct SboxLayer: public Layer {
   virtual int GuessBox(UpdatePos pos, int mask_pos);
   virtual bool SboxActive(int pos);
   virtual bool SboxGuessable(int pos);
+  virtual SboxLayer* clone() = 0;
   virtual ProbabilityPair GetProbability();
   virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
@@ -45,7 +63,7 @@ struct SboxLayer: public Layer {
 
 //-----------------------------------------------------------------------------
 template <unsigned bits, unsigned boxes>
-SboxLayer<bits, boxes>::SboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+SboxLayer<bits, boxes>::SboxLayer(StateMask *in, StateMask *out) : SboxLayerBase(in, out) {
 }
 
 template <unsigned bits, unsigned boxes>

@@ -21,12 +21,12 @@
 class Search {
 
  public:
-  Search(Permutation &perm);
+  Search(PermutationBase &perm);
   void RandomSearch1(unsigned int iterations);
   void HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int,2>>> weights, int try_one_box);
 
 
-  Permutation *perm_;
+  PermutationBase *perm_;
 
 };
 

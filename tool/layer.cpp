@@ -20,3 +20,9 @@ void Layer::SetMasks(StateMask *inmask, StateMask *outmask) {
 //  return true;
 //}
 
+//-----------------------------------------------------------------------------
+
+LinearLayer::LinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+}
+
+

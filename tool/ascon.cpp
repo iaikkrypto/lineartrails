@@ -84,7 +84,7 @@ AsconLinearLayer::AsconLinearLayer() {
   Init();
 }
 
-AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : LinearLayer(in, out) {
   Init();
 }
 
@@ -121,7 +121,7 @@ AsconSboxLayer::AsconSboxLayer(){
   InitSboxes();
 }
 
-AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : SboxLayer<5,64>(in, out) {
  InitSboxes();
 }
 
@@ -129,63 +129,6 @@ void AsconSboxLayer::InitSboxes(){
   std::shared_ptr<LinearDistributionTable<5>> ldt(new LinearDistributionTable<5>(AsconSbox));
     for (int i = 0; i < 64; i++)
       sboxes[i].Initialize(ldt);
-}
-
-bool AsconSboxLayer::Update(UpdatePos pos) {
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-  if (!sboxes[pos.bit].Update(copyin, copyout))
-    return false;
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
-  return true;
-}
-
-ProbabilityPair AsconSboxLayer::GetProbability(){
-  ProbabilityPair prob {1,0.0};
-
-  for (int i = 0; i < 64; ++i){
-    Mask copyin(GetVerticalMask(i, *in));
-    Mask copyout(GetVerticalMask(i, *out));
-    ProbabilityPair temp_prob = sboxes[i].GetProbability(copyin, copyout);
-    prob.sign *= temp_prob.sign;
-    prob.bias += temp_prob.bias;
-  }
-
-  prob.bias += 63;
-
-  return prob;
-}
-
-bool AsconSboxLayer::SboxActive(int pos){
-  return sboxes[pos].is_active_;
-}
-
-bool AsconSboxLayer::SboxGuessable(int pos){
-  return sboxes[pos].is_guessable_;
-}
-
-void AsconSboxLayer::GuessBox(UpdatePos pos) {
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-
-  sboxes[pos.bit].TakeBestBox(copyin, copyout);
-
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
-
-}
-
-int AsconSboxLayer::GuessBox(UpdatePos pos, int mask_pos) {
-  int choises;
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-
-  choises = sboxes[pos.bit].TakeBestBox(copyin, copyout, mask_pos);
-
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
-  return choises;
 }
 
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {

@@ -53,7 +53,7 @@ BitVector AsconSigma(BitVector in) {
 
 
 
-struct AsconLinearLayer : public Layer {
+struct AsconLinearLayer : public LinearLayer {
   AsconLinearLayer& operator=(const AsconLinearLayer& rhs);
   AsconLinearLayer();
   void Init();
@@ -63,20 +63,16 @@ struct AsconLinearLayer : public Layer {
   std::array<LinearStep<64>, 5> sigmas;
 };
 
-struct AsconSboxLayer : public Layer {
+
+struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer& operator=(const AsconSboxLayer& rhs);
   AsconSboxLayer();
   AsconSboxLayer(StateMask *in, StateMask *out);
   void InitSboxes();
-  virtual bool Update(UpdatePos pos);
-  void GuessBox(UpdatePos pos);
-  int GuessBox(UpdatePos pos, int mask_pos);
-  bool SboxActive(int pos);
-  bool SboxGuessable(int pos);
-  ProbabilityPair GetProbability();
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
-  std::array<NonlinearStep<5>, 64> sboxes;
 };
+
+
 
 #endif // ASCON_H_

@@ -12,6 +12,14 @@ AsconState& AsconState::operator=(const AsconState& rhs)
   return *this;
 }
 
+
+AsconState*  AsconState::clone(){
+  AsconState* obj =  new AsconState();
+  for(int j = 0; j< 5; ++j)
+    obj->words[j] = words[j];
+  return obj;
+}
+
 std::vector<UpdatePos> AsconState::diff(const StateMask& other) {
   BitVector diffword;
   std::vector<UpdatePos> result;
@@ -56,6 +64,14 @@ void AsconState::SetState(BitMask value){
       words[j].bitmasks[i] = value;
     words[j].reinit_caremask();
   }
+}
+
+void AsconState::SetBit(BitMask value, int word_pos, int bit_pos){
+  words.at(word_pos).set_bit(value, bit_pos);
+}
+
+void AsconState::print(){
+  std::cout << *this;
 }
 
 

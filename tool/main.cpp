@@ -141,24 +141,24 @@ void test_linearlayer(){
 void test_permutation(){
   AsconPermutation<1> perm;
 
-  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 7);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 7);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 41);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 41);
+  perm.state_masks_[0]->SetState(BM_0);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 7);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 7);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 41);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 41);
 
-  perm.state_masks_[1].words[4].set_bit(BM_1, 0);
-  perm.state_masks_[1].words[1].set_bit(BM_0, 0);
+  perm.state_masks_[1]->SetBit(BM_1, 4, 0);
+  perm.state_masks_[1]->SetBit(BM_0, 1, 0);
   perm.checkchar();
   perm.touchall();
-  perm.state_masks_[1].words[4].set_bit(BM_1, 7);
-  perm.state_masks_[1].words[1].set_bit(BM_0, 7);
+  perm.state_masks_[1]->SetBit(BM_1, 4, 7);
+  perm.state_masks_[1]->SetBit(BM_0, 1, 7);
   perm.checkchar();
   perm.touchall();
-  perm.state_masks_[1].words[4].set_bit(BM_1, 41);
-  perm.state_masks_[1].words[1].set_bit(BM_0, 41);
+  perm.state_masks_[1]->SetBit(BM_1, 4, 41);
+  perm.state_masks_[1]->SetBit(BM_0, 1, 41);
 
   perm.checkchar();
 }
@@ -168,7 +168,7 @@ void test_active(){
   AsconPermutation<1> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 0, 0);
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
 //  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
@@ -197,7 +197,7 @@ void test_active_guess(unsigned int iterations){
   AsconPermutation<3> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[0].set_bit(BM_1, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 0, 0);
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 0);
 //  perm.state_masks_[0].words[0].set_bit(BM_1, 19);
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 19);
@@ -228,14 +228,14 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 
   //searchmasks for 4 rounds
   AsconPermutation<4> perm;
-  perm.state_masks_[3].SetState(BM_0);
-  perm.state_masks_[3].words[0].set_bit(BM_1, 28);
-  perm.state_masks_[3].words[0].set_bit(BM_1, 36);
-  perm.state_masks_[3].words[0].set_bit(BM_1, 54);
-  perm.state_masks_[4].SetState(BM_0);
-  perm.state_masks_[4].words[0].set_bit(BM_1, 0);
-  perm.state_masks_[4].words[0].set_bit(BM_1, 9);
-  perm.state_masks_[4].words[0].set_bit(BM_1, 28);
+  perm.state_masks_[3]->SetState(BM_0);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 28);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 36);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 54);
+  perm.state_masks_[4]->SetState(BM_0);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 0);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 9);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 28);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
   std::vector<std::vector<std::array<int, 2>>>weights = { { {100,0}, {150,0}, {200,0}, {10,0}}, { {100,0}, {150,0}, {200,0}, {100,0}}, { {0,1}, {0,1}, {0,1}, {0,1}}};
 
@@ -249,12 +249,12 @@ void test_active_guess_layered(){
   AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 0);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 7);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 7);
-  perm.state_masks_[0].words[3].set_bit(BM_1, 41);
-  perm.state_masks_[0].words[4].set_bit(BM_1, 41);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 0);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 7);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 7);
+  perm.state_masks_[0]->SetBit(BM_1, 3, 41);
+  perm.state_masks_[0]->SetBit(BM_1, 4, 41);
 
   perm.checkchar();
 

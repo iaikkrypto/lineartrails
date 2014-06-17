@@ -24,14 +24,17 @@ struct AsconPermutation : public Permutation<rounds> {
   void PrintWithProbability();
   ProbabilityPair GetProbability();
 
-  friend std::ostream& operator<<(std::ostream& stream, const AsconPermutation<rounds>& permutation) {
+  friend std::ostream& operator<<(std::ostream& stream,
+                                  const AsconPermutation<rounds>& permutation) {
     int i = 0;
-    for (const auto& state : permutation.state_masks_)
-      stream << "State Mask " << ++i << std::endl << state << std::endl;
+    for (const auto& state : permutation.state_masks_) {
+      stream << "State Mask " << ++i << std::endl;
+      state->print();
+      std::cout << std::endl;
+    }
     return stream;
   }
 
-  std::array<AsconState, 2 * rounds + 1> state_masks_;
   bool toupdate_linear;
   bool toupdate_nonlinear;
 };

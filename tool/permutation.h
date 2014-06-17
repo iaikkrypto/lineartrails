@@ -43,6 +43,7 @@ struct Permutation : PermutationBase {
   virtual void PrintWithProbability() = 0;
   virtual ProbabilityPair GetProbability() = 0;
 
+  std::array<std::unique_ptr<StateMask>, 2 * rounds + 1> state_masks_;
   std::array<std::unique_ptr<SboxLayerBase>,rounds> sbox_layers_;
   std::array<std::unique_ptr<LinearLayer>, rounds> linear_layers_;
 };

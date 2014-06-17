@@ -52,6 +52,10 @@ struct Mask {
 };
 
 struct StateMask {
+  virtual StateMask* clone() = 0;
+  virtual void print() = 0;
+  virtual void SetState(BitMask value) = 0;
+  virtual void SetBit(BitMask value, int word_pos, int bit_pos) = 0;
   virtual std::vector<UpdatePos> diff(const StateMask& other) = 0;
   virtual Mask& operator[](const int index) = 0;
   virtual const Mask& operator[](const int index) const = 0;

@@ -16,15 +16,15 @@
 
 
 struct PermutationBase {
-  virtual bool checkchar() = 0;
+  virtual bool checkchar(std::ostream& stream = std::cout) = 0;
   virtual bool update() = 0;
   virtual PermutationBase* clone() const = 0;
-  virtual void print() = 0;
+  virtual void print(std::ostream& stream) = 0;
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive) = 0;
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive) = 0;
   virtual bool guessbestsbox(SboxPos pos) = 0;
   virtual bool guessbestsbox(SboxPos pos, int num_alternatives) = 0;
-  virtual void PrintWithProbability(int offset = 0) = 0;
+  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0) = 0;
   virtual ProbabilityPair GetProbability() = 0;
 
   UpdateQueue queue_linear_;
@@ -34,16 +34,16 @@ struct PermutationBase {
 template <unsigned rounds>
 struct Permutation : PermutationBase {
   Permutation() = default;
-  virtual bool checkchar();
+  virtual bool checkchar(std::ostream& stream = std::cout);
   virtual bool update();
-  virtual void print();
+  virtual void print(std::ostream& stream);
   virtual Permutation* clone() const = 0;
   virtual void set(Permutation<rounds>* perm);
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   virtual bool guessbestsbox(SboxPos pos);
   virtual bool guessbestsbox(SboxPos pos, int num_alternatives);
-  virtual void PrintWithProbability(int offset = 0);
+  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
   virtual void touchall();
   virtual ProbabilityPair GetProbability();
 

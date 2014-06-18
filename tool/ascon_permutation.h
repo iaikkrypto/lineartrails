@@ -12,27 +12,18 @@ struct AsconPermutation : public Permutation<rounds> {
   AsconPermutation<rounds>& operator=(const AsconPermutation<rounds>& rhs);
   AsconPermutation();
   AsconPermutation(const AsconPermutation& other);
-  virtual bool checkchar();
-  virtual bool guessbestsbox(SboxPos pos);
-  virtual bool guessbestsbox(SboxPos pos, int num_alternatives);
-  virtual void set(Permutation<rounds>* perm);
-  virtual bool update();
-  virtual void print();
   void touchall();
-  virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
-  virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   AsconPermutation<rounds>* clone() const;
+  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
 
-  virtual void PrintWithProbability(int offset = 0);
-  ProbabilityPair GetProbability();
 
   friend std::ostream& operator<<(std::ostream& stream,
                                   const AsconPermutation<rounds>& permutation) {
     int i = 0;
     for (const auto& state : permutation.state_masks_) {
       stream << "State Mask " << ++i << std::endl;
-      state->print();
-      std::cout << std::endl;
+      state->print(stream);
+      stream << std::endl;
     }
     return stream;
   }

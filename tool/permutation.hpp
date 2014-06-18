@@ -132,33 +132,33 @@ ProbabilityPair Permutation<rounds>::GetProbability() {
 }
 
 template <unsigned rounds>
-bool Permutation<rounds>::checkchar() {
+bool Permutation<rounds>::checkchar(std::ostream& stream) {
   bool correct;
-  std::cout << "Characteristic before propagation" << std::endl;
-  this->print();
+  stream << "Characteristic before propagation" << std::endl;
+  this->print(stream);
   correct = this->update();
-  std::cout << "Characteristic after propagation" << std::endl;
-  this->print();
+  stream << "Characteristic after propagation" << std::endl;
+  this->print(stream);
   return correct;
 }
 
 template <unsigned rounds>
-void Permutation<rounds>::print() {
+void Permutation<rounds>::print(std::ostream& stream) {
   int i = 0;
   for (const auto& state : state_masks_) {
-    std::cout << "State Mask " << ++i << std::endl;
-    state->print();
-    std::cout << std::endl;
+    stream << "State Mask " << ++i << std::endl;
+    state->print(stream);
+    stream << std::endl;
   }
 }
 
 template<unsigned rounds>
-void Permutation<rounds>::PrintWithProbability(int offset) {
+void Permutation<rounds>::PrintWithProbability(std::ostream& stream, int offset) {
   ProbabilityPair prob { 1, 0.0 };
   ProbabilityPair temp_prob;
   int active_sboxes = 0;
   for (int i = 0; i <= 2 * rounds; ++i) {
-    std::cout << "State Mask " << i + 1;
+    stream << "State Mask " << i + 1;
     if (i % 2 == offset && i < 2 * rounds) {
       temp_prob = this->sbox_layers_[i / 2]->GetProbability();
       int active_sboxes_layer = 0;
@@ -167,19 +167,18 @@ void Permutation<rounds>::PrintWithProbability(int offset) {
       active_sboxes += active_sboxes_layer;
       prob.sign *= temp_prob.sign;
       prob.bias += temp_prob.bias;
-      std::cout << " sign: " << (int) temp_prob.sign << " bias: "
+      stream << " sign: " << (int) temp_prob.sign << " bias: "
                 << temp_prob.bias << " active sboxes: " << active_sboxes_layer;
     }
-    std::cout << std::endl;
-    this->state_masks_[i]->print();
-    std::cout << std::endl;
-//    std::cout << std::endl << state_masks_[i] << std::endl;
+    stream << std::endl;
+    this->state_masks_[i]->print(stream);
+    stream << std::endl;
   }
   prob.bias += rounds - 1;
-  std::cout << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
+  stream << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
       << " active sboxes: " << active_sboxes << std::endl << std::endl;
 
-  std::cout << "----------------------------------------------------------------" << std::endl;
+  stream << "----------------------------------------------------------------" << std::endl;
 }
 
 template <unsigned rounds>

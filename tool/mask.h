@@ -53,7 +53,7 @@ struct Mask {
 
 struct StateMask {
   virtual StateMask* clone() = 0;
-  virtual void print() = 0;
+  virtual void print(std::ostream& stream) = 0;
   virtual void SetState(BitMask value) = 0;
   virtual void SetBit(BitMask value, int word_pos, int bit_pos) = 0;
   virtual std::vector<UpdatePos> diff(const StateMask& other) = 0;

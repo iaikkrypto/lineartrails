@@ -24,7 +24,7 @@ struct AsconState : public StateMask {
   Mask& operator[](const int index);
   const Mask& operator[](const int index) const;
   friend std::ostream& operator<<(std::ostream& stream, const AsconState& statemask);
-  void print();
+  void print(std::ostream& stream);
   virtual AsconState* clone();
   void SetState(BitMask value);
   void SetBit(BitMask value, int word_pos, int bit_pos);

@@ -70,8 +70,8 @@ void AsconState::SetBit(BitMask value, int word_pos, int bit_pos){
   words.at(word_pos).set_bit(value, bit_pos);
 }
 
-void AsconState::print(){
-  std::cout << *this;
+void AsconState::print(std::ostream& stream){
+  stream << *this;
 }
 
 

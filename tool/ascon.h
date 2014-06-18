@@ -11,6 +11,7 @@
 #include "step_nonlinear.h"
 #include "updatequeue.h"
 #include "memory"
+#include "lrucache.h"
 
 
 struct AsconState : public StateMask {
@@ -74,8 +75,11 @@ struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer(StateMask *in, StateMask *out);
   virtual AsconSboxLayer* clone();
   void InitSboxes();
+  virtual bool Update(UpdatePos pos);
   Mask GetVerticalMask(int b, const StateMask& s) const;
   void SetVerticalMask(int b, StateMask& s, const Mask& mask);
+
+ static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };
 
 

@@ -11,7 +11,16 @@
 #include <assert.h>
 #include <iterator>
 
+#include "cache.h"
 #include "mask.h"
+
+struct NonlinearStepUpdateInfo{
+  bool is_active_;
+  bool is_guessable_;
+  WordMask inmask_;
+  WordMask outmask_;
+};
+
 
 template <unsigned bitsize> struct LinearDistributionTable; 
 template <unsigned bitsize> std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable<bitsize>& ldt);
@@ -42,8 +51,10 @@ struct NonlinearStep {
   void Initialize(std::shared_ptr<LinearDistributionTable<bitsize>> ldt);
   ProbabilityPair GetProbability(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
+  bool Update(Mask& x, Mask& y, Cache<unsigned long long, NonlinearStepUpdateInfo>* box_cache);
   void TakeBestBox(Mask& x, Mask& y);
   int TakeBestBox(Mask& x, Mask& y, int pos);
+  unsigned long long getKey(Mask& in, Mask& out);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
   NonlinearStep<bitsize>& operator=(const NonlinearStep<bitsize>& rhs);
 

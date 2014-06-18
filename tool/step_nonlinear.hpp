@@ -119,6 +119,48 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
   return true;
 }
 
+template<unsigned bitsize>
+bool NonlinearStep<bitsize>::Update(
+    Mask& x, Mask& y,
+    Cache<unsigned long long, NonlinearStepUpdateInfo>* box_cache) {
+  NonlinearStepUpdateInfo stepdata;
+  x.reinit_caremask();
+  y.reinit_caremask();
+  unsigned long long key = getKey(x, y);
+
+  if (box_cache->find(key, stepdata)) {
+    is_active_ = stepdata.is_active_;
+    is_guessable_ = stepdata.is_guessable_;
+    x.bitmasks = stepdata.inmask_;
+    y.bitmasks = stepdata.outmask_;
+    x.reinit_caremask();
+    y.reinit_caremask();
+    return true;
+  }
+
+  if (Update(x, y)) {
+    stepdata.is_active_ = is_active_;
+    stepdata.is_guessable_ = is_guessable_;
+    stepdata.inmask_ = x.bitmasks;
+    stepdata.outmask_ = y.bitmasks;
+    x.reinit_caremask();
+    y.reinit_caremask();
+    box_cache->insert(key, stepdata);
+    return true;
+  }
+
+  return false;
+
+}
+
+template<unsigned bitsize>
+unsigned long long NonlinearStep<bitsize>::getKey(Mask& in, Mask& out) {
+  return ((in.caremask.canbe1) << (3 * bitsize))
+      | ((in.caremask.care) << (2 * bitsize))
+      | ((out.caremask.canbe1) << bitsize)
+      | ((out.caremask.care));
+}
+
 template <unsigned bitsize>
 ProbabilityPair NonlinearStep<bitsize>::GetProbability(Mask& x, Mask& y) {
   std::vector<unsigned int> inmasks, outmasks;
@@ -243,3 +285,4 @@ std::ostream& operator<<(std::ostream& stream, const NonlinearStep<bitsize>& ste
   // TODO
   return stream;
 }
+

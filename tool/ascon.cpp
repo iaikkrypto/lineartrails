@@ -139,17 +139,26 @@ BitVector AsconSbox(BitVector in) {
   return sbox[in % 32];
 }
 
+std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> AsconSboxLayer::cache_;
+
 AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs){
   sboxes = rhs.sboxes;
   return *this;
 }
 
-AsconSboxLayer::AsconSboxLayer(){
+AsconSboxLayer::AsconSboxLayer() {
   InitSboxes();
+  if (this->cache_.get() == nullptr)
+    this->cache_.reset(
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
 }
 
-AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out) : SboxLayer<5,64>(in, out) {
- InitSboxes();
+AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out)
+    : SboxLayer<5, 64>(in, out) {
+  InitSboxes();
+  if (this->cache_.get() == nullptr)
+    this->cache_.reset(
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
 }
 
 void AsconSboxLayer::InitSboxes(){
@@ -163,6 +172,18 @@ AsconSboxLayer* AsconSboxLayer::clone(){
   AsconSboxLayer* obj = new AsconSboxLayer(in,out);
   obj->sboxes = this->sboxes;
   return obj;
+}
+
+
+bool AsconSboxLayer::Update(UpdatePos pos) {
+  assert(pos.bit < 64);
+  Mask copyin(GetVerticalMask(pos.bit, *in));
+  Mask copyout(GetVerticalMask(pos.bit, *out));
+  if (!sboxes[pos.bit].Update(copyin, copyout, cache_.get()))
+    return false;
+  SetVerticalMask(pos.bit, *in, copyin);
+  SetVerticalMask(pos.bit, *out, copyout);
+  return true;
 }
 
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {

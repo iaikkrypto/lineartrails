@@ -151,3 +151,46 @@ void Permutation<rounds>::print() {
     std::cout << std::endl;
   }
 }
+
+template<unsigned rounds>
+void Permutation<rounds>::PrintWithProbability(int offset) {
+  ProbabilityPair prob { 1, 0.0 };
+  ProbabilityPair temp_prob;
+  int active_sboxes = 0;
+  for (int i = 0; i <= 2 * rounds; ++i) {
+    std::cout << "State Mask " << i + 1;
+    if (i % 2 == offset && i < 2 * rounds) {
+      temp_prob = this->sbox_layers_[i / 2]->GetProbability();
+      int active_sboxes_layer = 0;
+      for (int j = 0; j < 64; ++j)
+        active_sboxes_layer += (int) this->sbox_layers_[i / 2]->SboxActive(j);
+      active_sboxes += active_sboxes_layer;
+      prob.sign *= temp_prob.sign;
+      prob.bias += temp_prob.bias;
+      std::cout << " sign: " << (int) temp_prob.sign << " bias: "
+                << temp_prob.bias << " active sboxes: " << active_sboxes_layer;
+    }
+    std::cout << std::endl;
+    this->state_masks_[i]->print();
+    std::cout << std::endl;
+//    std::cout << std::endl << state_masks_[i] << std::endl;
+  }
+  prob.bias += rounds - 1;
+  std::cout << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
+      << " active sboxes: " << active_sboxes << std::endl << std::endl;
+
+  std::cout << "----------------------------------------------------------------" << std::endl;
+}
+
+template <unsigned rounds>
+void Permutation<rounds>::touchall() {
+//for(int i = 0; i< state_masks_.size(); ++i){
+//  for(int j = 0; j<64; ++j)
+//    queue_nonlinear_.add_item(UpdatePos(i, 0, j, 0));
+//  for(int j = 0; j<5; ++j)
+//      queue_linear_.add_item(UpdatePos(i, j, 0, 0));
+//
+//}
+  this->toupdate_linear = true;
+  this->toupdate_nonlinear = true;
+}

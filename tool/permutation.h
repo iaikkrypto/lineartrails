@@ -24,7 +24,7 @@ struct PermutationBase {
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive) = 0;
   virtual bool guessbestsbox(SboxPos pos) = 0;
   virtual bool guessbestsbox(SboxPos pos, int num_alternatives) = 0;
-  virtual void PrintWithProbability() = 0;
+  virtual void PrintWithProbability(int offset = 0) = 0;
   virtual ProbabilityPair GetProbability() = 0;
 
   UpdateQueue queue_linear_;
@@ -43,7 +43,8 @@ struct Permutation : PermutationBase {
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   virtual bool guessbestsbox(SboxPos pos);
   virtual bool guessbestsbox(SboxPos pos, int num_alternatives);
-  virtual void PrintWithProbability() = 0;
+  virtual void PrintWithProbability(int offset = 0);
+  virtual void touchall();
   virtual ProbabilityPair GetProbability();
 
   std::array<std::unique_ptr<StateMask>, 2 * rounds + 1> state_masks_;

@@ -23,7 +23,7 @@ struct AsconPermutation : public Permutation<rounds> {
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   AsconPermutation<rounds>* clone() const;
 
-  void PrintWithProbability();
+  virtual void PrintWithProbability(int offset = 0);
   ProbabilityPair GetProbability();
 
   friend std::ostream& operator<<(std::ostream& stream,

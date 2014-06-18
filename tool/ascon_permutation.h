@@ -15,7 +15,9 @@ struct AsconPermutation : public Permutation<rounds> {
   virtual bool checkchar();
   virtual bool guessbestsbox(SboxPos pos);
   virtual bool guessbestsbox(SboxPos pos, int num_alternatives);
+  virtual void set(Permutation<rounds>* perm);
   virtual bool update();
+  virtual void print();
   void touchall();
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
@@ -34,9 +36,6 @@ struct AsconPermutation : public Permutation<rounds> {
     }
     return stream;
   }
-
-  bool toupdate_linear;
-  bool toupdate_nonlinear;
 };
 
 

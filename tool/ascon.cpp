@@ -100,6 +100,10 @@ AsconLinearLayer::AsconLinearLayer() {
   Init();
 }
 
+int AsconLinearLayer::GetNumLayer() {
+  return 5;
+}
+
 AsconLinearLayer* AsconLinearLayer::clone(){
   //TODO: write copy constructor
   AsconLinearLayer* obj = new AsconLinearLayer(in,out);

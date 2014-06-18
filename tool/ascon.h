@@ -62,6 +62,7 @@ struct AsconLinearLayer : public LinearLayer {
   void Init();
   AsconLinearLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
+  int GetNumLayer();
 
   std::array<LinearStep<64>, 5> sigmas;
 };

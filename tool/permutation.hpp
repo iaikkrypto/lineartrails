@@ -1,12 +1,28 @@
 template <unsigned rounds>
+Permutation<rounds>::Permutation(const Permutation& other) {
+  for(int i = 0; i< 2*rounds +1; ++i){
+    this->state_masks_[i].reset(other.state_masks_[i]->clone());
+  }
+
+  for (int i = 0; i < rounds; ++i) {
+    this->sbox_layers_[i].reset(other.sbox_layers_[i]->clone());
+    this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());
+    this->linear_layers_[i].reset(other.linear_layers_[i]->clone());
+    this->linear_layers_[i]->SetMasks(this->state_masks_[2*i + 1].get(), this->state_masks_[2*i + 2].get());
+  }
+  this->toupdate_linear = other.toupdate_linear;
+  this->toupdate_nonlinear = other.toupdate_nonlinear;
+}
+
+
+template <unsigned rounds>
 void Permutation<rounds>::SboxStatus(std::vector<SboxPos>& active,
                                   std::vector<SboxPos>& inactive) {
   active.clear();
   inactive.clear();
 
   for (size_t layer = 0; layer < rounds; ++layer)
-    //FIXME: get rid of 64
-    for (int pos = 0; pos < 64; ++pos)
+    for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
       if (this->sbox_layers_[layer]->SboxGuessable(pos)) {
         if (this->sbox_layers_[layer]->SboxActive(pos))
           active.emplace_back(layer, pos);
@@ -22,8 +38,7 @@ void Permutation<rounds>::SboxStatus(std::vector<std::vector<SboxPos>>& active, 
   inactive.resize(rounds);
 
   for (size_t layer = 0; layer < this->sbox_layers_.size(); ++layer)
-    //FIXME: get rid of 64
-    for (int pos = 0; pos < 64; ++pos)
+    for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
       if (this->sbox_layers_[layer]->SboxGuessable(pos)) {
         if (this->sbox_layers_[layer]->SboxActive(pos))
           active[layer].emplace_back(layer, pos);
@@ -76,7 +91,6 @@ void Permutation<rounds>::set(Permutation<rounds>* perm){
     this->linear_layers_[i].reset(perm->linear_layers_[i]->clone());
     this->linear_layers_[i]->SetMasks(this->state_masks_[2*i + 1].get(), this->state_masks_[2*i + 2].get());
   }
-//  state_masks_ = other.state_masks_;
   this->toupdate_linear = perm->toupdate_linear;
   this->toupdate_nonlinear = perm->toupdate_nonlinear;
 }
@@ -92,7 +106,7 @@ bool Permutation<rounds>::update() {
       for (size_t layer = 0; layer < rounds; ++layer) {
         tempin.reset(this->sbox_layers_[layer]->in->clone());
         tempout.reset(this->sbox_layers_[layer]->out->clone());
-        for (int i = 0; i < 64; ++i)
+        for (int i = 0; i < this->sbox_layers_[layer]->GetNumLayer(); ++i)
           correct &= this->sbox_layers_[layer]->Update(UpdatePos(i, i, i, 1));
         if (tempin->diff(*( this->sbox_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->sbox_layers_[layer]->out)).size() != 0)
@@ -104,7 +118,7 @@ bool Permutation<rounds>::update() {
       for (size_t layer = 0; layer < rounds; ++layer) {
         tempin.reset(this->linear_layers_[layer]->in->clone());
         tempout.reset(this->linear_layers_[layer]->out->clone());
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < this->linear_layers_[layer]->GetNumLayer(); ++i)
           correct &= this->linear_layers_[layer]->Update(UpdatePos(i, i, i, 1));
         if (tempin->diff(*( this->linear_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->linear_layers_[layer]->out)).size() != 0)
@@ -162,7 +176,7 @@ void Permutation<rounds>::PrintWithProbability(std::ostream& stream, int offset)
     if (i % 2 == offset && i < 2 * rounds) {
       temp_prob = this->sbox_layers_[i / 2]->GetProbability();
       int active_sboxes_layer = 0;
-      for (int j = 0; j < 64; ++j)
+      for (int j = 0; j < this->sbox_layers_[i / 2]->GetNumLayer(); ++j)
         active_sboxes_layer += (int) this->sbox_layers_[i / 2]->SboxActive(j);
       active_sboxes += active_sboxes_layer;
       prob.sign *= temp_prob.sign;
@@ -183,13 +197,6 @@ void Permutation<rounds>::PrintWithProbability(std::ostream& stream, int offset)
 
 template <unsigned rounds>
 void Permutation<rounds>::touchall() {
-//for(int i = 0; i< state_masks_.size(); ++i){
-//  for(int j = 0; j<64; ++j)
-//    queue_nonlinear_.add_item(UpdatePos(i, 0, j, 0));
-//  for(int j = 0; j<5; ++j)
-//      queue_linear_.add_item(UpdatePos(i, j, 0, 0));
-//
-//}
   this->toupdate_linear = true;
   this->toupdate_nonlinear = true;
 }

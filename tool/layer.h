@@ -17,6 +17,7 @@ struct Layer {
   void SetMasks(StateMask *inmask, StateMask *outmask);
   virtual bool Update(UpdatePos pos) = 0;
   virtual Layer* clone() = 0;
+  virtual int GetNumLayer() = 0;
   StateMask *in;
   StateMask *out;
 };
@@ -26,7 +27,7 @@ struct LinearLayer: public Layer {
   LinearLayer(StateMask *in, StateMask *out);
   virtual LinearLayer* clone() = 0;
   virtual bool Update(UpdatePos pos) = 0;
-
+  virtual int GetNumLayer() = 0;
 };
 
 struct SboxLayerBase: public Layer {
@@ -40,6 +41,7 @@ struct SboxLayerBase: public Layer {
   virtual bool SboxGuessable(int pos)= 0;
   virtual SboxLayerBase* clone() = 0;
   virtual ProbabilityPair GetProbability()= 0;
+  virtual int GetNumLayer() = 0;
   virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
 };
@@ -56,6 +58,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual bool SboxGuessable(int pos);
   virtual SboxLayer* clone() = 0;
   virtual ProbabilityPair GetProbability();
+  int GetNumLayer();
   virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
@@ -70,7 +73,7 @@ template <unsigned bits, unsigned boxes>
 ProbabilityPair SboxLayer<bits, boxes>::GetProbability(){
   ProbabilityPair prob {1,0.0};
 
-  for (int i = 0; i < 64; ++i){
+  for (int i = 0; i < boxes; ++i){
     Mask copyin(GetVerticalMask(i, *in));
     Mask copyout(GetVerticalMask(i, *out));
     ProbabilityPair temp_prob = sboxes[i].GetProbability(copyin, copyout);
@@ -78,13 +81,19 @@ ProbabilityPair SboxLayer<bits, boxes>::GetProbability(){
     prob.bias += temp_prob.bias;
   }
 
-  prob.bias += 63;
+  prob.bias += boxes-1;
 
   return prob;
 }
 
 template <unsigned bits, unsigned boxes>
+int SboxLayer<bits, boxes>::GetNumLayer(){
+  return boxes;
+}
+
+template <unsigned bits, unsigned boxes>
 bool SboxLayer<bits, boxes>::Update(UpdatePos pos) {
+  assert(pos.bit < boxes);
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
   if (!sboxes[pos.bit].Update(copyin, copyout))
@@ -96,16 +105,19 @@ bool SboxLayer<bits, boxes>::Update(UpdatePos pos) {
 
 template <unsigned bits, unsigned boxes>
 bool SboxLayer<bits, boxes>::SboxActive(int pos){
+  assert(pos < boxes);
   return sboxes[pos].is_active_;
 }
 
 template <unsigned bits, unsigned boxes>
 bool SboxLayer<bits, boxes>::SboxGuessable(int pos){
+  assert(pos < boxes);
   return sboxes[pos].is_guessable_;
 }
 
 template <unsigned bits, unsigned boxes>
 void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos) {
+  assert(pos.bit < boxes);
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
 
@@ -119,6 +131,7 @@ void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos) {
 template <unsigned bits, unsigned boxes>
 int SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, int mask_pos) {
   int choises;
+  assert(pos.bit < boxes);
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
 

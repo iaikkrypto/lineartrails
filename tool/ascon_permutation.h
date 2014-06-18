@@ -19,12 +19,7 @@ struct AsconPermutation : public Permutation<rounds> {
 
   friend std::ostream& operator<<(std::ostream& stream,
                                   const AsconPermutation<rounds>& permutation) {
-    int i = 0;
-    for (const auto& state : permutation.state_masks_) {
-      stream << "State Mask " << ++i << std::endl;
-      state->print(stream);
-      stream << std::endl;
-    }
+    permutation->print(stream);
     return stream;
   }
 };

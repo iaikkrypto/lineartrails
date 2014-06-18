@@ -15,23 +15,7 @@ AsconPermutation<rounds>::AsconPermutation() {
 }
 
 template <unsigned rounds>
-AsconPermutation<rounds>::AsconPermutation(const AsconPermutation& other) {
-  for(int i = 0; i< 2*rounds +1; ++i){
-    this->state_masks_[i].reset(other.state_masks_[i]->clone());
-  }
-
-  for (int i = 0; i < rounds; ++i) {
-    this->sbox_layers_[i].reset(other.sbox_layers_[i]->clone());
-    this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());
-    this->linear_layers_[i].reset(other.linear_layers_[i]->clone());
-    this->linear_layers_[i]->SetMasks(this->state_masks_[2*i + 1].get(), this->state_masks_[2*i + 2].get());
-  }
-//  state_masks_ = other.state_masks_;
-  this->toupdate_linear = other.toupdate_linear;
-  this->toupdate_nonlinear = other.toupdate_nonlinear;
-//  this->sbox_layers_ = other.sbox_layers_;
-//  this->linear_layers_ = other.linear_layers_;
-
+AsconPermutation<rounds>::AsconPermutation(const AsconPermutation& other) : Permutation<rounds>(other) {
 }
 
 template <unsigned rounds>
@@ -39,11 +23,8 @@ AsconPermutation<rounds>& AsconPermutation<rounds>::operator=(const AsconPermuta
   for(int i = 0; i< 2*rounds +1; ++i){
     this->state_masks_[i].reset(rhs.state_masks_[i]->clone());
   }
-// state_masks_ = rhs.state_maskss_;
   this->toupdate_linear = rhs.toupdate_linear;
  this->toupdate_nonlinear = rhs.toupdate_nonlinear;
-// this->sbox_layers_ = rhs.sbox_layers_;
-// this->linear_layers_ = rhs.linear_layers_;
  for (int i = 0; i < rounds; ++i) {
    this->sbox_layers_[i].reset(rhs.sbox_layers_[i]->clone());
    this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());

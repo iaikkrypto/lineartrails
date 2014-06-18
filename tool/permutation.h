@@ -34,6 +34,7 @@ struct PermutationBase {
 template <unsigned rounds>
 struct Permutation : PermutationBase {
   Permutation() = default;
+  Permutation(const Permutation& other);
   virtual bool checkchar(std::ostream& stream = std::cout);
   virtual bool update();
   virtual void print(std::ostream& stream);

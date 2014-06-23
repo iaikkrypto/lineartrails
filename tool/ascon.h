@@ -66,6 +66,7 @@ struct AsconLinearLayer : public LinearLayer {
   int GetNumLayer();
 
   std::array<LinearStep<64>, 5> sigmas;
+  static std::unique_ptr<LRU_Cache<WordMaskPair<64>, LinearStepUpdateInfo<64>>> cache_[5];
 };
 
 

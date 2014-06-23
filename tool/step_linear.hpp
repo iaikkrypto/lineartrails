@@ -237,3 +237,34 @@ bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
   return false;
 }
 
+template<unsigned bitsize>
+bool LinearStep<bitsize>::Update(
+    Mask& x, Mask& y,
+    Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache) {
+  LinearStepUpdateInfo<bitsize> stepdata;
+
+  WordMaskPair<bitsize> key = { x.bitmasks, y.bitmasks };
+  Mask in = x;
+  Mask out = y;
+
+  if (box_cache->find(key, stepdata)) {
+    rows = stepdata.rows;
+    x.bitmasks = stepdata.inmask_;
+    y.bitmasks = stepdata.outmask_;
+    x.reinit_caremask();
+    y.reinit_caremask();
+
+    return true;
+  }
+
+  if (Update(x, y)) {
+    stepdata.rows = rows;
+    stepdata.inmask_ = x.bitmasks;
+    stepdata.outmask_ = y.bitmasks;
+    box_cache->insert(key, stepdata);
+    return true;
+  }
+
+  return false;
+}
+

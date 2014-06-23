@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include <assert.h>
+#include <functional>
 
 #include "updatequeue.h"
 
@@ -16,6 +17,68 @@
 typedef char BitMask;                  // mask for 1 bit (10=0, 01=1, 11=?)
 typedef std::vector<BitMask> WordMask;
 typedef uint64_t BitVector;            // n-bit vector
+
+
+
+
+template <unsigned bitsize>
+struct WordMaskPair {
+
+  WordMaskPair(WordMask in, WordMask out) : in(in), out(out) { }
+  bool operator==(const WordMaskPair<bitsize> &other) const {
+    bool ret_val = true;
+    for(int i = 0; i<bitsize; ++i){
+      ret_val &= ((this->in[i] & 3) == (other.in[i] & 3));
+      ret_val &= ((this->out[i] & 3) ==(other.out[i]& 3));
+    }
+    return ret_val;
+  }
+
+  WordMask in;
+  WordMask out;
+};
+
+namespace std {
+template<unsigned bitsize>
+struct hash<WordMaskPair<bitsize>> {
+  std::size_t operator()(const WordMaskPair<bitsize>& k) const {
+    uint64_t v0, v1, v2, v3;
+    uint64_t message;
+    v0 = v1 = v2 = v3 = 0;
+
+    for (int i = 0; i < bitsize; i += 16) {
+      message = 0;
+      for (int j = i; j < i + 16; ++j) {
+        message <<= 2;
+        //TODO: Maybe get rid of the & 2
+        message |= (k.in[j] & 3);
+        message <<= 2;
+        message |= (k.out[j] & 3);
+      }
+      v0 ^= message;
+      for (int j = 0; j < 2; j++) {
+        v0 += v1;
+        v2 += v3;
+        v1 = (v1 << 13) | (v1 >> (64 - 13));
+        v3 = (v3 << 16) | (v3 >> (64 - 16));
+        v1 ^= v0;
+        v3 ^= v2;
+        v0 = (v0 << 32) | (v0 >> 32);
+        v2 += v1;
+        v0 += v3;
+        v1 = (v1 << 17) | (v1 >> (64 - 17));
+        v3 = (v3 << 21) | (v3 >> (64 - 21));
+        v1 ^= v2;
+        v3 ^= v0;
+        v2 = (v2 << 32) | (v2 >> 32);
+      }
+      v3 ^= message;
+    }
+
+    return v0 ^ v1 ^ v2 ^ v3;
+  }
+};
+}
 
 struct WordMaskCare {
   WordMaskCare& operator=(const WordMaskCare& rhs);

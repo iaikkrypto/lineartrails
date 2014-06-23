@@ -150,7 +150,6 @@ bool NonlinearStep<bitsize>::Update(
   }
 
   return false;
-
 }
 
 template<unsigned bitsize>
@@ -182,6 +181,7 @@ template <unsigned bitsize>
 NonlinearStep<bitsize>& NonlinearStep<bitsize>::operator=(const NonlinearStep<bitsize>& rhs){
   ldt_ = rhs.ldt_;
   is_active_ = rhs.is_active_;
+  is_guessable_ = rhs.is_guessable_;
   return *this;
 }
 

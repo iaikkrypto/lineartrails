@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 
+#include "cache.h"
 #include "mask.h"
 
 template <unsigned bitsize> struct Row; // forward declaration for friends below
@@ -42,6 +43,15 @@ struct Row {
 
 //-----------------------------------------------------------------------------
 
+template <unsigned bitsize>
+struct LinearStepUpdateInfo{
+  std::vector<Row<bitsize>> rows;
+  WordMask inmask_;
+  WordMask outmask_;
+};
+
+//-----------------------------------------------------------------------------
+
 template <unsigned bitsize> struct LinearStep; // template for friends below
 template <unsigned bitsize> std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys);
 
@@ -57,6 +67,7 @@ struct LinearStep {
   bool ExtractMasks(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
   LinearStep<bitsize>& operator=(const LinearStep<bitsize>& rhs);
+  bool Update(Mask& x, Mask& y, Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize>& sys);
 

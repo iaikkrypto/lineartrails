@@ -82,8 +82,8 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
   std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
 #endif
   for (Mask word : statemask.words){
-    for (BitMask m : word.bitmasks){
-      stream << symbol[m % 4];
+    for (auto it = word.bitmasks.rbegin(); it != word.bitmasks.rend(); ++it){
+      stream << symbol[*it % 4];
     }
     stream << std::endl;
   }

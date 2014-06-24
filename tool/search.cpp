@@ -64,7 +64,8 @@ void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<s
   std::unique_ptr<PermutationBase> temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
-  working_copy->checkchar();
+  if (working_copy->checkchar() == false)
+    return;
 
   std::array<std::vector<std::vector<SboxPos>>,2> active_boxes;
 

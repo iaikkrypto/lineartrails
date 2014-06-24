@@ -233,14 +233,51 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 
   //searchmasks for 4 rounds
   AsconPermutation<4> perm;
+  //first variant
+  perm.state_masks_[3]->SetState(BM_0);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 35);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 27);
+  perm.state_masks_[3]->SetBit(BM_1, 0, 9);
+  perm.state_masks_[4]->SetState(BM_0);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 63);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 54);
+  perm.state_masks_[4]->SetBit(BM_1, 0, 35);
+  //second variant
 //  perm.state_masks_[3]->SetState(BM_0);
-//  perm.state_masks_[3]->SetBit(BM_1, 0, 28);
-//  perm.state_masks_[3]->SetBit(BM_1, 0, 36);
-//  perm.state_masks_[3]->SetBit(BM_1, 0, 54);
+//  perm.state_masks_[3]->SetBit(BM_1, 1, 0);
+//  perm.state_masks_[3]->SetBit(BM_1, 1, 14);
+//  perm.state_masks_[3]->SetBit(BM_1, 1, 58);
 //  perm.state_masks_[4]->SetState(BM_0);
-  perm.state_masks_[4]->SetBit(BM_1, 0, 0);
-//  perm.state_masks_[4]->SetBit(BM_1, 0, 9);
-//  perm.state_masks_[4]->SetBit(BM_1, 0, 28);
+//  perm.state_masks_[4]->SetBit(BM_1, 1, 0);
+//  perm.state_masks_[4]->SetBit(BM_1, 1, 39);
+//  perm.state_masks_[4]->SetBit(BM_1, 1, 61);
+  //third variant
+//  perm.state_masks_[3]->SetState(BM_0);
+//  perm.state_masks_[3]->SetBit(BM_1, 2, 0);
+//  perm.state_masks_[3]->SetBit(BM_1, 2, 2);
+//  perm.state_masks_[3]->SetBit(BM_1, 2, 12);
+//  perm.state_masks_[4]->SetState(BM_0);
+//  perm.state_masks_[4]->SetBit(BM_1, 2, 0);
+//  perm.state_masks_[4]->SetBit(BM_1, 2, 1);
+//  perm.state_masks_[4]->SetBit(BM_1, 2, 6);
+  //fourth variant
+//  perm.state_masks_[3]->SetState(BM_0);
+//  perm.state_masks_[3]->SetBit(BM_1, 3, 0);
+//  perm.state_masks_[3]->SetBit(BM_1, 3, 20);
+//  perm.state_masks_[3]->SetBit(BM_1, 3, 34);
+//  perm.state_masks_[4]->SetState(BM_0);
+//  perm.state_masks_[4]->SetBit(BM_1, 3, 0);
+//  perm.state_masks_[4]->SetBit(BM_1, 3, 10);
+//  perm.state_masks_[4]->SetBit(BM_1, 3, 17);
+  //fith variant
+//  perm.state_masks_[3]->SetState(BM_0);
+//  perm.state_masks_[3]->SetBit(BM_1, 4, 0);
+//  perm.state_masks_[3]->SetBit(BM_1, 4, 14);
+//  perm.state_masks_[3]->SetBit(BM_1, 4, 18);
+//  perm.state_masks_[4]->SetState(BM_0);
+//  perm.state_masks_[4]->SetBit(BM_1, 4, 0);
+//  perm.state_masks_[4]->SetBit(BM_1, 4, 7);
+//  perm.state_masks_[4]->SetBit(BM_1, 4, 41);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
   std::vector<std::vector<std::array<int, 2>>>weights = { {{100,0}, {100,0}, {250,0}, {20,0}}, {{0,1}, {0,1}, {0,1}, {0,1}}};
 

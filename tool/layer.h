@@ -35,8 +35,8 @@ struct SboxLayerBase: public Layer {
   SboxLayerBase(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos)= 0;
   virtual void InitSboxes() = 0;
-  virtual void GuessBox(UpdatePos pos)= 0;
-  virtual int GuessBox(UpdatePos pos, int mask_pos)= 0;
+  virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
+  virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos)= 0;
   virtual bool SboxActive(int pos)= 0;
   virtual bool SboxGuessable(int pos)= 0;
   virtual SboxLayerBase* clone() = 0;
@@ -52,8 +52,8 @@ struct SboxLayer: public SboxLayerBase {
   SboxLayer(StateMask *in, StateMask *out);
   virtual bool Update(UpdatePos pos);
   virtual void InitSboxes() = 0;
-  virtual void GuessBox(UpdatePos pos);
-  virtual int GuessBox(UpdatePos pos, int mask_pos);
+  virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
+  virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos);
   virtual bool SboxActive(int pos);
   virtual bool SboxGuessable(int pos);
   virtual SboxLayer* clone() = 0;
@@ -116,12 +116,12 @@ bool SboxLayer<bits, boxes>::SboxGuessable(int pos){
 }
 
 template <unsigned bits, unsigned boxes>
-void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos) {
+void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating) {
   assert(pos.bit < boxes);
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
 
-  sboxes[pos.bit].TakeBestBox(copyin, copyout);
+  sboxes[pos.bit].TakeBestBox(copyin, copyout, rating);
 
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);
@@ -129,13 +129,13 @@ void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos) {
 }
 
 template <unsigned bits, unsigned boxes>
-int SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, int mask_pos) {
+int SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos) {
   int choises;
   assert(pos.bit < boxes);
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
 
-  choises = sboxes[pos.bit].TakeBestBox(copyin, copyout, mask_pos);
+  choises = sboxes[pos.bit].TakeBestBox(copyin, copyout, rating, mask_pos);
 
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);

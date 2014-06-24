@@ -52,8 +52,8 @@ struct NonlinearStep {
   ProbabilityPair GetProbability(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y, Cache<unsigned long long, NonlinearStepUpdateInfo>* box_cache);
-  void TakeBestBox(Mask& x, Mask& y);
-  int TakeBestBox(Mask& x, Mask& y, int pos);
+  void TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating);
+  int TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating, int pos);
   unsigned long long getKey(Mask& in, Mask& out);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
   NonlinearStep<bitsize>& operator=(const NonlinearStep<bitsize>& rhs);

@@ -49,16 +49,16 @@ void Permutation<rounds>::SboxStatus(std::vector<std::vector<SboxPos>>& active, 
 
 
 template <unsigned rounds>
-bool Permutation<rounds>::guessbestsbox(SboxPos pos) {
+bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) {
 
-  this->sbox_layers_[pos.layer_]->GuessBox(UpdatePos(0, 0, pos.pos_, 0),0);
+  this->sbox_layers_[pos.layer_]->GuessBox(UpdatePos(0, 0, pos.pos_, 0), rating);
 
   this->toupdate_linear = true;
     return update();
 }
 
 template<unsigned rounds>
-bool Permutation<rounds>::guessbestsbox(SboxPos pos,
+bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating,
                                              int num_alternatives) {
   bool update_works = false;
   std::unique_ptr<Permutation<rounds>> temp;
@@ -66,7 +66,7 @@ bool Permutation<rounds>::guessbestsbox(SboxPos pos,
 
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(
-        UpdatePos(0, 0, pos.pos_, 0), i);
+        UpdatePos(0, 0, pos.pos_, 0), rating, i);
     num_alternatives =
         total_alternatives < num_alternatives ?
             total_alternatives : num_alternatives;

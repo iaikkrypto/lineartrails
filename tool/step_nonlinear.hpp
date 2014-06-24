@@ -186,7 +186,7 @@ NonlinearStep<bitsize>& NonlinearStep<bitsize>::operator=(const NonlinearStep<bi
 }
 
 template <unsigned bitsize>
-void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
+void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating) {
   std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
   create_masks(inmasks, x);
   create_masks(outmasks, y);
@@ -196,8 +196,8 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
-       if(branch_number < std::abs(ldt_->ldt[inmask][outmask])){
-         branch_number = std::abs(ldt_->ldt[inmask][outmask]);
+       if(branch_number < rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask))){
+         branch_number = rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask));
          best_inmask = inmask;
          best_outmask = outmask;
        }
@@ -220,29 +220,39 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y) {
 
 }
 
-template <unsigned bitsize>
-int NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y, int pos) {
+template<unsigned bitsize>
+int NonlinearStep<bitsize>::TakeBestBox(
+    Mask& x, Mask& y, std::function<int(int, int, int)> rating, int pos) {
   std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
   create_masks(inmasks, x);
   create_masks(outmasks, y);
-  std::multimap<int,std::pair<unsigned int,unsigned int>,std::greater<int>> valid_masks;
-
+  std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks;
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
-       if(0 < std::abs(ldt_->ldt[inmask][outmask])){
-         valid_masks.insert(std::pair<int,std::pair<unsigned int,unsigned int>>(std::abs(ldt_->ldt[inmask][outmask]),std::pair<unsigned int, unsigned int>(inmask,outmask)));
-       }
+      if (0
+          < rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
+                   __builtin_popcount(outmask))) {
+        valid_masks.insert(
+            std::pair<int, std::pair<unsigned int, unsigned int>>(
+                rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
+                       __builtin_popcount(outmask)),
+                std::pair<unsigned int, unsigned int>(inmask, outmask)));
+      }
     }
 
-  assert(pos<valid_masks.size());
+  assert(pos < valid_masks.size());
 
   for (unsigned int i = 0; i < bitsize; ++i) {
-    x.bitmasks[i] = (((std::next(valid_masks.begin(),pos)->second.first  >> i)&1) == 1 ? BM_1 : BM_0);
-    y.bitmasks[i] = (((std::next(valid_masks.begin(),pos)->second.second  >> i)&1) == 1 ? BM_1 : BM_0);
+    x.bitmasks[i] = (
+        ((std::next(valid_masks.begin(), pos)->second.first >> i) & 1) == 1 ?
+            BM_1 : BM_0);
+    y.bitmasks[i] = (
+        ((std::next(valid_masks.begin(), pos)->second.second >> i) & 1) == 1 ?
+            BM_1 : BM_0);
   }
 
-  if(std::next(valid_masks.begin(),pos)->second.first)
+  if (std::next(valid_masks.begin(), pos)->second.first)
     is_active_ = true;
   else
     is_active_ = false;

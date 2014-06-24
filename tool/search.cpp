@@ -11,7 +11,7 @@ Search::Search(PermutationBase &perm) : perm_(&perm) {
 
 }
 
-void Search::RandomSearch1(unsigned int iterations) {
+void Search::RandomSearch1(unsigned int iterations, std::function<int(int, int, int)> rating) {
   std::unique_ptr<PermutationBase> working_copy, temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
@@ -29,7 +29,7 @@ void Search::RandomSearch1(unsigned int iterations) {
     while (active.size() != 0 || inactive.size() != 0) {
       while (inactive.size() != 0) {
         std::uniform_int_distribution<int> guessbox(0, inactive.size() - 1);
-        if (temp_copy->guessbestsbox(inactive[guessbox(generator)]) == false) {
+        if (temp_copy->guessbestsbox(inactive[guessbox(generator)], rating) == false) {
           temp_copy.reset(working_copy->clone());
           active.clear();
           break;
@@ -39,7 +39,7 @@ void Search::RandomSearch1(unsigned int iterations) {
 
       while (active.size() != 0) {
         std::uniform_int_distribution<int> guessbox(0, active.size() - 1);
-        if (temp_copy->guessbestsbox(active[guessbox(generator)]) == false) {
+        if (temp_copy->guessbestsbox(active[guessbox(generator)], rating) == false) {
           temp_copy.reset(working_copy->clone());
           temp_copy->SboxStatus(active, inactive);
           break;
@@ -58,7 +58,7 @@ void Search::RandomSearch1(unsigned int iterations) {
 
 //Search without stack using weighted guesses
 //TODO: Separate finding guess pos from actual guessing
-void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, int try_one_box) {
+void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, std::function<int(int, int, int)> rating, int try_one_box) {
 
   std::unique_ptr<PermutationBase> working_copy;
   std::unique_ptr<PermutationBase> temp_copy;
@@ -111,7 +111,7 @@ void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<s
                   }
                   else{
                     std::uniform_int_distribution<int> guessbox(0, active_boxes[active][layer].size() - 1);
-                    if (temp_copy->guessbestsbox(active_boxes[active][layer][guessbox(generator)],try_one_box) == false) {
+                    if (temp_copy->guessbestsbox(active_boxes[active][layer][guessbox(generator)], rating, try_one_box) == false) {
                       current_setting = num_settings + 1;
                       fail = true;
                     }

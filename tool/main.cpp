@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <cmath>
 
 #include "mask.h"
 #include "step_linear.h"
@@ -21,6 +22,10 @@ BitVector testfun_nonlinear(BitVector in) {
   // y1 = x1 + ~x2 * x0
   // y2 = x2 + ~x0 * x1
   return (in ^ (~((in >> 1) | (in << 2)) & ((in >> 2) | (in << 1)))) & 7;
+}
+
+int box_rating(int bias, int hw_in, int hw_out){
+  return std::abs(bias);
 }
 
 void teststep_linear() {
@@ -205,7 +210,7 @@ void test_active_guess(unsigned int iterations){
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
   Search my_search(perm);
 
-  my_search.RandomSearch1(iterations);
+  my_search.RandomSearch1(iterations, box_rating);
 }
 
 
@@ -241,7 +246,7 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 
   Search my_search(perm);
 
- my_search.HeuristicSearch1(iterations,weights,try_one_box);
+ my_search.HeuristicSearch1(iterations,weights, box_rating, try_one_box);
 }
 
 
@@ -270,7 +275,7 @@ void test_active_guess_layered(){
   while (active[layer].size() != 0 || inactive[layer].size() != 0) {
     while (inactive[layer].size() != 0) {
       std::uniform_int_distribution<int> guessbox(0, inactive[layer].size() - 1);
-      if (temp.guessbestsbox(inactive[layer][guessbox(generator)]) == false) {
+      if (temp.guessbestsbox(inactive[layer][guessbox(generator)], box_rating) == false) {
         temp = perm;
         layer = -1;
         active[layer].clear();
@@ -280,7 +285,7 @@ void test_active_guess_layered(){
     }
     while (active[layer].size() != 0) {
       std::uniform_int_distribution<int> guessbox(0, active[layer].size() - 1);
-      if (temp.guessbestsbox(active[layer][guessbox(generator)]) == false) {
+      if (temp.guessbestsbox(active[layer][guessbox(generator)], box_rating) == false) {
         temp = perm;
         layer = -1;
         temp.SboxStatus(active, inactive);

@@ -23,9 +23,11 @@ struct PermutationBase {
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive) = 0;
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive) = 0;
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) = 0;
+  virtual bool guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives) = 0;
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives) = 0;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0) = 0;
   virtual ProbabilityPair GetProbability() = 0;
+  virtual unsigned int GetActiveSboxes() = 0;
 
   UpdateQueue queue_linear_;
   UpdateQueue queue_nonlinear_;
@@ -43,10 +45,12 @@ struct Permutation : PermutationBase {
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating);
+  virtual bool guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives);
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives);
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
   virtual void touchall();
   virtual ProbabilityPair GetProbability();
+  virtual unsigned int GetActiveSboxes();
 
   std::array<std::unique_ptr<StateMask>, 2 * rounds + 1> state_masks_;
   std::array<std::unique_ptr<SboxLayerBase>,rounds> sbox_layers_;

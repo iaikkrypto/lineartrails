@@ -58,7 +58,7 @@ void Search::RandomSearch1(unsigned int iterations, std::function<int(int, int, 
 
 //Search without stack using weighted guesses
 //TODO: Separate finding guess pos from actual guessing
-void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, std::function<int(int, int, int)> rating, int try_one_box) {
+void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int, 2>>>weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active) {
 
   std::unique_ptr<PermutationBase> working_copy;
   std::unique_ptr<PermutationBase> temp_copy;
@@ -111,7 +111,7 @@ void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<s
                   }
                   else{
                     std::uniform_int_distribution<int> guessbox(0, active_boxes[active][layer].size() - 1);
-                    if (temp_copy->guessbestsbox(active_boxes[active][layer][guessbox(generator)], rating, try_one_box) == false) {
+                    if (temp_copy->guessbestsboxrandom(active_boxes[active][layer][guessbox(generator)], rating, try_one_box) == false) {
                       current_setting = num_settings + 1;
                       fail = true;
                     }
@@ -127,7 +127,11 @@ void Search::HeuristicSearch1(unsigned int iterations, std::vector<std::vector<s
             current_setting = current_setting + 1;
       }
     }
-    double current_prob = temp_copy->GetProbability().bias;
+    double current_prob;
+    if(count_active)
+      current_prob = -temp_copy->GetActiveSboxes();
+    else
+      current_prob = temp_copy->GetProbability().bias;
     if (current_prob > best_prob) {
       best_prob = current_prob;
       std::cout << "iteration: " << i << std::endl;

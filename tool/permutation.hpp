@@ -80,6 +80,33 @@ bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int,
 }
 
 template<unsigned rounds>
+bool Permutation<rounds>::guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating,
+                                             int num_alternatives) {
+  bool update_works = false;
+  std::unique_ptr<Permutation<rounds>> temp;
+  temp.reset(this->clone());
+
+  for (int i = 0; i < num_alternatives; ++i) {
+    int total_alternatives = 0xffff;
+    if(i)
+    total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(
+        UpdatePos(0, 0, pos.pos_, 0), rating, i);
+    else
+      this->sbox_layers_[pos.layer_]->GuessBoxRandom(
+              UpdatePos(0, 0, pos.pos_, 0), rating);
+    num_alternatives =
+        total_alternatives < num_alternatives ?
+            total_alternatives : num_alternatives;
+    this->toupdate_linear = true;
+    update_works = update();
+    if (update_works)
+      return update_works;
+    this->set(temp.get());
+  }
+  return false;
+}
+
+template<unsigned rounds>
 void Permutation<rounds>::set(Permutation<rounds>* perm){
   for(int i = 0; i< 2*rounds +1; ++i){
     this->state_masks_[i].reset(perm->state_masks_[i]->clone());
@@ -143,6 +170,18 @@ ProbabilityPair Permutation<rounds>::GetProbability() {
   prob.bias += rounds - 1;
 
   return prob;
+}
+
+template<unsigned rounds>
+unsigned int Permutation<rounds>::GetActiveSboxes() {
+  unsigned int active_sboxes_layer = 0;
+
+  for (auto& layer : this->sbox_layers_) {
+    for (int j = 0; j < layer->GetNumLayer(); ++j)
+            active_sboxes_layer += layer->SboxActive(j);
+  }
+
+  return active_sboxes_layer;
 }
 
 template <unsigned rounds>

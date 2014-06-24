@@ -263,6 +263,54 @@ int NonlinearStep<bitsize>::TakeBestBox(
   y.reinit_caremask();
 
   return valid_masks.size();
+}
+
+template<unsigned bitsize>
+void NonlinearStep<bitsize>::TakeBestBoxRandom(
+    Mask& x, Mask& y, std::function<int(int, int, int)> rating) {
+  std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
+  create_masks(inmasks, x);
+  create_masks(outmasks, y);
+  std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks;
+
+  for (const auto& inmask : inmasks)
+    for (const auto& outmask : outmasks) {
+      if (0
+          < rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
+                   __builtin_popcount(outmask))) {
+        valid_masks.insert(
+            std::pair<int, std::pair<unsigned int, unsigned int>>(
+                rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
+                       __builtin_popcount(outmask)),
+                std::pair<unsigned int, unsigned int>(inmask, outmask)));
+      }
+    }
+
+  assert(valid_masks.rbegin() != valid_masks.rend());
+  auto iterators = valid_masks.equal_range(valid_masks.begin()->first);
+  std::mt19937 generator(
+        std::chrono::high_resolution_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> guessbox(0, std::distance(iterators.first, iterators.second) - 1);
+  int box = guessbox(generator);
+
+  for (unsigned int i = 0; i < bitsize; ++i) {
+    x.bitmasks[i] = (
+        ((std::next(valid_masks.begin(), box)->second.first >> i) & 1) == 1 ?
+            BM_1 : BM_0);
+    y.bitmasks[i] = (
+        ((std::next(valid_masks.begin(), box)->second.second >> i) & 1) == 1 ?
+            BM_1 : BM_0);
+  }
+
+  if (std::next(valid_masks.begin(), box)->second.first)
+    is_active_ = true;
+  else
+    is_active_ = false;
+
+  is_guessable_ = false;
+
+  x.reinit_caremask();
+  y.reinit_caremask();
 
 }
 

@@ -233,20 +233,22 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 
   //searchmasks for 4 rounds
   AsconPermutation<4> perm;
-  perm.state_masks_[3]->SetState(BM_0);
-  perm.state_masks_[3]->SetBit(BM_1, 0, 28);
-  perm.state_masks_[3]->SetBit(BM_1, 0, 36);
-  perm.state_masks_[3]->SetBit(BM_1, 0, 54);
-  perm.state_masks_[4]->SetState(BM_0);
+//  perm.state_masks_[3]->SetState(BM_0);
+//  perm.state_masks_[3]->SetBit(BM_1, 0, 28);
+//  perm.state_masks_[3]->SetBit(BM_1, 0, 36);
+//  perm.state_masks_[3]->SetBit(BM_1, 0, 54);
+//  perm.state_masks_[4]->SetState(BM_0);
   perm.state_masks_[4]->SetBit(BM_1, 0, 0);
-  perm.state_masks_[4]->SetBit(BM_1, 0, 9);
-  perm.state_masks_[4]->SetBit(BM_1, 0, 28);
+//  perm.state_masks_[4]->SetBit(BM_1, 0, 9);
+//  perm.state_masks_[4]->SetBit(BM_1, 0, 28);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
-  std::vector<std::vector<std::array<int, 2>>>weights = { { {100,0}, {150,0}, {200,0}, {10,0}}, { {100,0}, {150,0}, {200,0}, {100,0}}, { {0,1}, {0,1}, {0,1}, {0,1}}};
+  std::vector<std::vector<std::array<int, 2>>>weights = { {{100,0}, {100,0}, {250,0}, {20,0}}, {{0,1}, {0,1}, {0,1}, {0,1}}};
 
   Search my_search(perm);
-
- my_search.HeuristicSearch1(iterations,weights, box_rating, try_one_box);
+auto myfunction = [] (int bias, int hw_in, int hw_out) {
+  return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
+};
+ my_search.HeuristicSearch1(iterations,weights, myfunction, try_one_box, true);
 }
 
 

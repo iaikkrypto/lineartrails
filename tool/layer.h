@@ -36,6 +36,7 @@ struct SboxLayerBase: public Layer {
   virtual bool Update(UpdatePos pos)= 0;
   virtual void InitSboxes() = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
+  virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating) = 0;
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos)= 0;
   virtual bool SboxActive(int pos)= 0;
   virtual bool SboxGuessable(int pos)= 0;
@@ -53,6 +54,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual bool Update(UpdatePos pos);
   virtual void InitSboxes() = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
+  virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos);
   virtual bool SboxActive(int pos);
   virtual bool SboxGuessable(int pos);
@@ -122,6 +124,19 @@ void SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, std::function<int(int, int,
   Mask copyout(GetVerticalMask(pos.bit, *out));
 
   sboxes[pos.bit].TakeBestBox(copyin, copyout, rating);
+
+  SetVerticalMask(pos.bit, *in, copyin);
+  SetVerticalMask(pos.bit, *out, copyout);
+
+}
+
+template <unsigned bits, unsigned boxes>
+void SboxLayer<bits, boxes>::GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating) {
+  assert(pos.bit < boxes);
+  Mask copyin(GetVerticalMask(pos.bit, *in));
+  Mask copyout(GetVerticalMask(pos.bit, *out));
+
+  sboxes[pos.bit].TakeBestBoxRandom(copyin, copyout, rating);
 
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);

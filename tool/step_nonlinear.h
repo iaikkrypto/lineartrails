@@ -10,6 +10,8 @@
 #include <map>
 #include <assert.h>
 #include <iterator>
+#include <chrono>
+#include <random>
 
 #include "cache.h"
 #include "mask.h"
@@ -54,6 +56,7 @@ struct NonlinearStep {
   bool Update(Mask& x, Mask& y, Cache<unsigned long long, NonlinearStepUpdateInfo>* box_cache);
   void TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating);
   int TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating, int pos);
+  void TakeBestBoxRandom(Mask& x, Mask& y, std::function<int(int, int, int)> rating);
   unsigned long long getKey(Mask& in, Mask& out);
   void create_masks(std::vector<unsigned int> &masks, Mask& reference, unsigned int pos = 0, unsigned int current_mask = 0);
   NonlinearStep<bitsize>& operator=(const NonlinearStep<bitsize>& rhs);

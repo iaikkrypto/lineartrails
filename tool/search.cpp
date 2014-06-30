@@ -165,14 +165,14 @@ void Search::HeuristicSearch2(unsigned int iterations, GuessWeights weights,
 
   for (unsigned int i = 0; i < iterations; ++i) {
     temp_copy.reset(working_copy->clone());
-    while (guesses.createMask(temp_copy.get(), weights))
-      while (guesses.getRandPos(guessed_box)) {
-        if (temp_copy->guessbestsboxrandom(guessed_box, rating, try_one_box)
-            == false) {
-          temp_copy.reset(working_copy->clone());
-          break;
-        }
+    guesses.createMask(temp_copy.get(), weights);
+    while (guesses.getRandPos(guessed_box)) {
+      if (temp_copy->guessbestsboxrandom(guessed_box, rating, try_one_box)
+          == false) {
+        temp_copy.reset(working_copy->clone());
       }
+      guesses.createMask(temp_copy.get(), weights);
+    }
     double current_prob;
     if (count_active)
       current_prob = -temp_copy->GetActiveSboxes();

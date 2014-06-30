@@ -17,13 +17,15 @@
 
 #include "permutation.h"
 #include "mask.h"
+#include "guessmask.h"
 
 class Search {
 
  public:
   Search(PermutationBase &perm);
   void RandomSearch1(unsigned int iterations, std::function<int(int, int, int)> rating);
-  void HeuristicSearch1(unsigned int iterations, std::vector<std::vector<std::array<int,2>>> weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
+  void HeuristicSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
+  void HeuristicSearch2(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
 
 
   PermutationBase *perm_;

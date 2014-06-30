@@ -279,13 +279,13 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 //  perm.state_masks_[4]->SetBit(BM_1, 4, 7);
 //  perm.state_masks_[4]->SetBit(BM_1, 4, 41);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
-  std::vector<std::vector<std::array<int, 2>>>weights = { {{100,0}, {100,0}, {250,0}, {20,0}}, {{0,1}, {0,1}, {0,1}, {0,1}}};
+  GuessWeights weights = { {{100,0}, {100,0}, {250,0}, {20,0}}, {{0,1}, {0,1}, {0,1}, {0,1}}};
 
   Search my_search(perm);
 auto myfunction = [] (int bias, int hw_in, int hw_out) {
   return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
 };
- my_search.HeuristicSearch1(iterations,weights, myfunction, try_one_box, true);
+ my_search.HeuristicSearch2(iterations,weights, myfunction, try_one_box, true);
 }
 
 

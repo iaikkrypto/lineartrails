@@ -286,7 +286,7 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 auto myfunction = [] (int bias, int hw_in, int hw_out) {
   return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
 };
- my_search.HeuristicSearch2(iterations,weights, myfunction, try_one_box, true);
+ my_search.HeuristicSearch3(iterations,weights, myfunction, try_one_box, true);
 }
 
 

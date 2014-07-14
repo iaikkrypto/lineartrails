@@ -47,6 +47,12 @@ void Permutation<rounds>::SboxStatus(std::vector<std::vector<SboxPos>>& active, 
       }
 }
 
+template <unsigned rounds>
+bool Permutation<rounds>::isActive(SboxPos pos){
+
+return this->sbox_layers_[pos.layer_]->SboxActive(pos.pos_);
+}
+
 
 template <unsigned rounds>
 bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) {

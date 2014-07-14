@@ -13,6 +13,7 @@
 #include <array>
 #include <chrono>
 #include <random>
+#include <tuple>
 
 #include "layer.h"
 #include "permutation.h"
@@ -22,10 +23,10 @@ typedef std::vector<std::vector<std::array<int, 2>>> GuessWeights;
 struct GuessMask {
 
   int createMask(PermutationBase *perm, GuessWeights& weights);
-  int getRandPos(SboxPos& box);
+  int getRandPos(SboxPos& box, bool& active);
 
 
-  std::list<std::pair<SboxPos,int>> weighted_pos_;
+  std::list<std::tuple<SboxPos,int, bool>> weighted_pos_;
   int total_weight_;
 };
 

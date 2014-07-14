@@ -20,7 +20,7 @@ std::array<std::vector<SboxPos>,2> active_boxes;
       for (auto& box : active_boxes[i]) {
         if (set[box.layer_][i] != 0) {
           total_weight_ += set[box.layer_][i];
-          weighted_pos_.push_back(std::pair<SboxPos, int>(box, set[box.layer_][i]));
+          weighted_pos_.push_back(std::tuple<SboxPos, int, bool>(box, set[box.layer_][i], i==1 ));
         }
       }
     }
@@ -30,7 +30,7 @@ std::array<std::vector<SboxPos>,2> active_boxes;
 
   return 0;
 }
-int GuessMask::getRandPos(SboxPos& box) {
+int GuessMask::getRandPos(SboxPos& box, bool& active) {
   std::uniform_int_distribution<int> guessbox(0, total_weight_);
 
   std::mt19937 generator(
@@ -38,10 +38,11 @@ int GuessMask::getRandPos(SboxPos& box) {
   int rand = guessbox(generator);
   int current_weight = 0;
   for (auto it = weighted_pos_.begin(); it != weighted_pos_.end(); ++it) {
-    current_weight += it->second;
+    current_weight += std::get<1>(*it);
     if (current_weight >= rand) {
-      box = it->first;
-      total_weight_ -= it->second;
+      box = std::get<0>(*it);
+      active = std::get<2>(*it);
+      total_weight_ -= std::get<1>(*it);
       weighted_pos_.erase(it);
       return 1;
     }

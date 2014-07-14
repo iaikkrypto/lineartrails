@@ -22,6 +22,7 @@ struct PermutationBase {
   virtual void print(std::ostream& stream) = 0;
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive) = 0;
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive) = 0;
+  virtual bool isActive(SboxPos pos) = 0;
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) = 0;
   virtual bool guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives) = 0;
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives) = 0;
@@ -44,6 +45,7 @@ struct Permutation : PermutationBase {
   virtual void set(Permutation<rounds>* perm);
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
+  virtual bool isActive(SboxPos pos);
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating);
   virtual bool guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives);
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives);

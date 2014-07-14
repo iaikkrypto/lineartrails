@@ -151,6 +151,7 @@ void Search::HeuristicSearch2(unsigned int iterations, GuessWeights weights,
   double best_prob = -DBL_MAX;
   GuessMask guesses;
   SboxPos guessed_box(0,0);
+  bool active;
 
   working_copy.reset(perm_->clone());
   if (working_copy->checkchar() == false)
@@ -166,12 +167,65 @@ void Search::HeuristicSearch2(unsigned int iterations, GuessWeights weights,
   for (unsigned int i = 0; i < iterations; ++i) {
     temp_copy.reset(working_copy->clone());
     guesses.createMask(temp_copy.get(), weights);
-    while (guesses.getRandPos(guessed_box)) {
+    while (guesses.getRandPos(guessed_box, active)) {
       if (temp_copy->guessbestsboxrandom(guessed_box, rating, try_one_box)
           == false) {
         temp_copy.reset(working_copy->clone());
       }
       guesses.createMask(temp_copy.get(), weights);
+    }
+    double current_prob;
+    if (count_active)
+      current_prob = -temp_copy->GetActiveSboxes();
+    else
+      current_prob = temp_copy->GetProbability().bias;
+    if (current_prob > best_prob) {
+      best_prob = current_prob;
+      std::cout << "iteration: " << i << std::endl;
+      temp_copy->PrintWithProbability();
+    }
+
+  }
+}
+
+void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
+                              std::function<int(int, int, int)> rating,
+                              int try_one_box, bool count_active) {
+
+  std::unique_ptr<PermutationBase> working_copy;
+  std::unique_ptr<PermutationBase> temp_copy;
+  double best_prob = -DBL_MAX;
+  GuessMask guesses;
+  SboxPos guessed_box(0, 0);
+  bool active;
+
+  working_copy.reset(perm_->clone());
+  if (working_copy->checkchar() == false)
+    return;
+
+//  guesses.createMask(working_copy.get(), weights);
+//
+//  for(auto& pos : guesses.weighted_pos_){
+//    std::cout << "(" << (int) pos.first.layer_ << ", " << (int) pos.first.pos_ << " : " << pos.second << ")";
+//  }
+//  std::cout << std::endl;
+
+  for (unsigned int i = 0; i < iterations; ++i) {
+    temp_copy.reset(working_copy->clone());
+    guesses.createMask(temp_copy.get(), weights);
+    bool still_guesses = guesses.getRandPos(guessed_box, active);
+    while (still_guesses) {
+      if (active == temp_copy->isActive(guessed_box))
+        if (temp_copy->guessbestsboxrandom(guessed_box, rating, try_one_box)
+            == false) {
+          temp_copy.reset(working_copy->clone());
+          guesses.createMask(temp_copy.get(), weights);
+        }
+      if (guesses.getRandPos(guessed_box, active) == 0) {
+        guesses.createMask(temp_copy.get(), weights);
+        still_guesses = guesses.getRandPos(guessed_box, active);
+      }
+
     }
     double current_prob;
     if (count_active)

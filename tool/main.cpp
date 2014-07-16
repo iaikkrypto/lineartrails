@@ -9,6 +9,7 @@
 #include "ascon.h"
 #include "ascon_permutation.h"
 #include "search.h"
+#include "configparser.h"
 
 // ==== Target Functions ====
 BitVector testfun_linear(BitVector in) {
@@ -339,6 +340,18 @@ void test_active_guess_layered(){
 }
 
 
+void test_config(unsigned int iterations, int try_one_box){
+Configparser parser;
+
+parser.parseFile("char/example.xml");
+
+Search my_search(*(parser.getPermutation()));
+auto myfunction = [] (int bias, int hw_in, int hw_out) {
+  return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
+};
+ my_search.HeuristicSearch3(iterations,parser.getWeights(), myfunction, try_one_box, true);
+}
+
 
 // ==== Main / Search ====
 int main(int argc, char* argv[]) {
@@ -366,8 +379,12 @@ int main(int argc, char* argv[]) {
 //  std::cout << "active guess" << std::endl;
 //  test_active_guess(iterations);
 
-    std::cout << "heuristic guess" << std::endl;
-    test_heuristic_guess(iterations, try_one_box);
+//    std::cout << "heuristic guess" << std::endl;
+//    test_heuristic_guess(iterations, try_one_box);
+
+  std::cout << "test config" << std::endl;
+  test_config(iterations, try_one_box);
+
 
 //
 //  std::cout << "active guess layered" << std::endl;

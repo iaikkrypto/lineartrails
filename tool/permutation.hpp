@@ -245,3 +245,24 @@ void Permutation<rounds>::touchall() {
   this->toupdate_linear = true;
   this->toupdate_nonlinear = true;
 }
+
+template <unsigned rounds>
+bool Permutation<rounds>::setBit(BitMask cond, unsigned int bit, unsigned char num_words, unsigned char num_bits){
+unsigned int state = bit / (num_words*num_bits);
+if (state > 2*rounds +1)
+  return false;
+
+bit %= (num_words*num_bits);
+
+unsigned int word = bit / num_bits;
+
+bit %= (num_bits);
+
+bit = num_bits - bit - 1;
+
+state_masks_[state]->SetBit(cond, word, bit);
+
+  return true;
+}
+
+

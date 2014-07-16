@@ -49,4 +49,9 @@ void AsconPermutation<rounds>::touchall() {
   Permutation<rounds>::touchall();
 }
 
+template <unsigned rounds>
+bool AsconPermutation<rounds>::setBit(BitMask cond, unsigned int bit){
+  return Permutation<rounds>::setBit(cond,bit,5,64);
+}
+
 

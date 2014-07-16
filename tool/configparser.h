@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <cassert>
 
 #include "../tinyxml2/tinyxml2.h"
 #include "permutation.h"
@@ -12,13 +13,14 @@
 
 
 struct Configparser {
-  void parseFile(std::string filename);
+  bool parseFile(std::string filename);
   PermutationBase* getPermutation();
   GuessWeights getWeights();
+  bool Error(const char *format, ...);
+  bool Warning(const char *format, ...);
 
   std::unique_ptr<PermutationBase> perm_;
-  GuessWeights weights;
-//  tinyxml2::XMLDocument doc;
+  GuessWeights weights_;
 };
 
 #endif /* CONFIGPARSER_H_ */

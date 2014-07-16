@@ -30,6 +30,7 @@ struct PermutationBase {
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0) = 0;
   virtual ProbabilityPair GetProbability() = 0;
   virtual unsigned int GetActiveSboxes() = 0;
+  virtual bool setBit(const char cond, unsigned int bit) = 0;
 
   UpdateQueue queue_linear_;
   UpdateQueue queue_nonlinear_;
@@ -54,6 +55,8 @@ struct Permutation : PermutationBase {
   virtual void touchall();
   virtual ProbabilityPair GetProbability();
   virtual unsigned int GetActiveSboxes();
+  virtual bool setBit(BitMask cond, unsigned int bit) = 0;
+  bool setBit(const char cond, unsigned int bit, unsigned char num_words, unsigned char num_bits);
 
   std::array<std::unique_ptr<StateMask>, 2 * rounds + 1> state_masks_;
   std::array<std::unique_ptr<SboxLayerBase>,rounds> sbox_layers_;

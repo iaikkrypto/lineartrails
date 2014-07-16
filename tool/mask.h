@@ -115,6 +115,7 @@ struct Mask {
 };
 
 struct StateMask {
+  virtual ~StateMask(){};
   virtual StateMask* clone() = 0;
   virtual void print(std::ostream& stream) = 0;
   virtual void SetState(BitMask value) = 0;

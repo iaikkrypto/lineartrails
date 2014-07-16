@@ -11,6 +11,7 @@
 template <typename KEY_TYPE, typename TYPE>
 class Cache {
  public:
+ virtual ~Cache() {};
  virtual bool find(const KEY_TYPE& key, TYPE& content) = 0;
  virtual bool insert(const KEY_TYPE& key, const TYPE& content) = 0;
 };

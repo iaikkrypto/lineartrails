@@ -13,6 +13,7 @@ struct SboxPos {
 
 struct Layer {
   Layer() = default;
+  virtual ~Layer(){};
   Layer(StateMask *in, StateMask *out);
   void SetMasks(StateMask *inmask, StateMask *outmask);
   virtual bool Update(UpdatePos pos) = 0;

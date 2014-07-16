@@ -16,6 +16,7 @@
 
 
 struct PermutationBase {
+  virtual ~PermutationBase() {};
   virtual bool checkchar(std::ostream& stream = std::cout) = 0;
   virtual bool update() = 0;
   virtual PermutationBase* clone() const = 0;

@@ -99,8 +99,13 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
   x.reinit_caremask();
   y.reinit_caremask();
 
-  if ((inresult[0] | inresult[1]) == 0 || (outresult[0] | outresult[1]) == 0)
+  if ((inresult[0] | inresult[1]) == 0 || (outresult[0] | outresult[1]) == 0) {
+    for (unsigned int i = 0; i < bitsize; ++i) {
+      x.bitmasks[i] = BM_CONTRA;
+      y.bitmasks[i] = BM_CONTRA;
+    }
     return false;
+  }
 
   if ( (((~x.caremask.canbe1) | (~x.caremask.care)) & (~0ULL >> (64 - bitsize)))  == (~0ULL >> (64 - bitsize))
       && (((~y.caremask.canbe1) | (~y.caremask.care)) & (~0ULL >> (64 - bitsize)))  == (~0ULL >> (64 - bitsize)))
@@ -190,14 +195,15 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y, std::function<int(int
   std::vector<unsigned int> inmasks, outmasks;  // TODO check datatype!
   create_masks(inmasks, x);
   create_masks(outmasks, y);
-    int branch_number = 0;
+    int best_rate = 0;
     unsigned int best_inmask = 0;
     unsigned int best_outmask = 0;
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
-       if(branch_number < rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask))){
-         branch_number = rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask));
+      if(ldt_->ldt[inmask][outmask] != 0)
+       if(best_rate < rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask))){
+         best_rate = rating(ldt_->ldt[inmask][outmask], __builtin_popcount (inmask), __builtin_popcount (outmask));
          best_inmask = inmask;
          best_outmask = outmask;
        }
@@ -230,9 +236,7 @@ int NonlinearStep<bitsize>::TakeBestBox(
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
-      if (0
-          < rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
-                   __builtin_popcount(outmask))) {
+      if (ldt_->ldt[inmask][outmask] != 0) {
         valid_masks.insert(
             std::pair<int, std::pair<unsigned int, unsigned int>>(
                 rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
@@ -275,9 +279,7 @@ void NonlinearStep<bitsize>::TakeBestBoxRandom(
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
-      if (0
-          < rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),
-                   __builtin_popcount(outmask))) {
+      if (ldt_->ldt[inmask][outmask] != 0) {
         valid_masks.insert(
             std::pair<int, std::pair<unsigned int, unsigned int>>(
                 rating(ldt_->ldt[inmask][outmask], __builtin_popcount(inmask),

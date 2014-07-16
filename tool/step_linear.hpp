@@ -265,6 +265,10 @@ bool LinearStep<bitsize>::Update(
     return true;
   }
 
+  for (unsigned int i = 0; i < bitsize; ++i) {
+    x.bitmasks[i] = BM_CONTRA;
+    y.bitmasks[i] = BM_CONTRA;
+  }
   return false;
 }
 

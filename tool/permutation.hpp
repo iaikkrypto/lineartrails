@@ -131,7 +131,6 @@ void Permutation<rounds>::set(Permutation<rounds>* perm){
 template <unsigned rounds>
 bool Permutation<rounds>::update() {
   //TODO: Better update
-  bool correct = true;
   std::unique_ptr<StateMask> tempin, tempout;
   while (this->toupdate_linear == true || this->toupdate_nonlinear == true) {
     if (this->toupdate_nonlinear == true) {
@@ -140,7 +139,8 @@ bool Permutation<rounds>::update() {
         tempin.reset(this->sbox_layers_[layer]->in->clone());
         tempout.reset(this->sbox_layers_[layer]->out->clone());
         for (int i = 0; i < this->sbox_layers_[layer]->GetNumLayer(); ++i)
-          correct &= this->sbox_layers_[layer]->Update(UpdatePos(i, i, i, 1));
+          if(this->sbox_layers_[layer]->Update(UpdatePos(i, i, i, 1)) == false)
+            return false;
         if (tempin->diff(*( this->sbox_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->sbox_layers_[layer]->out)).size() != 0)
           this->toupdate_linear = true;
@@ -152,14 +152,15 @@ bool Permutation<rounds>::update() {
         tempin.reset(this->linear_layers_[layer]->in->clone());
         tempout.reset(this->linear_layers_[layer]->out->clone());
         for (int i = 0; i < this->linear_layers_[layer]->GetNumLayer(); ++i)
-          correct &= this->linear_layers_[layer]->Update(UpdatePos(i, i, i, 1));
+          if(this->linear_layers_[layer]->Update(UpdatePos(i, i, i, 1)) == false)
+            return false;
         if (tempin->diff(*( this->linear_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->linear_layers_[layer]->out)).size() != 0)
           this->toupdate_nonlinear = true;
       }
     }
   }
-  return correct;
+  return true;
 }
 
 template<unsigned rounds>

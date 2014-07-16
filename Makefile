@@ -23,12 +23,15 @@ TITLE=lin
 all: $(TITLE)
 
 # make
-$(TITLE): $(OBJECTS)
+$(TITLE): $(OBJECTS) $(BUILD_DIR)/tinyxml2.o
 	$(CXX) -g -o $@ $^ $(LDFLAGS)
 
 # make %.o
 $(BUILD_DIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $< -MMD -MF ./$@.d $(LDFLAGS)
+
+$(BUILD_DIR)/tinyxml2.o: tinyxml2/tinyxml2.cpp
+	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(LDFLAGS)
 
 # make clean
 clean :

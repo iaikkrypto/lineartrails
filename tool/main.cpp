@@ -352,10 +352,10 @@ void test_config(Commandlineparser& args) {
 
   Search my_search(*(parser.getPermutation()));
   auto myfunction = [] (int bias, int hw_in, int hw_out) {
-    return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
+    return std::abs(bias) +2*((5-hw_in)+(5-hw_out));
   };
-  my_search.HeuristicSearch3(args.getIntParameter("-iter"), parser.getWeights(),
-                             myfunction, args.getIntParameter("-sba"), true);
+  my_search.StackSearch1(args.getIntParameter("-iter"), parser.getWeights(),
+                             myfunction, args.getIntParameter("-sba"), true,0.1,args.getIntParameter("-S"));
 }
 
 // ==== Main / Search ====
@@ -365,6 +365,7 @@ int main(int argc, const char* argv[]) {
 
   args.addParameter("-iter", "-1");
   args.addParameter("-sba", "3");
+  args.addParameter("-S", "5");
 
   args.addParameter("-i", "char/example.xml");
 

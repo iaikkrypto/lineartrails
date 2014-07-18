@@ -22,7 +22,7 @@ bool Configparser::parseFile(std::string filename) {
     else
       rounds = 1;
 
-//    std::cout << rounds << std::endl;
+    std::cout << rounds << std::endl;
     //FIXME: NO
     switch (rounds) {
       case 1:
@@ -107,12 +107,12 @@ bool Configparser::parseFile(std::string filename) {
     }
   }
 
-//  for(auto& weight : weights_){
-//    for(auto& entry : weight){
-//      std::cout << "(" << entry[0] << ", " << entry[1] << "), ";
-//    }
-//    std::cout << std::endl;
-//  }
+  for(auto& weight : weights_){
+    for(auto& entry : weight){
+      std::cout << "(" << entry[0] << ", " << entry[1] << "), ";
+    }
+    std::cout << std::endl;
+  }
 
   return true;
 }

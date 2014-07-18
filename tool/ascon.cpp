@@ -184,13 +184,13 @@ AsconSboxLayer* AsconSboxLayer::clone(){
 
 bool AsconSboxLayer::Update(UpdatePos pos) {
   assert(pos.bit < 64);
+  bool ret_val;
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
-  if (!sboxes[pos.bit].Update(copyin, copyout, cache_.get()))
-    return false;
+ ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);
-  return true;
+  return ret_val;
 }
 
 Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {

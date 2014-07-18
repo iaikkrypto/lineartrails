@@ -10,6 +10,7 @@
 #include "ascon_permutation.h"
 #include "search.h"
 #include "configparser.h"
+#include "commandlineparser.h"
 
 // ==== Target Functions ====
 BitVector testfun_linear(BitVector in) {
@@ -25,18 +26,18 @@ BitVector testfun_nonlinear(BitVector in) {
   return (in ^ (~((in >> 1) | (in << 2)) & ((in >> 2) | (in << 1)))) & 7;
 }
 
-int box_rating(int bias, int hw_in, int hw_out){
+int box_rating(int bias, int hw_in, int hw_out) {
   return std::abs(bias);
 }
 
 void teststep_linear() {
-  std::vector<std::pair<Mask, Mask>> testcases {
-    {{BM_DUNNO, BM_DUNNO},   {BM_1,     BM_0    }}, // should be 11/10
-    {{BM_0,     BM_1    },   {BM_DUNNO, BM_DUNNO}}, // should be 01/01
-    {{BM_1,     BM_0    },   {BM_DUNNO, BM_DUNNO}}, // should be 10/11
-    {{BM_1,     BM_DUNNO},   {BM_DUNNO, BM_0    }}, // should be 11/10
-    {{BM_1,     BM_DUNNO},   {BM_0,     BM_1    }}, // should be contradiction
-    {{BM_1,     BM_DUNNO},   {BM_DUNNO, BM_DUNNO}}, // should be 1?/1?
+  std::vector<std::pair<Mask, Mask>> testcases { { { BM_DUNNO, BM_DUNNO }, {
+      BM_1, BM_0 } },  // should be 11/10
+      { { BM_0, BM_1 }, { BM_DUNNO, BM_DUNNO } },  // should be 01/01
+      { { BM_1, BM_0 }, { BM_DUNNO, BM_DUNNO } },  // should be 10/11
+      { { BM_1, BM_DUNNO }, { BM_DUNNO, BM_0 } },  // should be 11/10
+      { { BM_1, BM_DUNNO }, { BM_0, BM_1 } },  // should be contradiction
+      { { BM_1, BM_DUNNO }, { BM_DUNNO, BM_DUNNO } },  // should be 1?/1?
   };
 
   for (auto challenge : testcases) {
@@ -55,20 +56,20 @@ void teststep_linear() {
 
 void teststep_nonlinear() {
   NonlinearStep<3> sys(testfun_nonlinear);
-    std::vector<std::pair<Mask, Mask>> testcases {
-      {{BM_1, BM_DUNNO, BM_DUNNO},   {BM_1, BM_1, BM_0    }}, // should be 10?/110
-      {{BM_0, BM_1, BM_1},   {BM_DUNNO, BM_1, BM_1    }}, // should be ###/###
-      {{BM_0, BM_1, BM_1},   {BM_0, BM_0, BM_DUNNO    }}, // should be 011/001
-      {{BM_DUNNO, BM_0, BM_1},   {BM_DUNNO, BM_DUNNO, BM_0    }}, // should be 101/1?0
-    };
-    for (auto challenge : testcases) {
-      std::cout << challenge.first << "/" << challenge.second << " > ";
-      sys.Update(challenge.first, challenge.second);
-      std::cout << challenge.first << "/" << challenge.second << std::endl;
-    }
+  std::vector<std::pair<Mask, Mask>> testcases { { { BM_1, BM_DUNNO, BM_DUNNO },
+      { BM_1, BM_1, BM_0 } },  // should be 10?/110
+      { { BM_0, BM_1, BM_1 }, { BM_DUNNO, BM_1, BM_1 } },  // should be ###/###
+      { { BM_0, BM_1, BM_1 }, { BM_0, BM_0, BM_DUNNO } },  // should be 011/001
+      { { BM_DUNNO, BM_0, BM_1 }, { BM_DUNNO, BM_DUNNO, BM_0 } },  // should be 101/1?0
+  };
+  for (auto challenge : testcases) {
+    std::cout << challenge.first << "/" << challenge.second << " > ";
+    sys.Update(challenge.first, challenge.second);
+    std::cout << challenge.first << "/" << challenge.second << std::endl;
+  }
 }
 
-void test_statetest(){
+void test_statetest() {
   AsconState state0;
   std::cout << state0 << std::endl << std::endl;
   std::cout << std::hex << "canbe1: " << state0[0].caremask.canbe1 << std::endl;
@@ -102,49 +103,53 @@ void test_statetest(){
   std::cout << state1 << std::endl << std::endl;
 }
 
-void test_sboxlayer(){
+void test_sboxlayer() {
   AsconState statein, stateout;
 
   statein.SetState(BM_0);
-  statein[0].set_bit(BM_1,2);
-  statein[1].set_bit(BM_1,2);
+  statein[0].set_bit(BM_1, 2);
+  statein[1].set_bit(BM_1, 2);
 
-  stateout[0].set_bit(BM_1,2);
-  stateout[3].set_bit(BM_0,2); //result= sbox in 3 to out 1
+  stateout[0].set_bit(BM_1, 2);
+  stateout[3].set_bit(BM_0, 2);  //result= sbox in 3 to out 1
 
   std::cout << "Input state:" << std::endl << statein << std::endl;
-  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl
+            << std::endl;
 
   AsconSboxLayer layer1(&statein, &stateout);
 
-  for(int i = 0; i < 64; ++i)
-    layer1.Update(UpdatePos (0,0,i,1));
+  for (int i = 0; i < 64; ++i)
+    layer1.Update(UpdatePos(0, 0, i, 1));
 
   std::cout << "Input state:" << std::endl << statein << std::endl;
-  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl
+            << std::endl;
 }
 
-void test_linearlayer(){
+void test_linearlayer() {
   AsconState statein, stateout;
 
   statein.SetState(BM_0);
-  statein[0].set_bit(BM_1,0);
-  statein[0].set_bit(BM_1,19);
-  statein[0].set_bit(BM_1,28);
+  statein[0].set_bit(BM_1, 0);
+  statein[0].set_bit(BM_1, 19);
+  statein[0].set_bit(BM_1, 28);
 
   std::cout << "Input state:" << std::endl << statein << std::endl;
-  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl
+            << std::endl;
 
   AsconLinearLayer layer1(&statein, &stateout);
 
-  for(int i = 0; i < 5; ++i)
-    layer1.Update(UpdatePos (0,i,0,1));
+  for (int i = 0; i < 5; ++i)
+    layer1.Update(UpdatePos(0, i, 0, 1));
 
   std::cout << "Input state:" << std::endl << statein << std::endl;
-  std::cout << "output state:" << std::endl << stateout << std::endl << std::endl;
+  std::cout << "output state:" << std::endl << stateout << std::endl
+            << std::endl;
 }
 
-void test_permutation(){
+void test_permutation() {
   AsconPermutation<1> perm;
 
   perm.state_masks_[0]->SetState(BM_0);
@@ -169,8 +174,7 @@ void test_permutation(){
   perm.checkchar();
 }
 
-
-void test_active(){
+void test_active() {
   AsconPermutation<1> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
@@ -188,18 +192,18 @@ void test_active(){
   perm.SboxStatus(active, inactive);
 
   std::cout << "active sboxes: ";
-  for(auto pos : active)
+  for (auto pos : active)
     std::cout << (int) pos.pos_ << ", ";
   std::cout << std::endl;
 
   std::cout << "inactive sboxes: ";
-    for(auto pos : inactive)
-      std::cout << (int) pos.pos_ << ", ";
-    std::cout << std::endl;
+  for (auto pos : inactive)
+    std::cout << (int) pos.pos_ << ", ";
+  std::cout << std::endl;
 
 }
 
-void test_active_guess(unsigned int iterations){
+void test_active_guess(Commandlineparser& args) {
   AsconPermutation<3> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
@@ -211,13 +215,10 @@ void test_active_guess(unsigned int iterations){
 //  perm.state_masks_[0].words[1].set_bit(BM_1, 28);
   Search my_search(perm);
 
-  my_search.RandomSearch1(iterations, box_rating);
+  my_search.RandomSearch1(args.getIntParameter("-iter"), box_rating);
 }
 
-
-void test_heuristic_guess(unsigned int iterations, int try_one_box){
-
-
+void test_heuristic_guess(Commandlineparser& args) {
 
   //searchmasks for 2 rounds
 //  AsconPermutation<2> perm;
@@ -281,17 +282,18 @@ void test_heuristic_guess(unsigned int iterations, int try_one_box){
 //  perm.state_masks_[4]->SetBit(BM_1, 4, 7);
 //  perm.state_masks_[4]->SetBit(BM_1, 4, 41);
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,1},{1,1},{1,1},{1,1}}};
-  GuessWeights weights = { {{100,0}, {500,0}, {2000,0}, {100,0}}, {{0,1}, {0,1}, {0,1}, {0,1}}};
+  GuessWeights weights = { { { 100, 0 }, { 500, 0 }, { 2000, 0 }, { 100, 0 } },
+      { { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 } } };
 
   Search my_search(perm);
-auto myfunction = [] (int bias, int hw_in, int hw_out) {
-  return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
-};
- my_search.HeuristicSearch3(iterations,weights, myfunction, try_one_box, true);
+  auto myfunction = [] (int bias, int hw_in, int hw_out) {
+    return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
+  };
+  my_search.HeuristicSearch3(args.getIntParameter("-iter"), weights, myfunction,
+                             args.getIntParameter("-sba"), true);
 }
 
-
-void test_active_guess_layered(){
+void test_active_guess_layered() {
   AsconPermutation<2> perm;
 
 //  perm.state_masks_[0].SetState(BM_0);
@@ -312,55 +314,65 @@ void test_active_guess_layered(){
 
   AsconPermutation<2> temp;
   temp = perm;
-  for(int layer = 0; layer < 2; ++layer)
-  while (active[layer].size() != 0 || inactive[layer].size() != 0) {
-    while (inactive[layer].size() != 0) {
-      std::uniform_int_distribution<int> guessbox(0, inactive[layer].size() - 1);
-      if (temp.guessbestsbox(inactive[layer][guessbox(generator)], box_rating) == false) {
-        temp = perm;
-        layer = -1;
-        active[layer].clear();
-        break;
-      }
-      temp.SboxStatus(active, inactive);
-    }
-    while (active[layer].size() != 0) {
-      std::uniform_int_distribution<int> guessbox(0, active[layer].size() - 1);
-      if (temp.guessbestsbox(active[layer][guessbox(generator)], box_rating) == false) {
-        temp = perm;
-        layer = -1;
+  for (int layer = 0; layer < 2; ++layer)
+    while (active[layer].size() != 0 || inactive[layer].size() != 0) {
+      while (inactive[layer].size() != 0) {
+        std::uniform_int_distribution<int> guessbox(0,
+                                                    inactive[layer].size() - 1);
+        if (temp.guessbestsbox(inactive[layer][guessbox(generator)], box_rating)
+            == false) {
+          temp = perm;
+          layer = -1;
+          active[layer].clear();
+          break;
+        }
         temp.SboxStatus(active, inactive);
-        break;
       }
-      temp.SboxStatus(active, inactive);
+      while (active[layer].size() != 0) {
+        std::uniform_int_distribution<int> guessbox(0,
+                                                    active[layer].size() - 1);
+        if (temp.guessbestsbox(active[layer][guessbox(generator)], box_rating)
+            == false) {
+          temp = perm;
+          layer = -1;
+          temp.SboxStatus(active, inactive);
+          break;
+        }
+        temp.SboxStatus(active, inactive);
+      }
     }
-  }
   std::cout << "result" << std::endl;
   temp.PrintWithProbability();
 }
 
+void test_config(Commandlineparser& args) {
+  Configparser parser;
 
-void test_config(unsigned int iterations, int try_one_box){
-Configparser parser;
+  parser.parseFile(args.getParameter("-i"));
 
-parser.parseFile("char/example.xml");
-
-Search my_search(*(parser.getPermutation()));
-auto myfunction = [] (int bias, int hw_in, int hw_out) {
-  return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
-};
- my_search.HeuristicSearch3(iterations,parser.getWeights(), myfunction, try_one_box, true);
+  Search my_search(*(parser.getPermutation()));
+  auto myfunction = [] (int bias, int hw_in, int hw_out) {
+    return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
+  };
+  my_search.HeuristicSearch3(args.getIntParameter("-iter"), parser.getWeights(),
+                             myfunction, args.getIntParameter("-sba"), true);
 }
 
-
 // ==== Main / Search ====
-int main(int argc, char* argv[]) {
-  unsigned int iterations = -1;
-  int try_one_box = 1;
-  if (argc >= 2)
-    iterations = atoi(argv[1]);
-  if(argc >=3)
-    try_one_box = atoi(argv[2]);
+int main(int argc, const char* argv[]) {
+
+  Commandlineparser args;
+
+  args.addParameter("-iter", "-1");
+  args.addParameter("-sba", "3");
+
+  args.addParameter("-i", "char/example.xml");
+
+  args.parse(argc, argv);
+
+  std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
+  std::cout << "S-box guesses: " << args.getIntParameter("-sba") << std::endl;
+  std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
 
 //  std::cout << "linear_test" << std::endl;
 //  teststep_linear();
@@ -383,8 +395,7 @@ int main(int argc, char* argv[]) {
 //    test_heuristic_guess(iterations, try_one_box);
 
   std::cout << "test config" << std::endl;
-  test_config(iterations, try_one_box);
-
+  test_config(args);
 
 //
 //  std::cout << "active guess layered" << std::endl;

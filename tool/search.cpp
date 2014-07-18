@@ -200,13 +200,15 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
   bool active;
 
   working_copy.reset(perm_->clone());
-  if (working_copy->checkchar() == false)
+  if (working_copy->checkchar() == false){
+    std::cout << "Initial chackchar failed" << std::endl;
     return;
+  }
 
 //  guesses.createMask(working_copy.get(), weights);
 //
 //  for(auto& pos : guesses.weighted_pos_){
-//    std::cout << "(" << (int) pos.first.layer_ << ", " << (int) pos.first.pos_ << " : " << pos.second << ")";
+//    std::cout << "(" << (int) std::get<0>(pos).layer_ << ", " << (int) std::get<0>(pos).pos_ << " : " << std::get<1>(pos) << ")";
 //  }
 //  std::cout << std::endl;
 

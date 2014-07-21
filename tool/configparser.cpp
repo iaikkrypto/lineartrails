@@ -22,7 +22,7 @@ bool Configparser::parseFile(std::string filename) {
     else
       rounds = 1;
 
-    std::cout << rounds << std::endl;
+//    std::cout << rounds << std::endl;
     //FIXME: NO
     switch (rounds) {
       case 1:
@@ -83,6 +83,13 @@ bool Configparser::parseFile(std::string filename) {
 
   if (root->FirstChildElement("search")->FirstChildElement("phase")
       != nullptr) {
+
+    credits_ =
+        root->FirstChildElement("search")->IntAttribute("credits") ?
+            root->FirstChildElement("search")->IntAttribute("credits") : 0;
+
+    std::cout << credits_ << std::endl;
+
     tinyxml2::XMLElement* phase = root->FirstChildElement("search")
         ->FirstChildElement("phase");
     tinyxml2::XMLElement* setting = phase->FirstChildElement("setting");
@@ -122,6 +129,10 @@ PermutationBase* Configparser::getPermutation() {
 }
 GuessWeights Configparser::getWeights() {
   return weights_;
+}
+
+unsigned int Configparser::getCredits() {
+  return credits_;
 }
 
 bool Configparser::Error(const char *format, ...) {

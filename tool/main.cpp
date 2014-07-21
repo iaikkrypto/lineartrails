@@ -355,7 +355,7 @@ void test_config(Commandlineparser& args) {
     return std::abs(bias) +2*((5-hw_in)+(5-hw_out));
   };
   my_search.StackSearch1(args.getIntParameter("-iter"), parser.getWeights(),
-                             myfunction, args.getIntParameter("-sba"), true,0.1,args.getIntParameter("-S"));
+                             myfunction, args.getIntParameter("-sba"), true,0.1,args.getIntParameter("-S"),parser.getCredits());
 }
 
 // ==== Main / Search ====

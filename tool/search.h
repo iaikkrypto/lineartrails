@@ -28,7 +28,7 @@ class Search {
   void HeuristicSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
   void HeuristicSearch2(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
   void HeuristicSearch3(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
-  void StackSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active, float push_stack_prob, int printintervall);
+  void StackSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active, float push_stack_prob, int printintervall, unsigned int credits);
 
   PermutationBase *perm_;
 

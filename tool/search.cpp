@@ -251,7 +251,7 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
 void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
                           std::function<int(int, int, int)> rating,
                           int try_one_box, bool count_active,
-                          float push_stack_prob, int printintervall) {
+                          float push_stack_prob, int printintervall, unsigned int credits) {
 
   std::unique_ptr<PermutationBase> working_copy;
   std::stack<std::unique_ptr<PermutationBase>> char_stack;
@@ -288,16 +288,20 @@ void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
     char_stack.emplace(working_copy->clone());
     backtrack = false;
     guesses.createMask(char_stack.top().get(), weights);
+    unsigned int curr_credit = credits;
     while (guesses.getRandPos(guessed_box, active)) {
       total_iterations++;
       auto duration = std::chrono::duration_cast<std::chrono::seconds>(
           std::chrono::system_clock::now() - start_count);
-      if (duration.count() > printintervall) {
+      if (printintervall > 0 && duration.count() > printintervall) {
         std::cout << "total iterations: " << total_iterations << ", stack size: "
                   << char_stack.size() << std::endl;
         char_stack.top()->print(std::cout);
         start_count = std::chrono::system_clock::now();
       }
+
+      if(curr_credit == 0)
+        break;
 
       if (backtrack)
         guessed_box = backtrack_box;
@@ -313,6 +317,7 @@ void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
 //          std::cout << "failed" << std::endl;
 //                    char_stack.top()->print(std::cout);
         char_stack.pop();
+        curr_credit--;
         backtrack = true;
         backtrack_box = guessed_box;
         if (char_stack.size() == 1)

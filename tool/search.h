@@ -19,6 +19,8 @@
 #include "permutation.h"
 #include "mask.h"
 #include "guessmask.h"
+#include "configparser.h"
+#include "commandlineparser.h"
 
 class Search {
 
@@ -28,7 +30,7 @@ class Search {
   void HeuristicSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
   void HeuristicSearch2(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
   void HeuristicSearch3(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
-  void StackSearch1(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active, float push_stack_prob, int printintervall, unsigned int credits);
+  void StackSearch1(Commandlineparser& cl_param, Configparser& config_param, std::function<int(int, int, int)> rating, bool count_active, float push_stack_prob);
 
   PermutationBase *perm_;
 

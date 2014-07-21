@@ -354,8 +354,7 @@ void test_config(Commandlineparser& args) {
   auto myfunction = [] (int bias, int hw_in, int hw_out) {
     return std::abs(bias) +2*((5-hw_in)+(5-hw_out));
   };
-  my_search.StackSearch1(args.getIntParameter("-iter"), parser.getWeights(),
-                             myfunction, args.getIntParameter("-sba"), true,0.1,args.getIntParameter("-S"),parser.getCredits());
+  my_search.StackSearch1(args, parser, myfunction, true, 0.1);
 }
 
 // ==== Main / Search ====
@@ -366,6 +365,7 @@ int main(int argc, const char* argv[]) {
   args.addParameter("-iter", "-1");
   args.addParameter("-sba", "3");
   args.addParameter("-S", "5");
+  args.addParameter("-I", "2");
 
   args.addParameter("-i", "char/example.xml");
 

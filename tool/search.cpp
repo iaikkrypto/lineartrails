@@ -248,10 +248,10 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
   }
 }
 
-void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
+void Search::StackSearch1(Commandlineparser& cl_param,
+                          Configparser& config_param,
                           std::function<int(int, int, int)> rating,
-                          int try_one_box, bool count_active,
-                          float push_stack_prob, int printintervall, unsigned int credits) {
+                          bool count_active, float push_stack_prob) {
 
   std::unique_ptr<PermutationBase> working_copy;
   std::stack<std::unique_ptr<PermutationBase>> char_stack;
@@ -263,11 +263,12 @@ void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
   bool backtrack;
   bool active;
 
-  working_copy.reset(perm_->clone());
+  working_copy.reset(config_param.getPermutation());
   if (working_copy->checkchar() == false) {
     std::cout << "Initial checkchar failed" << std::endl;
     return;
   }
+  GuessWeights weights = config_param.getWeights();
 
   auto start_count = std::chrono::system_clock::now();
   std::mt19937 generator(
@@ -280,34 +281,40 @@ void Search::StackSearch1(unsigned int iterations, GuessWeights weights,
 //    std::cout << "(" << (int) pos.first.layer_ << ", " << (int) pos.first.pos_ << " : " << pos.second << ")";
 //  }
 //  std::cout << std::endl;
-
+  unsigned int interations = (unsigned int) cl_param.getIntParameter("-iter");
   int total_iterations = 0;
-
-  for (unsigned int i = 0; i < iterations; ++i) {
+  int print_char = cl_param.getIntParameter("-S");
+  for (unsigned int i = 0; i < interations; ++i) {
     char_stack.emplace(working_copy->clone());
     char_stack.emplace(working_copy->clone());
     backtrack = false;
     guesses.createMask(char_stack.top().get(), weights);
-    unsigned int curr_credit = credits;
+    unsigned int curr_credit = config_param.getCredits();
     while (guesses.getRandPos(guessed_box, active)) {
       total_iterations++;
       auto duration = std::chrono::duration_cast<std::chrono::seconds>(
           std::chrono::system_clock::now() - start_count);
-      if (printintervall > 0 && duration.count() > printintervall) {
-        std::cout << "total iterations: " << total_iterations << ", stack size: "
-                  << char_stack.size() << std::endl;
-        char_stack.top()->print(std::cout);
+      if (cl_param.getIntParameter("-I") > 0
+          && duration.count() > cl_param.getIntParameter("-I")) {
+        std::cout << "PRINT-INFO: total iterations: " << total_iterations
+                  << ", stack size: " << char_stack.size() << ", credits: "
+                  << curr_credit << ", restarts: " << i << std::endl;
+        print_char--;
+        if (print_char == 0) {
+          char_stack.top()->print(std::cout);
+          print_char = cl_param.getIntParameter("-S");
+        }
         start_count = std::chrono::system_clock::now();
       }
 
-      if(curr_credit == 0)
+      if (curr_credit == 0)
         break;
 
       if (backtrack)
         guessed_box = backtrack_box;
 
-      if (char_stack.top()->guessbestsboxrandom(guessed_box, rating,
-                                                try_one_box)) {
+      if (char_stack.top()->guessbestsboxrandom(
+          guessed_box, rating, cl_param.getIntParameter("-sba"))) {
 //          std::cout << "worked " << char_stack.size() << std::endl;
 //          char_stack.top()->print(std::cout);
         backtrack = false;

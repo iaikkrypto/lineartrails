@@ -20,7 +20,7 @@ template <unsigned bitsize, unsigned words>
 struct Row {
   static_assert((bitsize == 64 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
-  Row(BitVector x, BitVector y, bool rhs);
+  Row(std::array<BitVector,words> x, std::array<BitVector,words> y, bool rhs);
   Row GetPivotRow();
   bool IsContradiction();
   bool IsEmpty();
@@ -39,8 +39,9 @@ struct Row {
   friend bool operator==<>(const Row<bitsize, words>& left, const Row<bitsize, words>& right);
   friend std::ostream& operator<<<>(std::ostream& stream, const Row<bitsize, words>& row);
 
-  BitVector x;
-  BitVector y;
+ private:
+  std::array<BitVector,words> x;
+  std::array<BitVector,words> y;
   bool rhs; 
 };
 

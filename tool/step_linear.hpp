@@ -1,13 +1,13 @@
 #include <algorithm>
 
 template<unsigned bitsize, unsigned words>
-Row<bitsize, words>::Row(BitVector x, BitVector y, bool rhs) : x(x), y(y), rhs(rhs) {
+Row<bitsize, words>::Row(std::array<BitVector,words> x, std::array<BitVector,words> y, bool rhs) : x(x), y(y), rhs(rhs) {
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
-  if (x) {
-    BitVector xp = x;
+  if (x[0]) {
+    BitVector xp = x[0];
     xp |= xp >> 1;
     if (bitsize > 2) {
       xp |= xp >> 2;
@@ -16,9 +16,9 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
       xp |= xp >> 16;
       xp |= xp >> 32;
     }
-    return Row<bitsize, words>(xp-(xp>>1), 0, 0);
-  } else if (y) {
-    BitVector yp = y;
+    return Row<bitsize, words>({xp-(xp>>1)}, {0}, 0);
+  } else if (y[0]) {
+    BitVector yp = y[0];
     yp |= yp >> 1;
     if (bitsize > 2) {
       yp |= yp >> 2;
@@ -27,101 +27,101 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
       yp |= yp >> 16;
       yp |= yp >> 32;
     }
-    return Row<bitsize, words>(0, yp-(yp>>1), 0);
+    return Row<bitsize, words>({0}, {yp-(yp>>1)}, 0);
   } else {
-    return Row<bitsize, words>(0, 0, rhs);
+    return Row<bitsize, words>({0}, {0}, rhs);
   }
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsContradiction() {
-  return !x && !y && rhs;
+  return !x[0] && !y[0] && rhs;
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsEmpty() {
-  return !x && !y && !rhs;
+  return !x[0] && !y[0] && !rhs;
 } 
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsXSingleton() {
-  return (x & (x-1)) == 0 && !y;
+  return (x[0] & (x[0]-1)) == 0 && !y[0];
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsYSingleton() {
-  return (y & (y-1)) == 0 && !x;
+  return (y[0] & (y[0]-1)) == 0 && !x[0];
 }
 
 template<unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::CommonVariableWith(const Row<bitsize, words>& other) {
-  return (x & other.x) || (y & other.y);
+  return (x[0] & other.x[0]) || (y[0] & other.y[0]);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator^(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x ^ right.x, left.y ^ right.y, left.rhs ^ right.rhs);
+  return Row<bitsize, words>(left.x[0] ^ right.x[0], left.y[0] ^ right.y[0], left.rhs ^ right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words>& Row<bitsize, words>::operator^=(const Row<bitsize, words>& right) {
-  x ^= right.x;
-  y ^= right.y;
+  x[0] ^= right.x[0];
+  y[0] ^= right.y[0];
   rhs ^= right.rhs;
   return *this;
 }
  
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator&(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x & right.x, left.y & right.y, left.rhs & right.rhs);
+  return Row<bitsize, words>(left.x[0] & right.x[0], left.y[0] & right.y[0], left.rhs & right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words>& Row<bitsize, words>::operator&=(const Row<bitsize, words>& right) {
-  x &= right.x;
-  y &= right.y;
+  x[0] &= right.x[0];
+  y[0] &= right.y[0];
   rhs &= right.rhs;
   return *this;
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator|(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x | right.x, left.y | right.y, left.rhs | right.rhs);
+  return Row<bitsize, words>(left.x[0] | right.x[0], left.y[0] | right.y[0], left.rhs | right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words>& Row<bitsize, words>::operator|=(const Row<bitsize, words>& right) {
-  x |= right.x;
-  y |= right.y;
+  x[0] |= right.x[0];
+  y[0] |= right.y[0];
   rhs |= right.rhs;
   return *this;
 }
 
 template<unsigned bitsize, unsigned words>
 bool operator==(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return left.x == right.x && left.y == right.y && left.rhs == right.rhs;
+  return left.x[0] == right.x[0] && left.y[0] == right.y[0] && left.rhs == right.rhs;
 }
 
 template<unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::ExtractMaskInfoX(Mask& x) {
-if (x.caremask.care & this->x) {
-  if (((x.caremask.canbe1 & this->x) != 0) != rhs)
+if (x.caremask.care & this->x[0]) {
+  if (((x.caremask.canbe1 & this->x[0]) != 0) != rhs)
     return false;
 } else {
-  x.caremask.care |= this->x;
-  x.caremask.canbe1 &= (~0ULL ^ (this->x * (BitVector)(1-rhs)));
+  x.caremask.care |= this->x[0];
+  x.caremask.canbe1 &= (~0ULL ^ (this->x[0] * (BitVector)(1-rhs)));
 }
 return true;
 }
 
 template<unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::ExtractMaskInfoY(Mask& y) {
-if (y.caremask.care & this->y) {
-  if (((y.caremask.canbe1 & this->y) != 0) != rhs)
+if (y.caremask.care & this->y[0]) {
+  if (((y.caremask.canbe1 & this->y[0]) != 0) != rhs)
     return false;
 } else {
-  y.caremask.care |= this->y;
-  y.caremask.canbe1 &= (~0ULL ^ (this->y * (BitVector)(1-rhs)));
+  y.caremask.care |= this->y[0];
+  y.caremask.canbe1 &= (~0ULL ^ (this->y[0] * (BitVector)(1-rhs)));
 }
 return true;
 }
@@ -159,7 +159,7 @@ void LinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   rows.clear();
   rows.reserve(bitsize);
   for (unsigned i = 0; i < bitsize; ++i)
-    rows.emplace_back(1ULL << i, fun(1ULL << i), 0); // lower triangle version
+    rows.emplace_back(std::array<BitVector, 1> {1ULL << i}, std::array<BitVector, 1> {fun(1ULL << i)}, 0); // lower triangle version
 }
 
 template<unsigned bitsize>
@@ -170,7 +170,7 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
     if (!(care & ((~0ULL) << xshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize, 1>(pat, 0ULL, (pat & x.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize, 1>({pat}, {0ULL}, (pat & x.caremask.canbe1) != 0)))
         return false;
   }
   care = y.caremask.care;
@@ -179,7 +179,7 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
     if (!(care & ((~0ULL) << yshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize, 1>(0ULL, pat, (pat & y.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize, 1>({0ULL}, {pat}, (pat & y.caremask.canbe1) != 0)))
         return false;
   }
   return true;

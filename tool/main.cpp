@@ -54,6 +54,56 @@ void teststep_linear() {
   }
 }
 
+#define ROTL16(x,n) (((x)<<(n))|((x)>>(16-(n))))
+BitVector fun_hamsi_linear_mini(BitVector in) {
+  BitVector a,b,c,d;
+  a = in >> 48;
+  b = (in >> 32) & 0xffff;
+  c = (in >> 16) & 0xffff;
+  d = (in >> 00) & 0xffff;
+  a = ROTL16(a,13);
+  c = ROTL16(c,3);
+  b ^= a ^ c;
+  d ^= c ^ (a<<3);
+  b = ROTL16(b,1);
+  d = ROTL16(d,7);
+  a ^= b ^ d;
+  c ^= d ^ (b <<7);
+  a = ROTL16(a,5);
+  c = ROTL16(c,6);
+  a &= 0xffff;
+  b &= 0xffff;
+  c &= 0xffff;
+  d &= 0xffff;
+  return ((a<<48)|(b<<32)|(c<<16)|d);
+}
+
+
+void hamsi_linear_mini() {
+  Mask out_mask = {BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,
+      BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,
+      BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,
+      BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO
+  };
+  Mask in_mask = {BM_1,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,
+      BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_DUNNO,
+      BM_DUNNO,BM_DUNNO,BM_DUNNO,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,
+      BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0
+  };
+
+    LinearStep<64> sys(fun_hamsi_linear_mini);
+    bool sat = sys.AddMasks(in_mask, out_mask);
+    //Mask in(bitsize), out(bitsize);
+    Mask in(in_mask), out(out_mask);
+    sat &= sys.ExtractMasks(in, out);
+    std::cout << in_mask << "/" << out_mask << " > ";
+    if (sat)
+      std::cout << in << "/" << out << std::endl;
+    else
+      std::cout << "##/##" << std::endl;
+
+}
+
 void teststep_nonlinear() {
   NonlinearStep<3> sys(testfun_nonlinear);
   std::vector<std::pair<Mask, Mask>> testcases { { { BM_1, BM_DUNNO, BM_DUNNO },
@@ -394,13 +444,15 @@ int main(int argc, const char* argv[]) {
 
 //    std::cout << "heuristic guess" << std::endl;
 //    test_heuristic_guess(iterations, try_one_box);
-
+//
   std::cout << "test config" << std::endl;
   test_config(args);
 
 //
 //  std::cout << "active guess layered" << std::endl;
 //  test_active_guess_layered();
+
+//  hamsi_linear_mini();
 
   return 0;
 }

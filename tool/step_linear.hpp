@@ -1,11 +1,11 @@
 #include <algorithm>
 
-template<unsigned bitsize>
-Row<bitsize>::Row(BitVector x, BitVector y, bool rhs) : x(x), y(y), rhs(rhs) {
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words>::Row(BitVector x, BitVector y, bool rhs) : x(x), y(y), rhs(rhs) {
 }
 
-template<unsigned bitsize>
-Row<bitsize> Row<bitsize>::GetPivotRow() {
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
   if (x) {
     BitVector xp = x;
     xp |= xp >> 1;
@@ -16,7 +16,7 @@ Row<bitsize> Row<bitsize>::GetPivotRow() {
       xp |= xp >> 16;
       xp |= xp >> 32;
     }
-    return Row<bitsize>(xp-(xp>>1), 0, 0);
+    return Row<bitsize, words>(xp-(xp>>1), 0, 0);
   } else if (y) {
     BitVector yp = y;
     yp |= yp >> 1;
@@ -27,83 +27,107 @@ Row<bitsize> Row<bitsize>::GetPivotRow() {
       yp |= yp >> 16;
       yp |= yp >> 32;
     }
-    return Row<bitsize>(0, yp-(yp>>1), 0);
+    return Row<bitsize, words>(0, yp-(yp>>1), 0);
   } else {
-    return Row<bitsize>(0, 0, rhs);
+    return Row<bitsize, words>(0, 0, rhs);
   }
 }
 
-template <unsigned bitsize>
-bool Row<bitsize>::IsContradiction() {
+template <unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::IsContradiction() {
   return !x && !y && rhs;
 }
 
-template <unsigned bitsize>
-bool Row<bitsize>::IsEmpty() {
+template <unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::IsEmpty() {
   return !x && !y && !rhs;
 } 
 
-template <unsigned bitsize>
-bool Row<bitsize>::IsXSingleton() {
+template <unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::IsXSingleton() {
   return (x & (x-1)) == 0 && !y;
 }
 
-template <unsigned bitsize>
-bool Row<bitsize>::IsYSingleton() {
+template <unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::IsYSingleton() {
   return (y & (y-1)) == 0 && !x;
 }
 
-template<unsigned bitsize>
-bool Row<bitsize>::CommonVariableWith(const Row<bitsize>& other) {
+template<unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::CommonVariableWith(const Row<bitsize, words>& other) {
   return (x & other.x) || (y & other.y);
 }
 
-template<unsigned bitsize>
-Row<bitsize> operator^(const Row<bitsize>& left, const Row<bitsize>& right) {
-  return Row<bitsize>(left.x ^ right.x, left.y ^ right.y, left.rhs ^ right.rhs);
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words> operator^(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
+  return Row<bitsize, words>(left.x ^ right.x, left.y ^ right.y, left.rhs ^ right.rhs);
 }
 
-template<unsigned bitsize>
-Row<bitsize>& Row<bitsize>::operator^=(const Row<bitsize>& right) {
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words>& Row<bitsize, words>::operator^=(const Row<bitsize, words>& right) {
   x ^= right.x;
   y ^= right.y;
   rhs ^= right.rhs;
   return *this;
 }
  
-template<unsigned bitsize>
-Row<bitsize> operator&(const Row<bitsize>& left, const Row<bitsize>& right) {
-  return Row<bitsize>(left.x & right.x, left.y & right.y, left.rhs & right.rhs);
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words> operator&(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
+  return Row<bitsize, words>(left.x & right.x, left.y & right.y, left.rhs & right.rhs);
 }
 
-template<unsigned bitsize>
-Row<bitsize>& Row<bitsize>::operator&=(const Row<bitsize>& right) {
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words>& Row<bitsize, words>::operator&=(const Row<bitsize, words>& right) {
   x &= right.x;
   y &= right.y;
   rhs &= right.rhs;
   return *this;
 }
 
-template<unsigned bitsize>
-Row<bitsize> operator|(const Row<bitsize>& left, const Row<bitsize>& right) {
-  return Row<bitsize>(left.x | right.x, left.y | right.y, left.rhs | right.rhs);
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words> operator|(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
+  return Row<bitsize, words>(left.x | right.x, left.y | right.y, left.rhs | right.rhs);
 }
 
-template<unsigned bitsize>
-Row<bitsize>& Row<bitsize>::operator|=(const Row<bitsize>& right) {
+template<unsigned bitsize, unsigned words>
+Row<bitsize, words>& Row<bitsize, words>::operator|=(const Row<bitsize, words>& right) {
   x |= right.x;
   y |= right.y;
   rhs |= right.rhs;
   return *this;
 }
 
-template<unsigned bitsize>
-bool operator==(const Row<bitsize>& left, const Row<bitsize>& right) {
+template<unsigned bitsize, unsigned words>
+bool operator==(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
   return left.x == right.x && left.y == right.y && left.rhs == right.rhs;
 }
 
-template<unsigned bitsize>
-std::ostream& operator<<(std::ostream& stream, const Row<bitsize>& row) {
+template<unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::ExtractMaskInfoX(Mask& x) {
+if (x.caremask.care & this->x) {
+  if (((x.caremask.canbe1 & this->x) != 0) != rhs)
+    return false;
+} else {
+  x.caremask.care |= this->x;
+  x.caremask.canbe1 &= (~0ULL ^ (this->x * (BitVector)(1-rhs)));
+}
+return true;
+}
+
+template<unsigned bitsize, unsigned words>
+bool Row<bitsize, words>::ExtractMaskInfoY(Mask& y) {
+if (y.caremask.care & this->y) {
+  if (((y.caremask.canbe1 & this->y) != 0) != rhs)
+    return false;
+} else {
+  y.caremask.care |= this->y;
+  y.caremask.canbe1 &= (~0ULL ^ (this->y * (BitVector)(1-rhs)));
+}
+return true;
+}
+
+template<unsigned bitsize, unsigned words>
+std::ostream& operator<<(std::ostream& stream, const Row<bitsize, words>& row) {
   // prints in expected order (but not in memory order)
   //for (int xshift = (int)row.bitsize - 1; xshift >= 0; --xshift)
   for (unsigned xshift = 0; xshift < bitsize; ++xshift)
@@ -146,7 +170,7 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
     if (!(care & ((~0ULL) << xshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize>(pat, 0ULL, (pat & x.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize, 1>(pat, 0ULL, (pat & x.caremask.canbe1) != 0)))
         return false;
   }
   care = y.caremask.care;
@@ -155,16 +179,16 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
     if (!(care & ((~0ULL) << yshift)))
       break;
     if (care & pat)
-      if (!AddRow(Row<bitsize>(0ULL, pat, (pat & y.caremask.canbe1) != 0)))
+      if (!AddRow(Row<bitsize, 1>(0ULL, pat, (pat & y.caremask.canbe1) != 0)))
         return false;
   }
   return true;
 }
 
 template<unsigned bitsize>
-bool LinearStep<bitsize>::AddRow(const Row<bitsize>& row) {
+bool LinearStep<bitsize>::AddRow(const Row<bitsize, 1>& row) {
   // assumes that only one variable is set!!
-  for (Row<bitsize>& other : rows) { // maybe optimize via pivots
+  for (Row<bitsize, 1>& other : rows) { // maybe optimize via pivots
     if (other.CommonVariableWith(row)) {
       other ^= row;
       if (other.IsContradiction()) {
@@ -174,8 +198,8 @@ bool LinearStep<bitsize>::AddRow(const Row<bitsize>& row) {
         rows.pop_back();
         return true;
       } else {
-        Row<bitsize> pivotrow = other.GetPivotRow();
-        for (Row<bitsize>& third : rows)
+        Row<bitsize, 1> pivotrow = other.GetPivotRow();
+        for (Row<bitsize, 1>& third : rows)
           if (&third != &other && third.CommonVariableWith(pivotrow))
             third ^= other;
       }
@@ -187,26 +211,16 @@ bool LinearStep<bitsize>::AddRow(const Row<bitsize>& row) {
 template<unsigned bitsize>
 bool LinearStep<bitsize>::ExtractMasks(Mask& x, Mask& y) {
   // deletes information from system!!
-  for (int i = 0; i< rows.size(); ++i) {
+  for (int i = 0; i < rows.size(); ++i) {
     if (rows[i].IsXSingleton()) {
-      if (x.caremask.care & rows[i].x) {
-        if (((x.caremask.canbe1 & rows[i].x) != 0) != rows[i].rhs)
-          return false;
-      } else {
-        x.caremask.care |= rows[i].x;
-        x.caremask.canbe1 &= (~0ULL ^ (rows[i].x * (BitVector)(1-rows[i].rhs)));
-      }
+      if (!rows[i].ExtractMaskInfoX(x))
+        return false;
       rows[i] = rows.back();
       rows.pop_back();
       --i;
     } else if (rows[i].IsYSingleton()) {
-      if (y.caremask.care & rows[i].y) {
-        if (((y.caremask.canbe1 & rows[i].y) != 0) != rows[i].rhs)
-          return false;
-      } else {
-        y.caremask.care |= rows[i].y;
-        y.caremask.canbe1 &= (~0ULL ^ (rows[i].y * (BitVector)(1-rows[i].rhs)));
-      }
+      if (!rows[i].ExtractMaskInfoY(y))
+        return false;
       rows[i] = rows.back();
       rows.pop_back();
       --i;
@@ -219,7 +233,7 @@ bool LinearStep<bitsize>::ExtractMasks(Mask& x, Mask& y) {
 
 template<unsigned bitsize>
 std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys) {
-  for (const Row<bitsize>& row : sys.rows)
+  for (const Row<bitsize, 1>& row : sys.rows)
     stream << row << std::endl;
   return stream;
 }
@@ -238,38 +252,38 @@ bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
   return false;
 }
 
-template<unsigned bitsize>
-bool LinearStep<bitsize>::Update(
-    Mask& x, Mask& y,
-    Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache) {
-  LinearStepUpdateInfo<bitsize> stepdata;
-
-  WordMaskPair<bitsize> key = { x.bitmasks, y.bitmasks };
-  Mask in = x;
-  Mask out = y;
-
-  if (box_cache->find(key, stepdata)) {
-    rows = stepdata.rows;
-    x.bitmasks = stepdata.inmask_;
-    y.bitmasks = stepdata.outmask_;
-    x.reinit_caremask();
-    y.reinit_caremask();
-
-    return true;
-  }
-
-  if (Update(x, y)) {
-    stepdata.rows = rows;
-    stepdata.inmask_ = x.bitmasks;
-    stepdata.outmask_ = y.bitmasks;
-    box_cache->insert(key, stepdata);
-    return true;
-  }
-
-  for (unsigned int i = 0; i < bitsize; ++i) {
-    x.bitmasks[i] = BM_CONTRA;
-    y.bitmasks[i] = BM_CONTRA;
-  }
-  return false;
-}
+//template<unsigned bitsize>
+//bool LinearStep<bitsize>::Update(
+//    Mask& x, Mask& y,
+//    Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache) {
+//  LinearStepUpdateInfo<bitsize> stepdata;
+//
+//  WordMaskPair<bitsize> key = { x.bitmasks, y.bitmasks };
+//  Mask in = x;
+//  Mask out = y;
+//
+//  if (box_cache->find(key, stepdata)) {
+//    rows = stepdata.rows;
+//    x.bitmasks = stepdata.inmask_;
+//    y.bitmasks = stepdata.outmask_;
+//    x.reinit_caremask();
+//    y.reinit_caremask();
+//
+//    return true;
+//  }
+//
+//  if (Update(x, y)) {
+//    stepdata.rows = rows;
+//    stepdata.inmask_ = x.bitmasks;
+//    stepdata.outmask_ = y.bitmasks;
+//    box_cache->insert(key, stepdata);
+//    return true;
+//  }
+//
+//  for (unsigned int i = 0; i < bitsize; ++i) {
+//    x.bitmasks[i] = BM_CONTRA;
+//    y.bitmasks[i] = BM_CONTRA;
+//  }
+//  return false;
+//}
 

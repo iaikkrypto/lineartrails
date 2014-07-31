@@ -6,100 +6,170 @@ Row<bitsize, words>::Row(std::array<BitVector,words> x, std::array<BitVector,wor
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
-  if (x[0]) {
-    BitVector xp = x[0];
-    xp |= xp >> 1;
-    if (bitsize > 2) {
-      xp |= xp >> 2;
-      xp |= xp >> 4;
-      xp |= xp >> 8;
-      xp |= xp >> 16;
-      xp |= xp >> 32;
-    }
-    return Row<bitsize, words>({xp-(xp>>1)}, {0}, 0);
-  } else if (y[0]) {
-    BitVector yp = y[0];
-    yp |= yp >> 1;
-    if (bitsize > 2) {
-      yp |= yp >> 2;
-      yp |= yp >> 4;
-      yp |= yp >> 8;
-      yp |= yp >> 16;
-      yp |= yp >> 32;
-    }
-    return Row<bitsize, words>({0}, {yp-(yp>>1)}, 0);
-  } else {
-    return Row<bitsize, words>({0}, {0}, rhs);
+  std::array<BitVector,words> xtemp, ytemp;
+
+  for (int i = 0; i < words; ++i) {
+    xtemp[i] = ytemp[i] = 0;
   }
+
+  for (int i = 0; i < words; ++i)
+    if (x[i]) {
+      BitVector xp = x[i];
+      xp |= xp >> 1;
+      if (bitsize > 2) {
+        xp |= xp >> 2;
+        xp |= xp >> 4;
+        xp |= xp >> 8;
+        xp |= xp >> 16;
+        xp |= xp >> 32;
+      }
+      xtemp[i] = {xp-(xp>>1)};
+      return Row<bitsize, words>(xtemp, ytemp, 0);
+    }
+  for (int i = 0; i < words; ++i)
+    if (y[i]) {
+      BitVector yp = y[i];
+      yp |= yp >> 1;
+      if (bitsize > 2) {
+        yp |= yp >> 2;
+        yp |= yp >> 4;
+        yp |= yp >> 8;
+        yp |= yp >> 16;
+        yp |= yp >> 32;
+      }
+      ytemp[i] = {yp-(yp>>1)};
+      return Row<bitsize, words>(xtemp, ytemp, 0);
+    }
+
+  return Row<bitsize, words>(xtemp, ytemp, rhs);
+
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsContradiction() {
-  return !x[0] && !y[0] && rhs;
+  bool ret_val = true;
+  for (int i = 0; i < words; ++i)
+    ret_val &= !x[i] && !y[i];
+  return ret_val && rhs;
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsEmpty() {
-  return !x[0] && !y[0] && !rhs;
+  bool ret_val = true;
+  for (int i = 0; i < words; ++i)
+    ret_val &= !x[i] && !y[i];
+  return ret_val && !rhs;
 } 
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsXSingleton() {
-  return (x[0] & (x[0]-1)) == 0 && !y[0];
+  bool y_0 = true;
+    for (int i = 0; i < words; ++i)
+      y_0 &= !y[i];
+  int x_0 = 0;
+  for (int i = 0; i < words; ++i)
+        x_0 += (x[i] == 0);
+  int x_s = 0;
+    for (int i = 0; i < words; ++i)
+          x_s += ((x[i] & (x[i]-1)) == 0);
+
+  return  y_0 && x_0 == words - 1 && x_s == 1;
 }
 
 template <unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::IsYSingleton() {
-  return (y[0] & (y[0]-1)) == 0 && !x[0];
+  bool x_0 = true;
+    for (int i = 0; i < words; ++i)
+      x_0 &= !x[i];
+  int y_0 = 0;
+  for (int i = 0; i < words; ++i)
+        y_0 += (y[i] == 0);
+  int y_s = 0;
+    for (int i = 0; i < words; ++i)
+          y_s += ((y[i] & (y[i]-1)) == 0);
+
+  return  x_0 && y_0 == words - 1 && y_s == 1;
 }
 
 template<unsigned bitsize, unsigned words>
 bool Row<bitsize, words>::CommonVariableWith(const Row<bitsize, words>& other) {
-  return (x[0] & other.x[0]) || (y[0] & other.y[0]);
+  bool ret_val = false;
+  for (int i = 0; i < words; ++i)
+    ret_val |= (x[i] & other.x[i]) || (y[i] & other.y[i]);
+  return ret_val;
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator^(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x[0] ^ right.x[0], left.y[0] ^ right.y[0], left.rhs ^ right.rhs);
+  std::array<BitVector,words> xtemp, ytemp;
+    for (int i = 0; i < words; ++i){
+      xtemp[i] = left.x[i] ^ right.x[i];
+      ytemp[i] = left.y[i] ^ right.y[i];
+    }
+
+  return Row<bitsize, words>(xtemp, ytemp, left.rhs ^ right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
-Row<bitsize, words>& Row<bitsize, words>::operator^=(const Row<bitsize, words>& right) {
-  x[0] ^= right.x[0];
-  y[0] ^= right.y[0];
+Row<bitsize, words>& Row<bitsize, words>::operator^=(
+    const Row<bitsize, words>& right) {
+  for (int i = 0; i < words; ++i) {
+    x[i] ^= right.x[i];
+    y[i] ^= right.y[i];
+  }
   rhs ^= right.rhs;
   return *this;
 }
  
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator&(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x[0] & right.x[0], left.y[0] & right.y[0], left.rhs & right.rhs);
+  std::array<BitVector,words> xtemp, ytemp;
+    for (int i = 0; i < words; ++i){
+      xtemp[i] = left.x[i] & right.x[i];
+      ytemp[i] = left.y[i] & right.y[i];
+    }
+
+  return Row<bitsize, words>(xtemp, ytemp, left.rhs & right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words>& Row<bitsize, words>::operator&=(const Row<bitsize, words>& right) {
-  x[0] &= right.x[0];
-  y[0] &= right.y[0];
+  for (int i = 0; i < words; ++i) {
+    x[i] &= right.x[i];
+    y[i] &= right.y[i];
+  }
   rhs &= right.rhs;
   return *this;
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words> operator|(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return Row<bitsize, words>(left.x[0] | right.x[0], left.y[0] | right.y[0], left.rhs | right.rhs);
+  std::array<BitVector,words> xtemp, ytemp;
+    for (int i = 0; i < words; ++i){
+      xtemp[i] = left.x[i] | right.x[i];
+      ytemp[i] = left.y[i] | right.y[i];
+    }
+
+  return Row<bitsize, words>(xtemp, ytemp, left.rhs | right.rhs);
 }
 
 template<unsigned bitsize, unsigned words>
 Row<bitsize, words>& Row<bitsize, words>::operator|=(const Row<bitsize, words>& right) {
-  x[0] |= right.x[0];
-  y[0] |= right.y[0];
+  for (int i = 0; i < words; ++i) {
+    x[i] |= right.x[i];
+    y[i] |= right.y[i];
+  }
   rhs |= right.rhs;
   return *this;
 }
 
 template<unsigned bitsize, unsigned words>
 bool operator==(const Row<bitsize, words>& left, const Row<bitsize, words>& right) {
-  return left.x[0] == right.x[0] && left.y[0] == right.y[0] && left.rhs == right.rhs;
+  bool ret_val = true;
+  for (int i = 0; i < words; ++i)
+    ret_val &= left.x[i] == right.x[i] && left.y[i] == right.y[i];
+
+  return ret_val && left.rhs == right.rhs;
 }
 
 template<unsigned bitsize, unsigned words>

@@ -61,7 +61,7 @@ void Mask::set_bit(BitMask bit, const int index){
   hole = (hole << index) | (hole >> (64-index));
   caremask.canbe1 &= hole;
   caremask.care &= hole;
-  caremask.canbe1 |= (bit & 1) << index;
+  caremask.canbe1 |= ((BitVector)(bit & 1)) << index;
   caremask.care   |= (((BitVector)(bit != BM_DUNNO)) << index);
 
 }

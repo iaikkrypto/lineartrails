@@ -187,27 +187,29 @@ bool LinearStep<bitsize>::AddRow(const Row<bitsize>& row) {
 template<unsigned bitsize>
 bool LinearStep<bitsize>::ExtractMasks(Mask& x, Mask& y) {
   // deletes information from system!!
-  for (Row<bitsize>& row : rows) {
-    if (row.IsXSingleton()) {
-      if (x.caremask.care & row.x) {
-        if (((x.caremask.canbe1 & row.x) != 0) != row.rhs)
+  for (int i = 0; i< rows.size(); ++i) {
+    if (rows[i].IsXSingleton()) {
+      if (x.caremask.care & rows[i].x) {
+        if (((x.caremask.canbe1 & rows[i].x) != 0) != rows[i].rhs)
           return false;
       } else {
-        x.caremask.care |= row.x;
-        x.caremask.canbe1 &= (~0ULL ^ (row.x * (BitVector)(1-row.rhs)));
+        x.caremask.care |= rows[i].x;
+        x.caremask.canbe1 &= (~0ULL ^ (rows[i].x * (BitVector)(1-rows[i].rhs)));
       }
-      row = rows.back();
+      rows[i] = rows.back();
       rows.pop_back();
-    } else if (row.IsYSingleton()) {
-      if (y.caremask.care & row.y) {
-        if (((y.caremask.canbe1 & row.y) != 0) != row.rhs)
+      --i;
+    } else if (rows[i].IsYSingleton()) {
+      if (y.caremask.care & rows[i].y) {
+        if (((y.caremask.canbe1 & rows[i].y) != 0) != rows[i].rhs)
           return false;
       } else {
-        y.caremask.care |= row.y;
-        y.caremask.canbe1 &= (~0ULL ^ (row.y * (BitVector)(1-row.rhs)));
+        y.caremask.care |= rows[i].y;
+        y.caremask.canbe1 &= (~0ULL ^ (rows[i].y * (BitVector)(1-rows[i].rhs)));
       }
-      row = rows.back();
+      rows[i] = rows.back();
       rows.pop_back();
+      --i;
     }
   }
   x.init_bitmasks();
@@ -231,7 +233,6 @@ LinearStep<bitsize>& LinearStep<bitsize>::operator=(const LinearStep<bitsize>& r
 
 template <unsigned bitsize>
 bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
-  Initialize(fun_); //TODO: Remove this hack
   if (AddMasks(x, y))
     return ExtractMasks(x, y);
   return false;

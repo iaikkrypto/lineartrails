@@ -21,7 +21,7 @@ int Commandlineparser::getIntParameter(std::string parameter_switch) {
   return atoi(getParameter(parameter_switch));
 }
 float Commandlineparser::getFloatParameter(std::string parameter_switch) {
-  return atoi(getParameter(parameter_switch));
+  return atof(getParameter(parameter_switch));
 }
 
 void Commandlineparser::parse(int& argc, const char* argv[]){

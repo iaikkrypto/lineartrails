@@ -18,7 +18,7 @@
 #include "layer.h"
 #include "permutation.h"
 
-typedef std::vector<std::vector<std::array<int, 2>>> GuessWeights;
+typedef std::vector<std::vector<std::array<unsigned int, 2>>> GuessWeights;
 
 struct GuessMask {
 
@@ -26,8 +26,8 @@ struct GuessMask {
   int getRandPos(SboxPos& box, bool& active);
 
 
-  std::list<std::tuple<SboxPos,int, bool>> weighted_pos_;
-  int total_weight_;
+  std::list<std::tuple<SboxPos,unsigned int, bool>> weighted_pos_;
+  unsigned long long total_weight_;
 };
 
 

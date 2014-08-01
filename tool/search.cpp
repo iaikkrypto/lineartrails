@@ -86,8 +86,8 @@ void Search::HeuristicSearch1(unsigned int iterations, GuessWeights weights,
   for (unsigned int i = 0; i < iterations; ++i) {
     bool fail = true;
     while (fail) {
-      std::vector<std::vector<std::array<int, 2>>>working_weights = weights;
-      std::vector<int> total_weights;
+      GuessWeights working_weights = weights;
+      std::vector<unsigned int> total_weights;
 
       temp_copy.reset(working_copy->clone());
       for(auto& setting : weights) {
@@ -103,7 +103,7 @@ void Search::HeuristicSearch1(unsigned int iterations, GuessWeights weights,
         fail = false;
         temp_copy->SboxStatus(active_boxes[1], active_boxes[0]);
 
-        std::uniform_int_distribution<int> distr_setting(0,total_weights[current_setting]);
+        std::uniform_int_distribution<unsigned int> distr_setting(0,total_weights[current_setting]);
         int random_weight = distr_setting(generator);
 
         for(int active = 0; active <= 1; ++active) {

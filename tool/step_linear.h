@@ -56,27 +56,27 @@ struct LinearStepUpdateInfo{
 
 //-----------------------------------------------------------------------------
 
-template <unsigned bitsize> struct LinearStep; // template for friends below
-template <unsigned bitsize> std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys);
+template <unsigned bitsize, unsigned words> struct LinearStep; // template for friends below
+template <unsigned bitsize, unsigned words> std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize, words>& sys);
 
-template <unsigned bitsize>
+template <unsigned bitsize, unsigned words>
 struct LinearStep {
   static_assert((bitsize == 64 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
   LinearStep();
-  LinearStep(std::function<BitVector(BitVector)> fun);
-  void Initialize(std::function<BitVector(BitVector)> fun);
+  LinearStep(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
+  void Initialize(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
   bool AddMasks(Mask& x, Mask& y);
-  bool AddRow(const Row<bitsize, 1>& row);
+  bool AddRow(const Row<bitsize, words>& row);
   bool ExtractMasks(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
-  LinearStep<bitsize>& operator=(const LinearStep<bitsize>& rhs);
+  LinearStep<bitsize, words>& operator=(const LinearStep<bitsize, words>& rhs);
 //  bool Update(Mask& x, Mask& y, Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache);
 
-  friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize>& sys);
+  friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize, words>& sys);
 
-  std::function<BitVector(BitVector)> fun_;
-  std::vector<Row<bitsize, 1>> rows;
+  std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun_;
+  std::vector<Row<bitsize, words>> rows;
 };
 
 #include "step_linear.hpp"

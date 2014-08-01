@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
+#include <array>
 
 #include "mask.h"
 #include "step_linear.h"
@@ -13,10 +14,10 @@
 #include "commandlineparser.h"
 
 // ==== Target Functions ====
-BitVector testfun_linear(BitVector in) {
+std::array<BitVector, 1> testfun_linear(std::array<BitVector, 1> in) {
   // y0 = x0 + x1
   // y1 = x1
-  return ((in ^ (in >> 1)) & 1) | (in & 2);
+  return {((in[0] ^ (in[0] >> 1)) & 1) | (in[0] & 2)};
 }
 
 BitVector testfun_nonlinear(BitVector in) {
@@ -41,7 +42,7 @@ void teststep_linear() {
   };
 
   for (auto challenge : testcases) {
-    LinearStep<2> sys(testfun_linear);
+    LinearStep<2,1> sys(testfun_linear);
     bool sat = sys.AddMasks(challenge.first, challenge.second);
     //Mask in(bitsize), out(bitsize);
     Mask in(challenge.first), out(challenge.second);
@@ -55,12 +56,12 @@ void teststep_linear() {
 }
 
 #define ROTL16(x,n) (((x)<<(n))|((x)>>(16-(n))))
-BitVector fun_hamsi_linear_mini(BitVector in) {
+std::array<BitVector, 1> fun_hamsi_linear_mini(std::array<BitVector, 1> in) {
   BitVector a,b,c,d;
-  a = in >> 48;
-  b = (in >> 32) & 0xffff;
-  c = (in >> 16) & 0xffff;
-  d = (in >> 00) & 0xffff;
+  a = in[0] >> 48;
+  b = (in[0] >> 32) & 0xffff;
+  c = (in[0] >> 16) & 0xffff;
+  d = (in[0] >> 00) & 0xffff;
   a = ROTL16(a,13);
   c = ROTL16(c,3);
   b ^= a ^ c;
@@ -75,7 +76,7 @@ BitVector fun_hamsi_linear_mini(BitVector in) {
   b &= 0xffff;
   c &= 0xffff;
   d &= 0xffff;
-  return ((a<<48)|(b<<32)|(c<<16)|d);
+  return {((a<<48)|(b<<32)|(c<<16)|d)};
 }
 
 
@@ -91,7 +92,7 @@ void hamsi_linear_mini() {
       BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0,BM_0
   };
 
-    LinearStep<64> sys(fun_hamsi_linear_mini);
+    LinearStep<64,1> sys(fun_hamsi_linear_mini);
     bool sat = sys.AddMasks(in_mask, out_mask);
     //Mask in(bitsize), out(bitsize);
     Mask in(in_mask), out(out_mask);

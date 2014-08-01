@@ -214,26 +214,26 @@ std::ostream& operator<<(std::ostream& stream, const Row<bitsize, words>& row) {
 
 //-----------------------------------------------------------------------------
 
-template<unsigned bitsize>
-LinearStep<bitsize>::LinearStep() {
+template<unsigned bitsize, unsigned words>
+LinearStep<bitsize, words>::LinearStep() {
 }
 
-template<unsigned bitsize>
-LinearStep<bitsize>::LinearStep(std::function<BitVector(BitVector)> fun):fun_(fun) {
+template<unsigned bitsize, unsigned words>
+LinearStep<bitsize, words>::LinearStep(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun):fun_(fun) {
   Initialize(fun);
 }
 
-template<unsigned bitsize>
-void LinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
+template<unsigned bitsize, unsigned words>
+void LinearStep<bitsize, words>::Initialize(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun) {
   fun_ = fun;
   rows.clear();
   rows.reserve(bitsize);
   for (unsigned i = 0; i < bitsize; ++i)
-    rows.emplace_back(std::array<BitVector, 1> {1ULL << i}, std::array<BitVector, 1> {fun(1ULL << i)}, 0); // lower triangle version
+    rows.emplace_back(std::array<BitVector, words> {1ULL << i}, fun({1ULL << i}), 0); // lower triangle version
 }
 
-template<unsigned bitsize>
-bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
+template<unsigned bitsize, unsigned words>
+bool LinearStep<bitsize, words>::AddMasks(Mask& x, Mask& y) {
   BitVector care = x.caremask.care;
   BitVector pat = 1;
   for (unsigned xshift = 0; xshift < bitsize; ++xshift, pat <<= 1) {
@@ -255,8 +255,8 @@ bool LinearStep<bitsize>::AddMasks(Mask& x, Mask& y) {
   return true;
 }
 
-template<unsigned bitsize>
-bool LinearStep<bitsize>::AddRow(const Row<bitsize, 1>& row) {
+template<unsigned bitsize, unsigned words>
+bool LinearStep<bitsize, words>::AddRow(const Row<bitsize, words>& row) {
   // assumes that only one variable is set!!
   for (Row<bitsize, 1>& other : rows) { // maybe optimize via pivots
     if (other.CommonVariableWith(row)) {
@@ -278,8 +278,8 @@ bool LinearStep<bitsize>::AddRow(const Row<bitsize, 1>& row) {
   return true;
 }
 
-template<unsigned bitsize>
-bool LinearStep<bitsize>::ExtractMasks(Mask& x, Mask& y) {
+template<unsigned bitsize, unsigned words>
+bool LinearStep<bitsize, words>::ExtractMasks(Mask& x, Mask& y) {
   // deletes information from system!!
   for (int i = 0; i < rows.size(); ++i) {
     if (rows[i].IsXSingleton()) {
@@ -301,22 +301,22 @@ bool LinearStep<bitsize>::ExtractMasks(Mask& x, Mask& y) {
   return true;
 }
 
-template<unsigned bitsize>
-std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize>& sys) {
+template<unsigned bitsize, unsigned words>
+std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize, words>& sys) {
   for (const Row<bitsize, 1>& row : sys.rows)
     stream << row << std::endl;
   return stream;
 }
 
-template <unsigned bitsize>
-LinearStep<bitsize>& LinearStep<bitsize>::operator=(const LinearStep<bitsize>& rhs){
+template <unsigned bitsize, unsigned words>
+LinearStep<bitsize, words>& LinearStep<bitsize, words>::operator=(const LinearStep<bitsize, words>& rhs){
   rows = rhs.rows;
   fun_ = rhs.fun_;
   return *this;
 }
 
-template <unsigned bitsize>
-bool LinearStep<bitsize>::Update(Mask& x, Mask& y) {
+template <unsigned bitsize, unsigned words>
+bool LinearStep<bitsize, words>::Update(Mask& x, Mask& y) {
   if (AddMasks(x, y))
     return ExtractMasks(x, y);
   return false;

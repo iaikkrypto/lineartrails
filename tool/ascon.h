@@ -37,20 +37,20 @@ struct AsconState : public StateMask {
 //#define ROTL(x,n) (((x)<<(n))|((x)>>(64-(n))))
 
 template <unsigned round>
-BitVector AsconSigma(BitVector in) {
+std::array<BitVector, 1> AsconSigma(std::array<BitVector, 1> in) {
   switch (round) {
     case 0: 
-      return in ^ ROTR(in, 19) ^ ROTR(in, 28);
+      return {in[0] ^ ROTR(in[0], 19) ^ ROTR(in[0], 28)};
     case 1: 
-      return in ^ ROTR(in, 61) ^ ROTR(in, 39);
+      return {in[0] ^ ROTR(in[0], 61) ^ ROTR(in[0], 39)};
     case 2: 
-      return in ^ ROTR(in,  1) ^ ROTR(in,  6);
+      return {in[0] ^ ROTR(in[0],  1) ^ ROTR(in[0],  6)};
     case 3: 
-      return in ^ ROTR(in, 10) ^ ROTR(in, 17);
+      return {in[0] ^ ROTR(in[0], 10) ^ ROTR(in[0], 17)};
     case 4: 
-      return in ^ ROTR(in,  7) ^ ROTR(in, 41);
+      return {in[0] ^ ROTR(in[0],  7) ^ ROTR(in[0], 41)};
     default: 
-      return 0;
+      return {0};
   }
 }
 
@@ -65,7 +65,7 @@ struct AsconLinearLayer : public LinearLayer {
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
-  std::array<LinearStep<64>, 5> sigmas;
+  std::array<LinearStep<64, 1>, 5> sigmas;
   static std::unique_ptr<LRU_Cache<WordMaskPair<64>, LinearStepUpdateInfo<64>>> cache_[5];
 };
 

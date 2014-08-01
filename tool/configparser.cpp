@@ -94,7 +94,7 @@ bool Configparser::parseFile(std::string filename) {
         ->FirstChildElement("phase");
     tinyxml2::XMLElement* setting = phase->FirstChildElement("setting");
     while (setting != nullptr) {
-      std::vector<std::array<unsigned int, 2>> set;
+      std::vector<std::array<float, 2>> set;
       set.resize(rounds);
       for (auto& entry : set)
         entry[0] = entry[1] = 0;
@@ -103,9 +103,9 @@ bool Configparser::parseFile(std::string filename) {
 
       while (guess != nullptr) {
         assert(guess->IntAttribute("sbox_layer") < rounds);
-        set[guess->IntAttribute("sbox_layer")][0] = guess->UnsignedAttribute(
+        set[guess->IntAttribute("sbox_layer")][0] = guess->FloatAttribute(
             "inactive_weight");
-        set[guess->IntAttribute("sbox_layer")][1] = guess->UnsignedAttribute(
+        set[guess->IntAttribute("sbox_layer")][1] = guess->FloatAttribute(
             "active_weight");
         guess = guess->NextSiblingElement("guess");
       }

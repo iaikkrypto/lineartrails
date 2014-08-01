@@ -21,7 +21,8 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
         xp |= xp >> 4;
         xp |= xp >> 8;
         xp |= xp >> 16;
-        xp |= xp >> 32;
+        if (bitsize > 32)
+          xp |= xp >> 32;
       }
       xtemp[i] = {xp-(xp>>1)};
       return Row<bitsize, words>(xtemp, ytemp, 0);
@@ -35,7 +36,8 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
         yp |= yp >> 4;
         yp |= yp >> 8;
         yp |= yp >> 16;
-        yp |= yp >> 32;
+        if (bitsize > 32)
+          yp |= yp >> 32;
       }
       ytemp[i] = {yp-(yp>>1)};
       return Row<bitsize, words>(xtemp, ytemp, 0);
@@ -173,43 +175,48 @@ bool operator==(const Row<bitsize, words>& left, const Row<bitsize, words>& righ
 }
 
 template<unsigned bitsize, unsigned words>
-bool Row<bitsize, words>::ExtractMaskInfoX(Mask& x) {
-if (x.caremask.care & this->x[0]) {
-  if (((x.caremask.canbe1 & this->x[0]) != 0) != rhs)
-    return false;
-} else {
-  x.caremask.care |= this->x[0];
-  x.caremask.canbe1 &= (~0ULL ^ (this->x[0] * (BitVector)(1-rhs)));
-}
-return true;
+bool Row<bitsize, words>::ExtractMaskInfoX(std::array<Mask*, words>& x) {
+  for (unsigned w = 0; w < words; ++w) {
+    if (x[w]->caremask.care & this->x[w]) {
+      if (((x[w]->caremask.canbe1 & this->x[w]) != 0) != rhs)
+        return false;
+    } else {
+      x[w]->caremask.care |= this->x[w];
+      x[w]->caremask.canbe1 &= (~0ULL ^ (this->x[w] * (BitVector) (1 - rhs)));
+    }
+  }
+  return true;
 }
 
 template<unsigned bitsize, unsigned words>
-bool Row<bitsize, words>::ExtractMaskInfoY(Mask& y) {
-if (y.caremask.care & this->y[0]) {
-  if (((y.caremask.canbe1 & this->y[0]) != 0) != rhs)
-    return false;
-} else {
-  y.caremask.care |= this->y[0];
-  y.caremask.canbe1 &= (~0ULL ^ (this->y[0] * (BitVector)(1-rhs)));
-}
-return true;
+bool Row<bitsize, words>::ExtractMaskInfoY(std::array<Mask*, words>& y) {
+  for (unsigned w = 0; w < words; ++w) {
+    if (y[w]->caremask.care & this->y[w]) {
+      if (((y[w]->caremask.canbe1 & this->y[w]) != 0) != rhs)
+        return false;
+    } else {
+      y[w]->caremask.care |= this->y[w];
+      y[w]->caremask.canbe1 &= (~0ULL ^ (this->y[w] * (BitVector) (1 - rhs)));
+    }
+  }
+  return true;
 }
 
 template<unsigned bitsize, unsigned words>
 std::ostream& operator<<(std::ostream& stream, const Row<bitsize, words>& row) {
-  // prints in expected order (but not in memory order)
-  //for (int xshift = (int)row.bitsize - 1; xshift >= 0; --xshift)
-  for (unsigned xshift = 0; xshift < bitsize; ++xshift)
-    stream << ((row.x >> xshift) & 1);
-    //stream << ((row.x >> xshift) & 1) << " ";
-  stream << " ";
-  //for (int yshift = (int)row.bitsize - 1; yshift >= 0; --yshift)
-  for (unsigned yshift = 0; yshift < bitsize; ++yshift)
-    stream << ((row.y >> yshift) & 1);
-    //stream << ((row.y >> yshift) & 1) << " ";
-  stream << " " << row.rhs;
-  return stream;
+  assert(!"not implemented yet");
+//  // prints in expected order (but not in memory order)
+//  //for (int xshift = (int)row.bitsize - 1; xshift >= 0; --xshift)
+//  for (unsigned xshift = 0; xshift < bitsize; ++xshift)
+//    stream << ((row.x >> xshift) & 1);
+//    //stream << ((row.x >> xshift) & 1) << " ";
+//  stream << " ";
+//  //for (int yshift = (int)row.bitsize - 1; yshift >= 0; --yshift)
+//  for (unsigned yshift = 0; yshift < bitsize; ++yshift)
+//    stream << ((row.y >> yshift) & 1);
+//    //stream << ((row.y >> yshift) & 1) << " ";
+//  stream << " " << row.rhs;
+//  return stream;
 }
 
 //-----------------------------------------------------------------------------
@@ -233,7 +240,6 @@ void LinearStep<bitsize, words>::Initialize(std::function<std::array<BitVector, 
 
   for (unsigned w = 0; w < words; ++w)
     x_words[w] = 0;
-
 
   for (unsigned w = 0; w < words; ++w) {
     for (unsigned i = 0; i < bitsize; ++i) {
@@ -273,7 +279,7 @@ bool LinearStep<bitsize, words>::AddMasks(std::array<Mask*, words>& x, std::arra
         break;
       if (y[w]->caremask.care & y_words[w])
         if (!AddRow(
-            Row<bitsize, 1>( x_words, y_words, (y_words[w] & y[w]->caremask.canbe1) != 0)))
+            Row<bitsize, words>( x_words, y_words, (y_words[w] & y[w]->caremask.canbe1) != 0)))
           return false;
     }
   }
@@ -283,7 +289,7 @@ bool LinearStep<bitsize, words>::AddMasks(std::array<Mask*, words>& x, std::arra
 template<unsigned bitsize, unsigned words>
 bool LinearStep<bitsize, words>::AddRow(const Row<bitsize, words>& row) {
   // assumes that only one variable is set!!
-  for (Row<bitsize, 1>& other : rows) { // maybe optimize via pivots
+  for (Row<bitsize, words>& other : rows) { // maybe optimize via pivots
     if (other.CommonVariableWith(row)) {
       other ^= row;
       if (other.IsContradiction()) {
@@ -293,8 +299,8 @@ bool LinearStep<bitsize, words>::AddRow(const Row<bitsize, words>& row) {
         rows.pop_back();
         return true;
       } else {
-        Row<bitsize, 1> pivotrow = other.GetPivotRow();
-        for (Row<bitsize, 1>& third : rows)
+        Row<bitsize, words> pivotrow = other.GetPivotRow();
+        for (Row<bitsize, words>& third : rows)
           if (&third != &other && third.CommonVariableWith(pivotrow))
             third ^= other;
       }
@@ -304,7 +310,7 @@ bool LinearStep<bitsize, words>::AddRow(const Row<bitsize, words>& row) {
 }
 
 template<unsigned bitsize, unsigned words>
-bool LinearStep<bitsize, words>::ExtractMasks(Mask& x, Mask& y) {
+bool LinearStep<bitsize, words>::ExtractMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y) {
   // deletes information from system!!
   for (int i = 0; i < rows.size(); ++i) {
     if (rows[i].IsXSingleton()) {
@@ -321,14 +327,16 @@ bool LinearStep<bitsize, words>::ExtractMasks(Mask& x, Mask& y) {
       --i;
     }
   }
-  x.init_bitmasks();
-  y.init_bitmasks();
+  for (unsigned w = 0; w < words; ++w) {
+    x[w]->init_bitmasks();
+    y[w]->init_bitmasks();
+  }
   return true;
 }
 
 template<unsigned bitsize, unsigned words>
 std::ostream& operator<<(std::ostream& stream, const LinearStep<bitsize, words>& sys) {
-  for (const Row<bitsize, 1>& row : sys.rows)
+  for (const Row<bitsize, words>& row : sys.rows)
     stream << row << std::endl;
   return stream;
 }
@@ -343,7 +351,7 @@ LinearStep<bitsize, words>& LinearStep<bitsize, words>::operator=(const LinearSt
 template <unsigned bitsize, unsigned words>
 bool LinearStep<bitsize, words>::Update(std::array<Mask*, words> x,std::array<Mask*, words>  y) {
   if (AddMasks(x, y))
-    return ExtractMasks(*(x[0]), *(y[0]));
+    return ExtractMasks(x, y);
   return false;
 }
 

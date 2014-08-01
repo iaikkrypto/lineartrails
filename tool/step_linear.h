@@ -18,7 +18,7 @@ template <unsigned bitsize, unsigned words> std::ostream& operator<<(std::ostrea
 
 template <unsigned bitsize, unsigned words>
 struct Row {
-  static_assert((bitsize == 64 || bitsize == 2), "Check if linearstep supports your bitsize.");
+  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
   Row(std::array<BitVector,words> x, std::array<BitVector,words> y, bool rhs);
   Row GetPivotRow();
@@ -27,8 +27,8 @@ struct Row {
   bool IsXSingleton();
   bool IsYSingleton();
   bool CommonVariableWith(const Row<bitsize, words>& other);
-  bool ExtractMaskInfoX(Mask& x);
-  bool ExtractMaskInfoY(Mask& y);
+  bool ExtractMaskInfoX(std::array<Mask*, words>& x);
+  bool ExtractMaskInfoY(std::array<Mask*, words>& y);
   Row<bitsize, words>& operator^=(const Row<bitsize, words>& right);
   Row<bitsize, words>& operator&=(const Row<bitsize, words>& right);
   Row<bitsize, words>& operator|=(const Row<bitsize, words>& right);
@@ -61,14 +61,14 @@ template <unsigned bitsize, unsigned words> std::ostream& operator<<(std::ostrea
 
 template <unsigned bitsize, unsigned words>
 struct LinearStep {
-  static_assert((bitsize == 64 || bitsize == 2), "Check if linearstep supports your bitsize.");
+  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
   LinearStep();
   LinearStep(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
   void Initialize(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
   bool AddMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y);
   bool AddRow(const Row<bitsize, words>& row);
-  bool ExtractMasks(Mask& x, Mask& y);
+  bool ExtractMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y);
   bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y);
   LinearStep<bitsize, words>& operator=(const LinearStep<bitsize, words>& rhs);
 //  bool Update(Mask& x, Mask& y, Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache);

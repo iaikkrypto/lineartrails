@@ -228,8 +228,20 @@ void LinearStep<bitsize, words>::Initialize(std::function<std::array<BitVector, 
   fun_ = fun;
   rows.clear();
   rows.reserve(bitsize);
-  for (unsigned i = 0; i < bitsize; ++i)
-    rows.emplace_back(std::array<BitVector, words> {1ULL << i}, fun({1ULL << i}), 0); // lower triangle version
+
+  std::array<BitVector, words> x_words;
+
+  for (unsigned w = 0; w < words; ++w)
+    x_words[w] = 0;
+
+
+  for (unsigned w = 0; w < words; ++w) {
+    for (unsigned i = 0; i < bitsize; ++i) {
+      x_words[w] = 1ULL << i;
+      rows.emplace_back(x_words, fun(x_words), 0);  // lower triangle version
+    }
+    x_words[w] = 0;
+  }
 }
 
 template<unsigned bitsize, unsigned words>

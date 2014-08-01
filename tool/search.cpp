@@ -337,7 +337,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       current_prob = -char_stack.top()->GetActiveSboxes();
     else
       current_prob = char_stack.top()->GetProbability().bias;
-    if (current_prob > best_prob) {
+    if (current_prob > best_prob && curr_credit > 0) {
       best_prob = current_prob;
       std::cout << "iteration: " << i << std::endl;
       char_stack.top()->PrintWithProbability();

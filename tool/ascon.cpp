@@ -92,7 +92,7 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
 
 //-----------------------------------------------------------------------------
 
-std::unique_ptr<LRU_Cache<WordMaskPair<64>, LinearStepUpdateInfo<64>>> AsconLinearLayer::cache_[5];
+std::unique_ptr<LRU_Cache<WordMaskArray<64, 1>, LinearStepUpdateInfo<64, 1>>> AsconLinearLayer::cache_[5];
 
 AsconLinearLayer& AsconLinearLayer::operator=(const AsconLinearLayer& rhs){
   sigmas = rhs.sigmas;
@@ -127,11 +127,11 @@ void AsconLinearLayer::Init(){
   if (this->cache_[0].get() == nullptr)
     for(int i = 0; i< 5; ++i)
       this->cache_[i].reset(
-          new LRU_Cache<WordMaskPair<64>, LinearStepUpdateInfo<64>>(0x1000));
+          new LRU_Cache<WordMaskArray<64, 1>, LinearStepUpdateInfo<64,1>>(0x1000));
 }
 
 bool AsconLinearLayer::Update(UpdatePos pos) {
-  return sigmas[pos.word].Update({&((*in)[pos.word])}, {&((*out)[pos.word])});
+  return sigmas[pos.word].Update({&((*in)[pos.word])}, {&((*out)[pos.word])}, cache_[pos.word].get());
 }
 
 //-----------------------------------------------------------------------------

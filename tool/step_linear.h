@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 #include <array>
+#include <algorithm>
 
 #include "cache.h"
 #include "mask.h"
@@ -47,11 +48,11 @@ struct Row {
 
 //-----------------------------------------------------------------------------
 
-template <unsigned bitsize>
+template <unsigned bitsize, unsigned words>
 struct LinearStepUpdateInfo{
-  std::vector<Row<bitsize, 1>> rows;
-  WordMask inmask_;
-  WordMask outmask_;
+  std::vector<Row<bitsize, words>> rows;
+  std::array<WordMask, words> inmask_;
+  std::array<WordMask, words> outmask_;
 };
 
 //-----------------------------------------------------------------------------
@@ -71,7 +72,7 @@ struct LinearStep {
   bool ExtractMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y);
   bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y);
   LinearStep<bitsize, words>& operator=(const LinearStep<bitsize, words>& rhs);
-//  bool Update(Mask& x, Mask& y, Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache);
+  bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y, Cache<WordMaskArray<bitsize, words>, LinearStepUpdateInfo<bitsize, words>>* box_cache);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize, words>& sys);
 

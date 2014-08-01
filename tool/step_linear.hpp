@@ -355,38 +355,47 @@ bool LinearStep<bitsize, words>::Update(std::array<Mask*, words> x,std::array<Ma
   return false;
 }
 
-//template<unsigned bitsize>
-//bool LinearStep<bitsize>::Update(
-//    Mask& x, Mask& y,
-//    Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache) {
-//  LinearStepUpdateInfo<bitsize> stepdata;
-//
-//  WordMaskPair<bitsize> key = { x.bitmasks, y.bitmasks };
-//  Mask in = x;
-//  Mask out = y;
-//
-//  if (box_cache->find(key, stepdata)) {
-//    rows = stepdata.rows;
-//    x.bitmasks = stepdata.inmask_;
-//    y.bitmasks = stepdata.outmask_;
-//    x.reinit_caremask();
-//    y.reinit_caremask();
-//
-//    return true;
-//  }
-//
-//  if (Update(x, y)) {
-//    stepdata.rows = rows;
-//    stepdata.inmask_ = x.bitmasks;
-//    stepdata.outmask_ = y.bitmasks;
-//    box_cache->insert(key, stepdata);
-//    return true;
-//  }
-//
-//  for (unsigned int i = 0; i < bitsize; ++i) {
-//    x.bitmasks[i] = BM_CONTRA;
-//    y.bitmasks[i] = BM_CONTRA;
-//  }
-//  return false;
-//}
+template<unsigned bitsize, unsigned words>
+bool LinearStep<bitsize, words>::Update(
+    std::array<Mask*, words> x,
+    std::array<Mask*, words> y,
+    Cache<WordMaskArray<bitsize, words>, LinearStepUpdateInfo<bitsize, words>>* box_cache) {
+  LinearStepUpdateInfo<bitsize, words> stepdata;
+
+  std::array<WordMask, words> x_data, y_data;
+
+  for (int w = 0; w < words; ++w) {
+    x_data[w] = x[w]->bitmasks;
+    y_data[w] = y[w]->bitmasks;
+  }
+
+  WordMaskArray<bitsize, words> key = { x_data, y_data };
+
+  if (box_cache->find(key, stepdata)) {
+    rows = stepdata.rows;
+    for (int w = 0; w < words; ++w) {
+      x[w]->bitmasks = stepdata.inmask_[w];
+      y[w]->bitmasks = stepdata.outmask_[w];
+      x[w]->reinit_caremask();
+      y[w]->reinit_caremask();
+    }
+    return true;
+  }
+
+  if (Update(x, y)) {
+    stepdata.rows = rows;
+    for (int w = 0; w < words; ++w) {
+      stepdata.inmask_[w] = x[w]->bitmasks;
+      stepdata.outmask_[w] = y[w]->bitmasks;
+    }
+    box_cache->insert(key, stepdata);
+    return true;
+  }
+  for (int w = 0; w < words; ++w)
+    for (unsigned int i = 0; i < bitsize; ++i) {
+      x[w]->bitmasks[i] = BM_CONTRA;
+      y[w]->bitmasks[i] = BM_CONTRA;
+    }
+  return false;
+}
 

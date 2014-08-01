@@ -50,7 +50,7 @@ struct hash<WordMaskPair<bitsize>> {
       message = 0;
       for (int j = i; j < i + 16; ++j) {
         message <<= 2;
-        //TODO: Maybe get rid of the & 2
+        //TODO: Maybe get rid of the & 3
         message |= (k.in[j] & 3);
         message <<= 2;
         message |= (k.out[j] & 3);
@@ -73,6 +73,68 @@ struct hash<WordMaskPair<bitsize>> {
         v2 = (v2 << 32) | (v2 >> 32);
       }
       v3 ^= message;
+    }
+
+    return v0 ^ v1 ^ v2 ^ v3;
+  }
+};
+}
+
+template <unsigned bitsize, unsigned words>
+struct WordMaskArray {
+
+  WordMaskArray(std::array<WordMask, words> in, std::array<WordMask, words> out) : in(in), out(out) { }
+  bool operator==(const WordMaskArray<bitsize, words> &other) const {
+    bool ret_val = true;
+    for(int w = 0; w < words; ++w)
+    for(int i = 0; i<bitsize; ++i){
+      ret_val &= ((this->in[w][i] & 3) == (other.in[w][i] & 3));
+      ret_val &= ((this->out[w][i] & 3) ==(other.out[w][i]& 3));
+    }
+    return ret_val;
+  }
+
+  std::array<WordMask, words> in;
+  std::array<WordMask, words> out;
+};
+
+namespace std {
+template<unsigned bitsize, unsigned words>
+struct hash<WordMaskArray<bitsize, words>> {
+  std::size_t operator()(const WordMaskArray<bitsize, words>& k) const {
+    uint64_t v0, v1, v2, v3;
+    uint64_t message;
+    v0 = v1 = v2 = v3 = 0;
+
+    for (int w = 0; w < words; ++w) {
+      for (int i = 0; i < bitsize; i += 16) {
+        message = 0;
+        for (int j = i; j < i + 16; ++j) {
+          message <<= 2;
+          //TODO: Maybe get rid of the & 3
+          message |= (k.in[w][j] & 3);
+          message <<= 2;
+          message |= (k.out[w][j] & 3);
+        }
+        v0 ^= message;
+        for (int j = 0; j < 2; j++) {
+          v0 += v1;
+          v2 += v3;
+          v1 = (v1 << 13) | (v1 >> (64 - 13));
+          v3 = (v3 << 16) | (v3 >> (64 - 16));
+          v1 ^= v0;
+          v3 ^= v2;
+          v0 = (v0 << 32) | (v0 >> 32);
+          v2 += v1;
+          v0 += v3;
+          v1 = (v1 << 17) | (v1 >> (64 - 17));
+          v3 = (v3 << 21) | (v3 >> (64 - 21));
+          v1 ^= v2;
+          v3 ^= v0;
+          v2 = (v2 << 32) | (v2 >> 32);
+        }
+        v3 ^= message;
+      }
     }
 
     return v0 ^ v1 ^ v2 ^ v3;

@@ -245,24 +245,37 @@ void LinearStep<bitsize, words>::Initialize(std::function<std::array<BitVector, 
 }
 
 template<unsigned bitsize, unsigned words>
-bool LinearStep<bitsize, words>::AddMasks(Mask& x, Mask& y) {
-  BitVector care = x.caremask.care;
-  BitVector pat = 1;
-  for (unsigned xshift = 0; xshift < bitsize; ++xshift, pat <<= 1) {
-    if (!(care & ((~0ULL) << xshift)))
-      break;
-    if (care & pat)
-      if (!AddRow(Row<bitsize, 1>({pat}, {0ULL}, (pat & x.caremask.canbe1) != 0)))
-        return false;
+bool LinearStep<bitsize, words>::AddMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y) {
+
+  std::array<BitVector, words> x_words, y_words;
+
+  for (unsigned w = 0; w < words; ++w)
+    x_words[w] = y_words[w] = 0;
+
+  for (unsigned w = 0; w < words; ++w) {
+    x_words[w] = 1;
+    for (unsigned xshift = 0; xshift < bitsize; ++xshift, x_words[w] <<= 1) {
+      if (!(x[w]->caremask.care & ((~0ULL) << xshift)))
+        break;
+      if (x[w]->caremask.care & x_words[w])
+        if (!AddRow(
+            Row<bitsize, words>(x_words, y_words,
+                                (x_words[w] & x[w]->caremask.canbe1) != 0)))
+          return false;
+    }
+    x_words[w] = 0;
   }
-  care = y.caremask.care;
-  pat = 1;
-  for (unsigned yshift = 0; yshift < bitsize; ++yshift, pat <<= 1) {
-    if (!(care & ((~0ULL) << yshift)))
-      break;
-    if (care & pat)
-      if (!AddRow(Row<bitsize, 1>({0ULL}, {pat}, (pat & y.caremask.canbe1) != 0)))
-        return false;
+
+  for (unsigned w = 0; w < words; ++w) {
+    y_words[w] = 1;
+    for (unsigned yshift = 0; yshift < bitsize; ++yshift, y_words[w] <<= 1) {
+      if (!(y[w]->caremask.care & ((~0ULL) << yshift)))
+        break;
+      if (y[w]->caremask.care & y_words[w])
+        if (!AddRow(
+            Row<bitsize, 1>( x_words, y_words, (y_words[w] & y[w]->caremask.canbe1) != 0)))
+          return false;
+    }
   }
   return true;
 }
@@ -328,9 +341,9 @@ LinearStep<bitsize, words>& LinearStep<bitsize, words>::operator=(const LinearSt
 }
 
 template <unsigned bitsize, unsigned words>
-bool LinearStep<bitsize, words>::Update(Mask& x, Mask& y) {
+bool LinearStep<bitsize, words>::Update(std::array<Mask*, words> x,std::array<Mask*, words>  y) {
   if (AddMasks(x, y))
-    return ExtractMasks(x, y);
+    return ExtractMasks(*(x[0]), *(y[0]));
   return false;
 }
 

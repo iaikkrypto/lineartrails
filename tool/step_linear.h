@@ -66,10 +66,10 @@ struct LinearStep {
   LinearStep();
   LinearStep(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
   void Initialize(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);
-  bool AddMasks(Mask& x, Mask& y);
+  bool AddMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y);
   bool AddRow(const Row<bitsize, words>& row);
   bool ExtractMasks(Mask& x, Mask& y);
-  bool Update(Mask& x, Mask& y);
+  bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y);
   LinearStep<bitsize, words>& operator=(const LinearStep<bitsize, words>& rhs);
 //  bool Update(Mask& x, Mask& y, Cache<WordMaskPair<bitsize>, LinearStepUpdateInfo<bitsize>>* box_cache);
 

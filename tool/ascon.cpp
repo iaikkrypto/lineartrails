@@ -131,7 +131,7 @@ void AsconLinearLayer::Init(){
 }
 
 bool AsconLinearLayer::Update(UpdatePos pos) {
-  return sigmas[pos.word].Update((*in)[pos.word], (*out)[pos.word]);
+  return sigmas[pos.word].Update({&((*in)[pos.word])}, {&((*out)[pos.word])});
 }
 
 //-----------------------------------------------------------------------------

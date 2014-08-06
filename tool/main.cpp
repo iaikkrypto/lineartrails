@@ -403,7 +403,7 @@ void test_config(Commandlineparser& args) {
 
   Search my_search(*(parser.getPermutation()));
   auto myfunction = [] (int bias, int hw_in, int hw_out) {
-    return std::abs(bias) +2*((5-hw_in)+(5-hw_out));
+    return std::abs(bias) +1*((5-hw_in)+(5-hw_out));
   };
   my_search.StackSearch1(args, parser, myfunction, true, 0.1);
 }

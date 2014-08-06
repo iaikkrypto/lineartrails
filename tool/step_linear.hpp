@@ -282,6 +282,7 @@ bool LinearStep<bitsize, words>::AddMasks(std::array<Mask*, words>& x, std::arra
             Row<bitsize, words>( x_words, y_words, (y_words[w] & y[w]->caremask.canbe1) != 0)))
           return false;
     }
+    y_words[w] = 0;
   }
   return true;
 }

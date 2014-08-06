@@ -112,7 +112,7 @@ in[2] = ROTL32(in[2],22);
 }
 
 
-std::unique_ptr<LRU_Cache<WordMaskArray<64, 4>, LinearStepUpdateInfo<64, 4>>> HamsiLinearLayer::cache_[1];
+std::unique_ptr<LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32, 4>>> HamsiLinearLayer::cache_[1];
 
 HamsiLinearLayer& HamsiLinearLayer::operator=(const HamsiLinearLayer& rhs){
   layers = rhs.layers;
@@ -145,7 +145,7 @@ void HamsiLinearLayer::Init(){
   layers[3].Initialize(HamsiLinear);
   if (this->cache_[0].get() == nullptr)
       this->cache_[0].reset(
-          new LRU_Cache<WordMaskArray<64, 4>, LinearStepUpdateInfo<64,4>>(0x1000));
+          new LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32,4>>(0x1000));
 }
 
 bool HamsiLinearLayer::Update(UpdatePos pos) {
@@ -259,7 +259,7 @@ bool HamsiSboxLayer::Update(UpdatePos pos) {
 
 Mask HamsiSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
   return Mask(
-      { s[b/32].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 + 12].bitmasks[b%32] });
+      { s[b/32 + 12].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32].bitmasks[b%32]});
 }
 
 void HamsiSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {

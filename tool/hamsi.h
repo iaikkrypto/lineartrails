@@ -18,10 +18,10 @@ struct HamsiState : public StateMask {
   HamsiState();
   HamsiState& operator=(const HamsiState& rhs);
   std::vector<UpdatePos> diff(const StateMask& other);
-  typename std::array<Mask, 5>::iterator begin();
-  typename std::array<Mask, 5>::const_iterator begin() const;
-  typename std::array<Mask, 5>::iterator end();
-  typename std::array<Mask, 5>::const_iterator end() const;
+  typename std::array<Mask, 16>::iterator begin();
+  typename std::array<Mask, 16>::const_iterator begin() const;
+  typename std::array<Mask, 16>::iterator end();
+  typename std::array<Mask, 16>::const_iterator end() const;
   Mask& operator[](const int index);
   const Mask& operator[](const int index) const;
   friend std::ostream& operator<<(std::ostream& stream, const HamsiState& statemask);
@@ -46,8 +46,8 @@ struct HamsiLinearLayer : public LinearLayer {
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
-  std::array<LinearStep<64, 4>, 4> layers;
-  static std::unique_ptr<LRU_Cache<WordMaskArray<64, 4>, LinearStepUpdateInfo<64, 4>>> cache_[1];
+  std::array<LinearStep<32, 4>, 4> layers;
+  static std::unique_ptr<LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32, 4>>> cache_[1];
 };
 
 

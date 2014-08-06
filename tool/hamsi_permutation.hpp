@@ -51,7 +51,7 @@ void HamsiPermutation<rounds>::touchall() {
 
 template <unsigned rounds>
 bool HamsiPermutation<rounds>::setBit(BitMask cond, unsigned int bit){
-  return Permutation<rounds>::setBit(cond,bit,5,64);
+  return Permutation<rounds>::setBit(cond,bit,16,32);
 }
 
 

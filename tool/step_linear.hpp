@@ -24,7 +24,7 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
         if (bitsize > 32)
           xp |= xp >> 32;
       }
-      xtemp[i] = {xp-(xp>>1)};
+      xtemp[i] = xp-(xp>>1);
       return Row<bitsize, words>(xtemp, ytemp, 0);
     }
   for (int i = 0; i < words; ++i)
@@ -39,7 +39,7 @@ Row<bitsize, words> Row<bitsize, words>::GetPivotRow() {
         if (bitsize > 32)
           yp |= yp >> 32;
       }
-      ytemp[i] = {yp-(yp>>1)};
+      ytemp[i] = yp-(yp>>1);
       return Row<bitsize, words>(xtemp, ytemp, 0);
     }
 
@@ -75,7 +75,7 @@ bool Row<bitsize, words>::IsXSingleton() {
     for (int i = 0; i < words; ++i)
           x_s += ((x[i] & (x[i]-1)) == 0);
 
-  return  y_0 && x_0 == words - 1 && x_s == 1;
+  return  y_0 && x_0 == words - 1 && x_s == words;
 }
 
 template <unsigned bitsize, unsigned words>
@@ -90,7 +90,7 @@ bool Row<bitsize, words>::IsYSingleton() {
     for (int i = 0; i < words; ++i)
           y_s += ((y[i] & (y[i]-1)) == 0);
 
-  return  x_0 && y_0 == words - 1 && y_s == 1;
+  return  x_0 && y_0 == words - 1 && y_s == words;
 }
 
 template<unsigned bitsize, unsigned words>

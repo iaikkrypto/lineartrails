@@ -108,6 +108,10 @@ in[0] ^= in[1] ^ in[3];
 in[2] ^= in[3] ^ (in[1] << 7);
 in[0] = ROTL32(in[0],5);
 in[2] = ROTL32(in[2],22);
+
+for(int i = 0; i < 4; ++i)
+  in[i] &= (~0ULL >> (32));
+
   return in;
 }
 

@@ -45,7 +45,7 @@ template <unsigned bitsize> std::ostream& operator<<(std::ostream& stream, const
 
 template <unsigned bitsize>
 struct NonlinearStep {
-  static_assert((bitsize == 3 || bitsize == 5), "Check if nonlinearstep supports your bitsize.");
+//  static_assert((bitsize == 3 || bitsize == 5), "Check if nonlinearstep supports your bitsize.");
 
   NonlinearStep() = default;
   NonlinearStep(std::function<BitVector(BitVector)> fun);

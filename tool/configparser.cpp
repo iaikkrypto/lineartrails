@@ -24,6 +24,8 @@ bool Configparser::parseFile(std::string filename) {
 
 //    std::cout << rounds << std::endl;
     //FIXME: NO
+    std::string instance { parameters->FirstChildElement("rounds")->Attribute("value")};
+    if (instance.compare("ascon") == 0)
     switch (rounds) {
       case 1:
         perm_.reset(new AsconPermutation<1>);
@@ -47,7 +49,30 @@ bool Configparser::parseFile(std::string filename) {
         perm_.reset(new AsconPermutation<3>);
         break;
     }
-
+    else
+      switch (rounds) {
+        case 1:
+          perm_.reset(new HamsiPermutation<1>);
+          break;
+        case 2:
+          perm_.reset(new HamsiPermutation<2>);
+          break;
+        case 3:
+          perm_.reset(new HamsiPermutation<3>);
+          break;
+        case 4:
+          perm_.reset(new HamsiPermutation<4>);
+          break;
+        case 5:
+          perm_.reset(new HamsiPermutation<5>);
+          break;
+        case 6:
+          perm_.reset(new HamsiPermutation<6>);
+          break;
+        default:
+          perm_.reset(new HamsiPermutation<3>);
+          break;
+      }
   } else
     perm_.reset(new AsconPermutation<3>);
 

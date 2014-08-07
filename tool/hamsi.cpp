@@ -263,23 +263,23 @@ bool HamsiSboxLayer::Update(UpdatePos pos) {
 
 Mask HamsiSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
   return Mask(
-      { s[b/32 + 12].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32].bitmasks[b%32]});
+      { s[b/32].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 +12].bitmasks[b%32]});
 }
 
 void HamsiSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
-  s[b/32].bitmasks[b%32] = mask.bitmasks[3];
-  s[b/32+4].bitmasks[b%32] = mask.bitmasks[2];
-  s[b/32+8].bitmasks[b%32] = mask.bitmasks[1];
-  s[b/32+12].bitmasks[b%32] = mask.bitmasks[0];
+  s[b/32+12].bitmasks[b%32] = mask.bitmasks[3];
+  s[b/32+8].bitmasks[b%32] = mask.bitmasks[2];
+  s[b/32+4].bitmasks[b%32] = mask.bitmasks[1];
+  s[b/32+0].bitmasks[b%32] = mask.bitmasks[0];
   BitVector m = ~(1ULL << b%32);
-  s[b/32].caremask.canbe1 = (s[b/32].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 3) & 1) << b%32);
-  s[b/32+4].caremask.canbe1 = (s[b/32+4].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b%32);
-  s[b/32+8].caremask.canbe1 = (s[b/32+8].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 1) & 1) << b%32);
-  s[b/32+12].caremask.canbe1 = (s[b/32+12].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 0) & 1) << b%32);
+  s[b/32+12].caremask.canbe1 = (s[b/32+12].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 3) & 1) << b%32);
+  s[b/32+8].caremask.canbe1 = (s[b/32+8].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 2) & 1) << b%32);
+  s[b/32+4].caremask.canbe1 = (s[b/32+4].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 1) & 1) << b%32);
+  s[b/32+0].caremask.canbe1 = (s[b/32+0].caremask.canbe1 & m) | (((mask.caremask.canbe1 >> 0) & 1) << b%32);
 
-  s[b/32].caremask.care = (s[b/32].caremask.care & m) | (((mask.caremask.care >> 3) & 1) << b%32);
-  s[b/32+4].caremask.care = (s[b/32+4].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b%32);
-  s[b/32+8].caremask.care = (s[b/32+8].caremask.care & m) | (((mask.caremask.care >> 1) & 1) << b%32);
-  s[b/32+12].caremask.care = (s[b/32+12].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b%32);
+  s[b/32+12].caremask.care = (s[b/32+12].caremask.care & m) | (((mask.caremask.care >> 3) & 1) << b%32);
+  s[b/32+8].caremask.care = (s[b/32+8].caremask.care & m) | (((mask.caremask.care >> 2) & 1) << b%32);
+  s[b/32+4].caremask.care = (s[b/32+4].caremask.care & m) | (((mask.caremask.care >> 1) & 1) << b%32);
+  s[b/32+0].caremask.care = (s[b/32+0].caremask.care & m) | (((mask.caremask.care >> 0) & 1) << b%32);
 }
 

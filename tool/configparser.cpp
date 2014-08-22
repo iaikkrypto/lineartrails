@@ -24,7 +24,7 @@ bool Configparser::parseFile(std::string filename) {
 
 //    std::cout << rounds << std::endl;
     //FIXME: NO
-    std::string instance { parameters->FirstChildElement("rounds")->Attribute("value")};
+    std::string instance { parameters->FirstChildElement("permutation")->Attribute("value")};
     if (instance.compare("ascon") == 0)
     switch (rounds) {
       case 1:

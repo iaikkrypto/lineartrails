@@ -11,6 +11,7 @@
 #include "guessmask.h"
 #include "ascon_permutation.h" //TODO: make configparser independent from permutation
 #include "hamsi_permutation.h" //TODO: make configparser independent from permutation
+#include "pride_permutation.h" //TODO: make configparser independent from permutation
 
 
 struct Configparser {

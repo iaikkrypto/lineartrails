@@ -15,6 +15,9 @@ bool Configparser::parseFile(std::string filename) {
 
   int rounds = 3;
 
+  //FIXME: Better solution
+  perm_.reset(new AsconPermutation<3>);
+
   if (root->FirstChildElement("parameters") != nullptr) {
     tinyxml2::XMLElement* parameters = root->FirstChildElement("parameters");
     if (parameters->FirstChildElement("rounds") != nullptr)
@@ -25,6 +28,7 @@ bool Configparser::parseFile(std::string filename) {
 //    std::cout << rounds << std::endl;
     //FIXME: NO
     std::string instance { parameters->FirstChildElement("permutation")->Attribute("value")};
+
     if (instance.compare("ascon") == 0)
     switch (rounds) {
       case 1:
@@ -49,7 +53,7 @@ bool Configparser::parseFile(std::string filename) {
         perm_.reset(new AsconPermutation<3>);
         break;
     }
-    else
+    if (instance.compare("hamsi") == 0)
       switch (rounds) {
         case 1:
           perm_.reset(new HamsiPermutation<1>);
@@ -73,8 +77,31 @@ bool Configparser::parseFile(std::string filename) {
           perm_.reset(new HamsiPermutation<3>);
           break;
       }
-  } else
-    perm_.reset(new AsconPermutation<3>);
+    if (instance.compare("pride") == 0)
+      switch (rounds) {
+        case 1:
+          perm_.reset(new PridePermutation<1>);
+          break;
+        case 2:
+          perm_.reset(new PridePermutation<2>);
+          break;
+        case 3:
+          perm_.reset(new PridePermutation<3>);
+          break;
+        case 4:
+          perm_.reset(new PridePermutation<4>);
+          break;
+        case 5:
+          perm_.reset(new PridePermutation<5>);
+          break;
+        case 6:
+          perm_.reset(new PridePermutation<6>);
+          break;
+        default:
+          perm_.reset(new PridePermutation<3>);
+          break;
+      }
+  }
 
   if (root->FirstChildElement("char") != nullptr) {
     std::string characteristic { root->FirstChildElement("char")->Attribute(

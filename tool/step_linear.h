@@ -19,7 +19,7 @@ template <unsigned bitsize, unsigned words> std::ostream& operator<<(std::ostrea
 
 template <unsigned bitsize, unsigned words>
 struct Row {
-  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 2), "Check if linearstep supports your bitsize.");
+  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 8 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
   Row(std::array<BitVector,words> x, std::array<BitVector,words> y, bool rhs);
   Row GetPivotRow();
@@ -62,7 +62,7 @@ template <unsigned bitsize, unsigned words> std::ostream& operator<<(std::ostrea
 
 template <unsigned bitsize, unsigned words>
 struct LinearStep {
-  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 2), "Check if linearstep supports your bitsize.");
+  static_assert((bitsize == 64 || bitsize == 32 || bitsize == 8 || bitsize == 2), "Check if linearstep supports your bitsize.");
 
   LinearStep();
   LinearStep(std::function<std::array<BitVector, words>(std::array<BitVector, words>)> fun);

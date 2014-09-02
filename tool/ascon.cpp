@@ -143,7 +143,7 @@ BitVector AsconSbox(BitVector in) {
        4, 11, 31, 20, 26, 21,  9,  2, 27,  5,  8, 18, 29,  3,  6, 28,
       30, 19,  7, 14,  0, 13, 17, 24, 16, 12,  1, 25, 22, 10, 15, 23,
   };
-  return sbox[in % 32];
+  return (sbox[in % 32] << 3) ^ (sbox[in % 32] >> 2) & 0x1F;
 }
 
 std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> AsconSboxLayer::cache_;

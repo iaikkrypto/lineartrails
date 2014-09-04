@@ -15,22 +15,11 @@
 #include "lrucache.h"
 
 
-struct HamsiState : public StateMaskBase {
+struct HamsiState : public StateMask<16,32> {
   HamsiState();
-  HamsiState& operator=(const HamsiState& rhs);
-  std::vector<UpdatePos> diff(const StateMaskBase& other);
-  typename std::array<Mask, 16>::iterator begin();
-  typename std::array<Mask, 16>::const_iterator begin() const;
-  typename std::array<Mask, 16>::iterator end();
-  typename std::array<Mask, 16>::const_iterator end() const;
-  Mask& operator[](const int index);
-  const Mask& operator[](const int index) const;
   friend std::ostream& operator<<(std::ostream& stream, const HamsiState& statemask);
   void print(std::ostream& stream);
   virtual HamsiState* clone();
-  void SetState(BitMask value);
-  void SetBit(BitMask value, int word_pos, int bit_pos);
-  std::array<Mask, 16> words;
 };
 
 

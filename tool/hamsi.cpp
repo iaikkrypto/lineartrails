@@ -3,73 +3,16 @@
 #define TERMINALCOLORS
 
 HamsiState::HamsiState()
-    : words { { Mask(32), Mask(32), Mask(32), Mask(32), Mask(32), Mask(32),
-        Mask(32), Mask(32), Mask(32), Mask(32), Mask(32), Mask(32), Mask(32),
-        Mask(32), Mask(32), Mask(32) } } {
+    : StateMask() {
 }
 
-HamsiState& HamsiState::operator=(const HamsiState& rhs) {
-  for (size_t j = 0; j < words.size(); ++j)
-    words[j] = rhs.words[j];
-  return *this;
-}
 
 
 HamsiState*  HamsiState::clone(){
   HamsiState* obj =  new HamsiState();
-  for(size_t j = 0; j< words.size(); ++j)
-    obj->words[j] = words[j];
+  for(size_t j = 0; j< words_.size(); ++j)
+    obj->words_[j] = words_[j];
   return obj;
-}
-
-std::vector<UpdatePos> HamsiState::diff(const StateMaskBase& other) {
-  BitVector diffword;
-  std::vector<UpdatePos> result;
-  for (size_t i = 0; i < words.size(); ++i) {
-    diffword = (words[i].caremask.canbe1 ^ other[i].caremask.canbe1) | (words[i].caremask.care ^ other[i].caremask.care);
-    for (int b = 0; b < 32 && diffword; ++b) {
-      if (diffword & 1)
-        result.emplace_back(0, i, b, 0);
-      diffword >>= 1;
-    }
-  }
-  return result;
-}
-
-typename std::array<Mask, 16>::iterator HamsiState::begin() {
-  return words.begin();
-}
-
-typename std::array<Mask, 16>::const_iterator HamsiState::begin() const {
-  return words.begin();
-}
-
-typename std::array<Mask, 16>::iterator HamsiState::end() {
-  return words.end();
-}
-
-typename std::array<Mask, 16>::const_iterator HamsiState::end() const {
-  return words.end();
-}
-
-Mask& HamsiState::operator[](const int index) {
-  return words[index];
-}
-
-const Mask& HamsiState::operator[](const int index) const {
-  return words[index];
-}
-
-void HamsiState::SetState(BitMask value){
-  for(size_t j = 0; j< words.size(); ++j){
-    for(int i = 0; i< 32; ++i)
-      words[j].bitmasks[i] = value;
-    words[j].reinit_caremask();
-  }
-}
-
-void HamsiState::SetBit(BitMask value, int word_pos, int bit_pos){
-  words.at(word_pos).set_bit(value, bit_pos);
 }
 
 void HamsiState::print(std::ostream& stream){
@@ -83,8 +26,8 @@ std::ostream& operator<<(std::ostream& stream, const HamsiState& statemask) {
 #else
   std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
 #endif
-  for (size_t j = 0; j< statemask.words.size(); ++j){
-    for (auto it = statemask.words[j].bitmasks.rbegin(); it != statemask.words[j].bitmasks.rend(); ++it){
+  for (size_t j = 0; j< statemask.words_.size(); ++j){
+    for (auto it = statemask.words_[j].bitmasks.rbegin(); it != statemask.words_[j].bitmasks.rend(); ++it){
       stream << symbol[*it % 4];
     }
     stream << "\t";

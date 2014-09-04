@@ -7,7 +7,7 @@ AsconState::AsconState() : StateMask() {
 
 AsconState*  AsconState::clone(){
   AsconState* obj =  new AsconState();
-  for(int j = 0; j< 5; ++j)
+  for(size_t j = 0; j< words_.size(); ++j)
     obj->words_[j] = words_[j];
   return obj;
 }

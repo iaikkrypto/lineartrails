@@ -3,73 +3,16 @@
 #define TERMINALCOLORS
 
 PrideState::PrideState()
-    : words { { Mask(8), Mask(8), Mask(8), Mask(8), Mask(8), Mask(8),
-        Mask(8), Mask(8) } } {
+    : StateMask() {
 }
-
-PrideState& PrideState::operator=(const PrideState& rhs) {
-  for (size_t j = 0; j < words.size(); ++j)
-    words[j] = rhs.words[j];
-  return *this;
-}
-
 
 PrideState*  PrideState::clone(){
   PrideState* obj =  new PrideState();
-  for(size_t j = 0; j< words.size(); ++j)
-    obj->words[j] = words[j];
+  for(size_t j = 0; j< words_.size(); ++j)
+    obj->words_[j] = words_[j];
   return obj;
 }
 
-std::vector<UpdatePos> PrideState::diff(const StateMaskBase& other) {
-  BitVector diffword;
-  std::vector<UpdatePos> result;
-  for (size_t i = 0; i < words.size(); ++i) {
-    diffword = (words[i].caremask.canbe1 ^ other[i].caremask.canbe1) | (words[i].caremask.care ^ other[i].caremask.care);
-    for (int b = 0; b < 8 && diffword; ++b) {
-      if (diffword & 1)
-        result.emplace_back(0, i, b, 0);
-      diffword >>= 1;
-    }
-  }
-  return result;
-}
-
-typename std::array<Mask, 8>::iterator PrideState::begin() {
-  return words.begin();
-}
-
-typename std::array<Mask, 8>::const_iterator PrideState::begin() const {
-  return words.begin();
-}
-
-typename std::array<Mask, 8>::iterator PrideState::end() {
-  return words.end();
-}
-
-typename std::array<Mask, 8>::const_iterator PrideState::end() const {
-  return words.end();
-}
-
-Mask& PrideState::operator[](const int index) {
-  return words[index];
-}
-
-const Mask& PrideState::operator[](const int index) const {
-  return words[index];
-}
-
-void PrideState::SetState(BitMask value){
-  for(size_t j = 0; j< words.size(); ++j){
-    for(int i = 0; i< 8; ++i)
-      words[j].bitmasks[i] = value;
-    words[j].reinit_caremask();
-  }
-}
-
-void PrideState::SetBit(BitMask value, int word_pos, int bit_pos){
-  words.at(word_pos).set_bit(value, bit_pos);
-}
 
 void PrideState::print(std::ostream& stream){
   stream << *this;
@@ -82,8 +25,8 @@ std::ostream& operator<<(std::ostream& stream, const PrideState& statemask) {
 #else
   std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
 #endif
-  for (size_t j = 0; j< statemask.words.size(); ++j){
-    for (auto it = statemask.words[j].bitmasks.rbegin(); it != statemask.words[j].bitmasks.rend(); ++it){
+  for (size_t j = 0; j< statemask.words_.size(); ++j){
+    for (auto it = statemask.words_[j].bitmasks.rbegin(); it != statemask.words_[j].bitmasks.rend(); ++it){
       stream << symbol[*it % 4];
     }
     stream << " ";

@@ -15,22 +15,11 @@
 #include "lrucache.h"
 
 
-struct PrideState : public StateMaskBase {
+struct PrideState : public StateMask<8,8> {
   PrideState();
-  PrideState& operator=(const PrideState& rhs);
-  std::vector<UpdatePos> diff(const StateMaskBase& other);
-  typename std::array<Mask, 8>::iterator begin();
-  typename std::array<Mask, 8>::const_iterator begin() const;
-  typename std::array<Mask, 8>::iterator end();
-  typename std::array<Mask, 8>::const_iterator end() const;
-  Mask& operator[](const int index);
-  const Mask& operator[](const int index) const;
   friend std::ostream& operator<<(std::ostream& stream, const PrideState& statemask);
   void print(std::ostream& stream);
   virtual PrideState* clone();
-  void SetState(BitMask value);
-  void SetBit(BitMask value, int word_pos, int bit_pos);
-  std::array<Mask, 8> words;
 };
 
 

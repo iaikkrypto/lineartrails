@@ -58,7 +58,7 @@ struct Permutation : PermutationBase {
   virtual bool setBit(BitMask cond, unsigned int bit) = 0;
   bool setBit(const char cond, unsigned int bit, unsigned char num_words, unsigned char num_bits);
 
-  std::array<std::unique_ptr<StateMask>, 2 * rounds + 1> state_masks_;
+  std::array<std::unique_ptr<StateMaskBase>, 2 * rounds + 1> state_masks_;
   std::array<std::unique_ptr<SboxLayerBase>,rounds> sbox_layers_;
   std::array<std::unique_ptr<LinearLayer>, rounds> linear_layers_;
   bool toupdate_linear;

@@ -21,7 +21,7 @@ PrideState*  PrideState::clone(){
   return obj;
 }
 
-std::vector<UpdatePos> PrideState::diff(const StateMask& other) {
+std::vector<UpdatePos> PrideState::diff(const StateMaskBase& other) {
   BitVector diffword;
   std::vector<UpdatePos> result;
   for (size_t i = 0; i < words.size(); ++i) {
@@ -199,7 +199,7 @@ PrideLinearLayer* PrideLinearLayer::clone(){
   return obj;
 }
 
-PrideLinearLayer::PrideLinearLayer(StateMask *in, StateMask *out) : LinearLayer(in, out) {
+PrideLinearLayer::PrideLinearLayer(StateMaskBase *in, StateMaskBase *out) : LinearLayer(in, out) {
   Init();
 }
 
@@ -273,7 +273,7 @@ PrideSboxLayer::PrideSboxLayer() {
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
 }
 
-PrideSboxLayer::PrideSboxLayer(StateMask *in, StateMask *out)
+PrideSboxLayer::PrideSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer<4, 16>(in, out) {
   InitSboxes();
   if (this->cache_.get() == nullptr)
@@ -308,7 +308,7 @@ bool PrideSboxLayer::Update(UpdatePos pos) {
   return ret_val;
 }
 
-Mask PrideSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
+Mask PrideSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
   if(b < 8)
   return Mask(
       { s[0].bitmasks[b%8], s[2].bitmasks[b%8], s[4].bitmasks[b%8], s[6].bitmasks[b%8]});
@@ -316,7 +316,7 @@ Mask PrideSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
         { s[1].bitmasks[b%8], s[3].bitmasks[b%8], s[5].bitmasks[b%8], s[7].bitmasks[b%8]});
 }
 
-void PrideSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
+void PrideSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
   int offset = 0;
   if(b > 7)
     offset++;

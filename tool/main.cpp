@@ -413,7 +413,10 @@ void checkchar(Commandlineparser& args) {
 
   parser.parseFile(args.getParameter("-i"));
 
-  parser.getPermutation()->checkchar();
+  if(parser.getPermutation()->checkchar())
+    std::cout << "checkchar worked" << std::endl;
+  else
+    std::cout << "checkchar failed" << std::endl;
 }
 
 // ==== Main / Search ====

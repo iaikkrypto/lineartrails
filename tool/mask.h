@@ -160,6 +160,7 @@ struct ProbabilityPair{
 
 struct Mask {
   Mask& operator=(const Mask& rhs);
+  Mask();
   Mask(unsigned bitsize);
   Mask(const Mask& other);
   Mask(std::initializer_list<char> other);
@@ -169,6 +170,7 @@ struct Mask {
   void reinit_caremask();
   void init_bitmasks();
   void set_bit(BitMask bit, const int index);
+  void reset(int bitsize);
 
   friend std::ostream& operator<<(std::ostream& stream, const Mask& mask);
 
@@ -176,15 +178,5 @@ struct Mask {
   WordMaskCare caremask;
 };
 
-struct StateMask {
-  virtual ~StateMask(){};
-  virtual StateMask* clone() = 0;
-  virtual void print(std::ostream& stream) = 0;
-  virtual void SetState(BitMask value) = 0;
-  virtual void SetBit(BitMask value, int word_pos, int bit_pos) = 0;
-  virtual std::vector<UpdatePos> diff(const StateMask& other) = 0;
-  virtual Mask& operator[](const int index) = 0;
-  virtual const Mask& operator[](const int index) const = 0;
-};
 
 #endif // MASK_H_

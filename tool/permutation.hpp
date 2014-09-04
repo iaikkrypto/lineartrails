@@ -131,7 +131,7 @@ void Permutation<rounds>::set(Permutation<rounds>* perm){
 template <unsigned rounds>
 bool Permutation<rounds>::update() {
   //TODO: Better update
-  std::unique_ptr<StateMask> tempin, tempout;
+  std::unique_ptr<StateMaskBase> tempin, tempout;
   while (this->toupdate_linear == true || this->toupdate_nonlinear == true) {
     if (this->toupdate_nonlinear == true) {
       this->toupdate_nonlinear = false;

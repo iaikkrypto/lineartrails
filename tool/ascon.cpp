@@ -2,72 +2,14 @@
 
 #define TERMINALCOLORS
 
-AsconState::AsconState() : words{{Mask(64), Mask(64), Mask(64), Mask(64), Mask(64)}} {
+AsconState::AsconState() : StateMask() {
 }
-
-AsconState& AsconState::operator=(const AsconState& rhs)
-{
-  for(int j = 0; j< 5; ++j)
-     words[j] = rhs.words[j];
-  return *this;
-}
-
 
 AsconState*  AsconState::clone(){
   AsconState* obj =  new AsconState();
   for(int j = 0; j< 5; ++j)
-    obj->words[j] = words[j];
+    obj->words_[j] = words_[j];
   return obj;
-}
-
-std::vector<UpdatePos> AsconState::diff(const StateMask& other) {
-  BitVector diffword;
-  std::vector<UpdatePos> result;
-  for (int i = 0; i < 5; ++i) {
-    diffword = (words[i].caremask.canbe1 ^ other[i].caremask.canbe1) | (words[i].caremask.care ^ other[i].caremask.care);
-    for (int b = 0; b < 64 && diffword; ++b) {
-      if (diffword & 1)
-        result.emplace_back(0, i, b, 0);
-      diffword >>= 1;
-    }
-  }
-  return result;
-}
-
-typename std::array<Mask, 5>::iterator AsconState::begin() {
-  return words.begin();
-}
-
-typename std::array<Mask, 5>::const_iterator AsconState::begin() const {
-  return words.begin();
-}
-
-typename std::array<Mask, 5>::iterator AsconState::end() {
-  return words.end();
-}
-
-typename std::array<Mask, 5>::const_iterator AsconState::end() const {
-  return words.end();
-}
-
-Mask& AsconState::operator[](const int index) {
-  return words[index];
-}
-
-const Mask& AsconState::operator[](const int index) const {
-  return words[index];
-}
-
-void AsconState::SetState(BitMask value){
-  for(int j = 0; j< 5; ++j){
-    for(int i = 0; i< 64; ++i)
-      words[j].bitmasks[i] = value;
-    words[j].reinit_caremask();
-  }
-}
-
-void AsconState::SetBit(BitMask value, int word_pos, int bit_pos){
-  words.at(word_pos).set_bit(value, bit_pos);
 }
 
 void AsconState::print(std::ostream& stream){
@@ -81,7 +23,7 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
 #else
   std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
 #endif
-  for (Mask word : statemask.words){
+  for (Mask word : statemask.words_){
     for (auto it = word.bitmasks.rbegin(); it != word.bitmasks.rend(); ++it){
       stream << symbol[*it % 4];
     }
@@ -114,7 +56,7 @@ AsconLinearLayer* AsconLinearLayer::clone(){
   return obj;
 }
 
-AsconLinearLayer::AsconLinearLayer(StateMask *in, StateMask *out) : LinearLayer(in, out) {
+AsconLinearLayer::AsconLinearLayer(StateMaskBase *in, StateMaskBase *out) : LinearLayer(in, out) {
   Init();
 }
 
@@ -160,7 +102,7 @@ AsconSboxLayer::AsconSboxLayer() {
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
 }
 
-AsconSboxLayer::AsconSboxLayer(StateMask *in, StateMask *out)
+AsconSboxLayer::AsconSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer<5, 64>(in, out) {
   InitSboxes();
   if (this->cache_.get() == nullptr)
@@ -193,11 +135,11 @@ bool AsconSboxLayer::Update(UpdatePos pos) {
   return ret_val;
 }
 
-Mask AsconSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
+Mask AsconSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
   return Mask({s[4].bitmasks[b], s[3].bitmasks[b], s[2].bitmasks[b], s[1].bitmasks[b], s[0].bitmasks[b]});
 }
 
-void AsconSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
+void AsconSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
   s[0].bitmasks[b] = mask.bitmasks[4];
   s[1].bitmasks[b] = mask.bitmasks[3];
   s[2].bitmasks[b] = mask.bitmasks[2];

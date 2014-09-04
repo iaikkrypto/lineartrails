@@ -6,10 +6,10 @@ SboxPos::SboxPos(uint8_t layer, uint8_t pos) : layer_(layer),pos_(pos){
 
 //-----------------------------------------------------------------------------
 
-Layer::Layer(StateMask *in, StateMask *out) : in(in), out(out) {
+Layer::Layer(StateMaskBase *in, StateMaskBase *out) : in(in), out(out) {
 }
 
-void Layer::SetMasks(StateMask *inmask, StateMask *outmask) {
+void Layer::SetMasks(StateMaskBase *inmask, StateMaskBase *outmask) {
   in = inmask;
   out = outmask;
 }
@@ -22,12 +22,12 @@ void Layer::SetMasks(StateMask *inmask, StateMask *outmask) {
 
 //-----------------------------------------------------------------------------
 
-LinearLayer::LinearLayer(StateMask *in, StateMask *out) : Layer(in, out) {
+LinearLayer::LinearLayer(StateMaskBase *in, StateMaskBase *out) : Layer(in, out) {
 }
 
 //-----------------------------------------------------------------------------
 
-SboxLayerBase::SboxLayerBase(StateMask *in, StateMask *out) : Layer(in, out) {
+SboxLayerBase::SboxLayerBase(StateMaskBase *in, StateMaskBase *out) : Layer(in, out) {
 }
 
 

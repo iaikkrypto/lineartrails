@@ -7,6 +7,7 @@
 
 #include "layer.h"
 #include "mask.h"
+#include "statemask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "updatequeue.h"
@@ -14,10 +15,10 @@
 #include "lrucache.h"
 
 
-struct PrideState : public StateMask {
+struct PrideState : public StateMaskBase {
   PrideState();
   PrideState& operator=(const PrideState& rhs);
-  std::vector<UpdatePos> diff(const StateMask& other);
+  std::vector<UpdatePos> diff(const StateMaskBase& other);
   typename std::array<Mask, 8>::iterator begin();
   typename std::array<Mask, 8>::const_iterator begin() const;
   typename std::array<Mask, 8>::iterator end();
@@ -42,7 +43,7 @@ struct PrideLinearLayer : public LinearLayer {
   PrideLinearLayer();
   virtual PrideLinearLayer* clone();
   void Init();
-  PrideLinearLayer(StateMask *in, StateMask *out);
+  PrideLinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
@@ -54,12 +55,12 @@ struct PrideLinearLayer : public LinearLayer {
 struct PrideSboxLayer : public SboxLayer<4, 16> {
   PrideSboxLayer& operator=(const PrideSboxLayer& rhs);
   PrideSboxLayer();
-  PrideSboxLayer(StateMask *in, StateMask *out);
+  PrideSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual PrideSboxLayer* clone();
   void InitSboxes();
   virtual bool Update(UpdatePos pos);
-  Mask GetVerticalMask(int b, const StateMask& s) const;
-  void SetVerticalMask(int b, StateMask& s, const Mask& mask);
+  Mask GetVerticalMask(int b, const StateMaskBase& s) const;
+  void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };

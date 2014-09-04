@@ -7,6 +7,7 @@
 
 #include "layer.h"
 #include "mask.h"
+#include "statemask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "updatequeue.h"
@@ -14,22 +15,11 @@
 #include "lrucache.h"
 
 
-struct AsconState : public StateMask {
+struct AsconState : public StateMask<5,64> {
   AsconState();
-  AsconState& operator=(const AsconState& rhs);
-  std::vector<UpdatePos> diff(const StateMask& other);
-  typename std::array<Mask, 5>::iterator begin();
-  typename std::array<Mask, 5>::const_iterator begin() const;
-  typename std::array<Mask, 5>::iterator end();
-  typename std::array<Mask, 5>::const_iterator end() const;
-  Mask& operator[](const int index);
-  const Mask& operator[](const int index) const;
   friend std::ostream& operator<<(std::ostream& stream, const AsconState& statemask);
   void print(std::ostream& stream);
   virtual AsconState* clone();
-  void SetState(BitMask value);
-  void SetBit(BitMask value, int word_pos, int bit_pos);
-  std::array<Mask, 5> words;
 };
 
 
@@ -63,7 +53,7 @@ struct AsconLinearLayer : public LinearLayer {
   AsconLinearLayer();
   virtual AsconLinearLayer* clone();
   void Init();
-  AsconLinearLayer(StateMask *in, StateMask *out);
+  AsconLinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
@@ -75,12 +65,12 @@ struct AsconLinearLayer : public LinearLayer {
 struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer& operator=(const AsconSboxLayer& rhs);
   AsconSboxLayer();
-  AsconSboxLayer(StateMask *in, StateMask *out);
+  AsconSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual AsconSboxLayer* clone();
   void InitSboxes();
   virtual bool Update(UpdatePos pos);
-  Mask GetVerticalMask(int b, const StateMask& s) const;
-  void SetVerticalMask(int b, StateMask& s, const Mask& mask);
+  Mask GetVerticalMask(int b, const StateMaskBase& s) const;
+  void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };

@@ -35,6 +35,9 @@ Mask& Mask::operator=(const Mask& rhs)
   return *this;
 }
 
+Mask::Mask() : caremask(64) {
+}
+
 Mask::Mask(unsigned bitsize) : caremask(bitsize) {
   init_bitmasks();
 }
@@ -101,6 +104,12 @@ void Mask::init_bitmasks() {
     canbe1 >>= 1;
     care   >>= 1;
   }
+}
+
+void Mask::reset(int bitsize) {
+  caremask.canbe1 = ~0ULL >> (64 - bitsize);
+  caremask.care = 0;
+  init_bitmasks();
 }
 
 std::ostream& operator<<(std::ostream& stream, const Mask& mask) {

@@ -22,7 +22,7 @@ HamsiState*  HamsiState::clone(){
   return obj;
 }
 
-std::vector<UpdatePos> HamsiState::diff(const StateMask& other) {
+std::vector<UpdatePos> HamsiState::diff(const StateMaskBase& other) {
   BitVector diffword;
   std::vector<UpdatePos> result;
   for (size_t i = 0; i < words.size(); ++i) {
@@ -138,7 +138,7 @@ HamsiLinearLayer* HamsiLinearLayer::clone(){
   return obj;
 }
 
-HamsiLinearLayer::HamsiLinearLayer(StateMask *in, StateMask *out) : LinearLayer(in, out) {
+HamsiLinearLayer::HamsiLinearLayer(StateMaskBase *in, StateMaskBase *out) : LinearLayer(in, out) {
   Init();
 }
 
@@ -209,7 +209,7 @@ HamsiSboxLayer::HamsiSboxLayer() {
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
 }
 
-HamsiSboxLayer::HamsiSboxLayer(StateMask *in, StateMask *out)
+HamsiSboxLayer::HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer<4, 128>(in, out) {
   InitSboxes();
   if (this->cache_.get() == nullptr)
@@ -261,12 +261,12 @@ bool HamsiSboxLayer::Update(UpdatePos pos) {
   return ret_val;
 }
 
-Mask HamsiSboxLayer::GetVerticalMask(int b, const StateMask& s) const {
+Mask HamsiSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
   return Mask(
       { s[b/32].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 +12].bitmasks[b%32]});
 }
 
-void HamsiSboxLayer::SetVerticalMask(int b, StateMask& s, const Mask& mask) {
+void HamsiSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
   s[b/32+12].bitmasks[b%32] = mask.bitmasks[3];
   s[b/32+8].bitmasks[b%32] = mask.bitmasks[2];
   s[b/32+4].bitmasks[b%32] = mask.bitmasks[1];

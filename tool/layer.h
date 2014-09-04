@@ -3,6 +3,7 @@
 
 #include "updatequeue.h"
 #include "mask.h"
+#include "statemask.h"
 #include "step_nonlinear.h"
 
 struct SboxPos {
@@ -14,18 +15,18 @@ struct SboxPos {
 struct Layer {
   Layer() = default;
   virtual ~Layer(){};
-  Layer(StateMask *in, StateMask *out);
-  void SetMasks(StateMask *inmask, StateMask *outmask);
+  Layer(StateMaskBase *in, StateMaskBase *out);
+  void SetMasks(StateMaskBase *inmask, StateMaskBase *outmask);
   virtual bool Update(UpdatePos pos) = 0;
   virtual Layer* clone() = 0;
   virtual int GetNumLayer() = 0;
-  StateMask *in;
-  StateMask *out;
+  StateMaskBase *in;
+  StateMaskBase *out;
 };
 
 struct LinearLayer: public Layer {
   LinearLayer() = default;
-  LinearLayer(StateMask *in, StateMask *out);
+  LinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual LinearLayer* clone() = 0;
   virtual bool Update(UpdatePos pos) = 0;
   virtual int GetNumLayer() = 0;
@@ -33,7 +34,7 @@ struct LinearLayer: public Layer {
 
 struct SboxLayerBase: public Layer {
   SboxLayerBase() = default;
-  SboxLayerBase(StateMask *in, StateMask *out);
+  SboxLayerBase(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos)= 0;
   virtual void InitSboxes() = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
@@ -44,14 +45,14 @@ struct SboxLayerBase: public Layer {
   virtual SboxLayerBase* clone() = 0;
   virtual ProbabilityPair GetProbability()= 0;
   virtual int GetNumLayer() = 0;
-  virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
-  virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
+  virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
+  virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
 };
 
 template <unsigned bits, unsigned boxes>
 struct SboxLayer: public SboxLayerBase {
   SboxLayer() = default;
-  SboxLayer(StateMask *in, StateMask *out);
+  SboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos);
   virtual void InitSboxes() = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
@@ -62,14 +63,14 @@ struct SboxLayer: public SboxLayerBase {
   virtual SboxLayer* clone() = 0;
   virtual ProbabilityPair GetProbability();
   int GetNumLayer();
-  virtual Mask GetVerticalMask(int b, const StateMask& s) const  = 0;
-  virtual void SetVerticalMask(int b, StateMask& s, const Mask& mask) = 0;
+  virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
+  virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
 };
 
 //-----------------------------------------------------------------------------
 template <unsigned bits, unsigned boxes>
-SboxLayer<bits, boxes>::SboxLayer(StateMask *in, StateMask *out) : SboxLayerBase(in, out) {
+SboxLayer<bits, boxes>::SboxLayer(StateMaskBase *in, StateMaskBase *out) : SboxLayerBase(in, out) {
 }
 
 template <unsigned bits, unsigned boxes>

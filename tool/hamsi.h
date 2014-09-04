@@ -7,6 +7,7 @@
 
 #include "layer.h"
 #include "mask.h"
+#include "statemask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
 #include "updatequeue.h"
@@ -14,10 +15,10 @@
 #include "lrucache.h"
 
 
-struct HamsiState : public StateMask {
+struct HamsiState : public StateMaskBase {
   HamsiState();
   HamsiState& operator=(const HamsiState& rhs);
-  std::vector<UpdatePos> diff(const StateMask& other);
+  std::vector<UpdatePos> diff(const StateMaskBase& other);
   typename std::array<Mask, 16>::iterator begin();
   typename std::array<Mask, 16>::const_iterator begin() const;
   typename std::array<Mask, 16>::iterator end();
@@ -42,7 +43,7 @@ struct HamsiLinearLayer : public LinearLayer {
   HamsiLinearLayer();
   virtual HamsiLinearLayer* clone();
   void Init();
-  HamsiLinearLayer(StateMask *in, StateMask *out);
+  HamsiLinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
@@ -54,12 +55,12 @@ struct HamsiLinearLayer : public LinearLayer {
 struct HamsiSboxLayer : public SboxLayer<4, 128> {
   HamsiSboxLayer& operator=(const HamsiSboxLayer& rhs);
   HamsiSboxLayer();
-  HamsiSboxLayer(StateMask *in, StateMask *out);
+  HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual HamsiSboxLayer* clone();
   void InitSboxes();
   virtual bool Update(UpdatePos pos);
-  Mask GetVerticalMask(int b, const StateMask& s) const;
-  void SetVerticalMask(int b, StateMask& s, const Mask& mask);
+  Mask GetVerticalMask(int b, const StateMaskBase& s) const;
+  void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };

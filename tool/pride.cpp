@@ -216,14 +216,14 @@ void PrideLinearLayer::Init(){
 
 //TODO: map update to bits
 bool PrideLinearLayer::Update(UpdatePos pos) {
-//    return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
-//                            { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) },
-//                            cache_[pos.word].get());
-//
-//
+    return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
+                            { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) },
+                            cache_[pos.word].get());
 
-  return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
-                          { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) });
+
+
+//  return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
+//                          { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) });
 
 
 

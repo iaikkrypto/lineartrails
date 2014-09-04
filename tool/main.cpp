@@ -408,6 +408,14 @@ void test_config(Commandlineparser& args) {
   my_search.StackSearch1(args, parser, myfunction, false, 0.1);
 }
 
+void checkchar(Commandlineparser& args) {
+  Configparser parser;
+
+  parser.parseFile(args.getParameter("-i"));
+
+  parser.getPermutation()->checkchar();
+}
+
 // ==== Main / Search ====
 int main(int argc, const char* argv[]) {
 
@@ -419,6 +427,7 @@ int main(int argc, const char* argv[]) {
   args.addParameter("-I", "2");
 
   args.addParameter("-i", "char/example.xml");
+  args.addParameter("-u", "");
 
   args.parse(argc, argv);
 
@@ -446,8 +455,12 @@ int main(int argc, const char* argv[]) {
 //    std::cout << "heuristic guess" << std::endl;
 //    test_heuristic_guess(iterations, try_one_box);
 //
-  std::cout << "test config" << std::endl;
-  test_config(args);
+  if (std::strcmp(args.getParameter("-u"), "checkchar") == 0) {
+    checkchar(args);
+  } else {
+    std::cout << "test config" << std::endl;
+    test_config(args);
+  }
 
 //
 //  std::cout << "active guess layered" << std::endl;

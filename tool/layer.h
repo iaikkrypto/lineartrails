@@ -36,7 +36,7 @@ struct SboxLayerBase: public Layer {
   SboxLayerBase() = default;
   SboxLayerBase(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos)= 0;
-  virtual void InitSboxes() = 0;
+  virtual void InitSboxes(std::function<BitVector(BitVector)> fun) = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating) = 0;
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos)= 0;
@@ -54,7 +54,7 @@ struct SboxLayer: public SboxLayerBase {
   SboxLayer() = default;
   SboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool Update(UpdatePos pos);
-  virtual void InitSboxes() = 0;
+  virtual void InitSboxes(std::function<BitVector(BitVector)> fun);
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos);
@@ -62,7 +62,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual bool SboxGuessable(int pos);
   virtual SboxLayer* clone() = 0;
   virtual ProbabilityPair GetProbability();
-  int GetNumLayer();
+  virtual int GetNumLayer();
   virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
@@ -157,6 +157,13 @@ int SboxLayer<bits, boxes>::GuessBox(UpdatePos pos, std::function<int(int, int, 
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);
   return choises;
+}
+
+template <unsigned bits, unsigned boxes>
+void SboxLayer<bits, boxes>::InitSboxes(std::function<BitVector(BitVector)> fun){
+  std::shared_ptr<LinearDistributionTable<bits>> ldt(new LinearDistributionTable<bits>(fun));
+      for (size_t i = 0; i < boxes; i++)
+        sboxes[i].Initialize(ldt);
 }
 
 #endif // LAYER_H_

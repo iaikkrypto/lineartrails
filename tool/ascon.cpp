@@ -34,7 +34,12 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
 
 //-----------------------------------------------------------------------------
 
-std::unique_ptr<LRU_Cache<WordMaskArray<64, 1>, LinearStepUpdateInfo<64, 1>>> AsconLinearLayer::cache_[5];
+std::unique_ptr<
+    LRU_Cache<
+        WordMaskArray<AsconLinearLayer::word_size_,
+            AsconLinearLayer::words_per_step_>,
+        LinearStepUpdateInfo<AsconLinearLayer::word_size_,
+            AsconLinearLayer::words_per_step_>>> AsconLinearLayer::cache_[AsconLinearLayer::linear_steps_];
 
 AsconLinearLayer& AsconLinearLayer::operator=(const AsconLinearLayer& rhs){
   sigmas = rhs.sigmas;
@@ -46,7 +51,7 @@ AsconLinearLayer::AsconLinearLayer() {
 }
 
 int AsconLinearLayer::GetNumLayer() {
-  return 5;
+  return linear_steps_;
 }
 
 AsconLinearLayer* AsconLinearLayer::clone(){
@@ -67,9 +72,9 @@ void AsconLinearLayer::Init(){
   sigmas[3].Initialize(AsconSigma<3>);
   sigmas[4].Initialize(AsconSigma<4>);
   if (this->cache_[0].get() == nullptr)
-    for(int i = 0; i< 5; ++i)
+    for(unsigned int i = 0; i< linear_steps_; ++i)
       this->cache_[i].reset(
-          new LRU_Cache<WordMaskArray<64, 1>, LinearStepUpdateInfo<64,1>>(0x1000));
+          new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
 bool AsconLinearLayer::Update(UpdatePos pos) {
@@ -96,25 +101,20 @@ AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs){
 }
 
 AsconSboxLayer::AsconSboxLayer() {
-  InitSboxes();
+  InitSboxes(AsconSbox);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
-        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
 }
 
 AsconSboxLayer::AsconSboxLayer(StateMaskBase *in, StateMaskBase *out)
-    : SboxLayer<5, 64>(in, out) {
-  InitSboxes();
+    : SboxLayer(in, out) {
+  InitSboxes(AsconSbox);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
-        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
 }
 
-void AsconSboxLayer::InitSboxes(){
-  std::shared_ptr<LinearDistributionTable<5>> ldt(new LinearDistributionTable<5>(AsconSbox));
-    for (int i = 0; i < 64; i++)
-      sboxes[i].Initialize(ldt);
-}
 
 AsconSboxLayer* AsconSboxLayer::clone(){
   //TODO: write copy constructor
@@ -125,7 +125,7 @@ AsconSboxLayer* AsconSboxLayer::clone(){
 
 
 bool AsconSboxLayer::Update(UpdatePos pos) {
-  assert(pos.bit < 64);
+  assert(pos.bit < sboxes.size());
   bool ret_val;
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));

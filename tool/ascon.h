@@ -57,8 +57,14 @@ struct AsconLinearLayer : public LinearLayer {
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
-  std::array<LinearStep<64, 1>, 5> sigmas;
-  static std::unique_ptr<LRU_Cache<WordMaskArray<64, 1>, LinearStepUpdateInfo<64, 1>>> cache_[5];
+  static const unsigned int word_size_ = { 64 };
+  static const unsigned int words_per_step_ = { 1 };
+  static const unsigned int linear_steps_ = { 5 };
+  static const unsigned int cache_size_ = { 0x1000 };
+  std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> sigmas;
+  static std::unique_ptr<
+      LRU_Cache<WordMaskArray<word_size_, words_per_step_>,
+          LinearStepUpdateInfo<word_size_, words_per_step_>>> cache_[linear_steps_];
 };
 
 
@@ -67,11 +73,11 @@ struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer();
   AsconSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual AsconSboxLayer* clone();
-  void InitSboxes();
   virtual bool Update(UpdatePos pos);
   Mask GetVerticalMask(int b, const StateMaskBase& s) const;
   void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
+ static const unsigned int cache_size_ = { 0x1000 };
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };
 

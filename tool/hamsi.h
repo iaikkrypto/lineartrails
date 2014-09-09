@@ -36,8 +36,14 @@ struct HamsiLinearLayer : public LinearLayer {
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
-  std::array<LinearStep<32, 4>, 4> layers;
-  static std::unique_ptr<LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32, 4>>> cache_[1];
+  static const unsigned int word_size_ = { 32 };
+  static const unsigned int words_per_step_ = { 4 };
+  static const unsigned int linear_steps_ = { 4 };
+  static const unsigned int cache_size_ = { 0x1000 };
+  std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> layers;
+  static std::unique_ptr<
+      LRU_Cache<WordMaskArray<word_size_, words_per_step_>,
+          LinearStepUpdateInfo<word_size_, words_per_step_>>> cache_[1];
 };
 
 
@@ -46,11 +52,11 @@ struct HamsiSboxLayer : public SboxLayer<4, 128> {
   HamsiSboxLayer();
   HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual HamsiSboxLayer* clone();
-  void InitSboxes();
   virtual bool Update(UpdatePos pos);
   Mask GetVerticalMask(int b, const StateMaskBase& s) const;
   void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
+ static const unsigned int cache_size_ = { 0x1000 };
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };
 

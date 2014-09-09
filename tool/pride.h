@@ -36,8 +36,12 @@ struct PrideLinearLayer : public LinearLayer {
   virtual bool Update(UpdatePos pos);
   int GetNumLayer();
 
-  std::array<LinearStep<8, 2>, 4> layers;
-  static std::unique_ptr<LRU_Cache<WordMaskArray<8, 2>, LinearStepUpdateInfo<8, 2>>> cache_[4];
+  static const unsigned int word_size_ = { 8 };
+  static const unsigned int words_per_step_ = { 2 };
+  static const unsigned int linear_steps_ = { 4 };
+  static const unsigned int cache_size_ = { 0x1000 };
+  std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> layers;
+  static std::unique_ptr<LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_, words_per_step_>>> cache_[linear_steps_];
 };
 
 
@@ -46,11 +50,11 @@ struct PrideSboxLayer : public SboxLayer<4, 16> {
   PrideSboxLayer();
   PrideSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual PrideSboxLayer* clone();
-  void InitSboxes();
   virtual bool Update(UpdatePos pos);
   Mask GetVerticalMask(int b, const StateMaskBase& s) const;
   void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask);
 
+  static const unsigned int cache_size_ = { 0x1000 };
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
 };
 

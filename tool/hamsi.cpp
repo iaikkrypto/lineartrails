@@ -58,8 +58,12 @@ for(int i = 0; i < 4; ++i)
   return in;
 }
 
-
-std::unique_ptr<LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32, 4>>> HamsiLinearLayer::cache_[1];
+std::unique_ptr<
+    LRU_Cache<
+        WordMaskArray<HamsiLinearLayer::word_size_,
+            HamsiLinearLayer::words_per_step_>,
+        LinearStepUpdateInfo<HamsiLinearLayer::word_size_,
+            HamsiLinearLayer::words_per_step_>>> HamsiLinearLayer::cache_[1];
 
 HamsiLinearLayer& HamsiLinearLayer::operator=(const HamsiLinearLayer& rhs){
   layers = rhs.layers;
@@ -92,7 +96,7 @@ void HamsiLinearLayer::Init(){
   layers[3].Initialize(HamsiLinear);
   if (this->cache_[0].get() == nullptr)
       this->cache_[0].reset(
-          new LRU_Cache<WordMaskArray<32, 4>, LinearStepUpdateInfo<32,4>>(0x1000));
+          new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
 bool HamsiLinearLayer::Update(UpdatePos pos) {
@@ -146,25 +150,20 @@ HamsiSboxLayer& HamsiSboxLayer::operator=(const HamsiSboxLayer& rhs){
 }
 
 HamsiSboxLayer::HamsiSboxLayer() {
-  InitSboxes();
+  InitSboxes(HamsiSbox);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
-        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
 }
 
 HamsiSboxLayer::HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out)
-    : SboxLayer<4, 128>(in, out) {
-  InitSboxes();
+    : SboxLayer(in, out) {
+  InitSboxes(HamsiSbox);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
-        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(0x1000));
+        new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
 }
 
-void HamsiSboxLayer::InitSboxes(){
-  std::shared_ptr<LinearDistributionTable<4>> ldt(new LinearDistributionTable<4>(HamsiSbox));
-    for (int i = 0; i < 128; i++)
-      sboxes[i].Initialize(ldt);
-}
 
 HamsiSboxLayer* HamsiSboxLayer::clone(){
   //TODO: write copy constructor
@@ -175,30 +174,12 @@ HamsiSboxLayer* HamsiSboxLayer::clone(){
 
 
 bool HamsiSboxLayer::Update(UpdatePos pos) {
-//  assert(pos.bit < 32);
-//  assert(pos.word < 16);
-//
-//  if (pos.word == 0 || pos.word == 5 || pos.word == 10 || pos.word == 15)
-//    pos.word = 0;
-//  else {
-//    if (pos.word == 1 || pos.word == 6 || pos.word == 11 || pos.word == 12)
-//      pos.word = 1;
-//    else {
-//      if (pos.word == 2 || pos.word == 7 || pos.word == 8 || pos.word == 13)
-//        pos.word = 2;
-//      else {
-//        if (pos.word == 3 || pos.word == 4 || pos.word == 9 || pos.word == 14)
-//          pos.word = 3;
-//      }
-//    }
-//  }
-
-  assert(pos.bit < 128);
+  assert(pos.bit < sboxes.size());
 
   bool ret_val;
   Mask copyin(GetVerticalMask(pos.bit, *in));
   Mask copyout(GetVerticalMask(pos.bit, *out));
- ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
+  ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
   SetVerticalMask(pos.bit, *in, copyin);
   SetVerticalMask(pos.bit, *out, copyout);
   return ret_val;

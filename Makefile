@@ -37,4 +37,4 @@ $(BUILD_DIR)/tinyxml2.o: tinyxml2/tinyxml2.cpp
 clean :
 	rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d $(TITLE)
 
--include $(wildcard ./*.d)
+-include $(wildcard $(BUILD_DIR)/*.d)

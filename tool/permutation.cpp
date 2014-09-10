@@ -1,27 +1,40 @@
-template <unsigned rounds>
-Permutation<rounds>::Permutation(const Permutation& other) {
-  for(int i = 0; i< 2*rounds +1; ++i){
+#include "permutation.h"
+
+Permutation::Permutation(unsigned int rounds)
+    : toupdate_linear(true),
+      toupdate_nonlinear(true),
+      rounds_(rounds) {
+  state_masks_.resize(2 * rounds_ + 1);
+  sbox_layers_.resize(rounds_);
+  linear_layers_.resize(rounds_);
+}
+
+
+Permutation::Permutation(const Permutation& other)
+    : Permutation(other.rounds_) {
+  for (unsigned int i = 0; i < 2 * rounds_ + 1; ++i) {
     this->state_masks_[i].reset(other.state_masks_[i]->clone());
   }
 
-  for (int i = 0; i < rounds; ++i) {
+  for (unsigned int i = 0; i < rounds_; ++i) {
     this->sbox_layers_[i].reset(other.sbox_layers_[i]->clone());
-    this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());
+    this->sbox_layers_[i]->SetMasks(this->state_masks_[2 * i].get(),
+                                    this->state_masks_[2 * i + 1].get());
     this->linear_layers_[i].reset(other.linear_layers_[i]->clone());
-    this->linear_layers_[i]->SetMasks(this->state_masks_[2*i + 1].get(), this->state_masks_[2*i + 2].get());
+    this->linear_layers_[i]->SetMasks(this->state_masks_[2 * i + 1].get(),
+                                      this->state_masks_[2 * i + 2].get());
   }
   this->toupdate_linear = other.toupdate_linear;
   this->toupdate_nonlinear = other.toupdate_nonlinear;
 }
 
 
-template <unsigned rounds>
-void Permutation<rounds>::SboxStatus(std::vector<SboxPos>& active,
+void Permutation::SboxStatus(std::vector<SboxPos>& active,
                                   std::vector<SboxPos>& inactive) {
   active.clear();
   inactive.clear();
 
-  for (size_t layer = 0; layer < rounds; ++layer)
+  for (unsigned int layer = 0; layer < rounds_; ++layer)
     for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
       if (this->sbox_layers_[layer]->SboxGuessable(pos)) {
         if (this->sbox_layers_[layer]->SboxActive(pos))
@@ -30,12 +43,13 @@ void Permutation<rounds>::SboxStatus(std::vector<SboxPos>& active,
           inactive.emplace_back(layer, pos);
       }
 }
-template <unsigned rounds>
-void Permutation<rounds>::SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive){
+
+
+void Permutation::SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive){
   active.clear();
   inactive.clear();
-  active.resize(rounds);
-  inactive.resize(rounds);
+  active.resize(rounds_);
+  inactive.resize(rounds_);
 
   for (size_t layer = 0; layer < this->sbox_layers_.size(); ++layer)
     for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
@@ -47,15 +61,14 @@ void Permutation<rounds>::SboxStatus(std::vector<std::vector<SboxPos>>& active, 
       }
 }
 
-template <unsigned rounds>
-bool Permutation<rounds>::isActive(SboxPos pos){
+
+bool Permutation::isActive(SboxPos pos){
 
 return this->sbox_layers_[pos.layer_]->SboxActive(pos.pos_);
 }
 
 
-template <unsigned rounds>
-bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) {
+bool Permutation::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating) {
 
   this->sbox_layers_[pos.layer_]->GuessBox(UpdatePos(0, 0, pos.pos_, 0), rating);
 
@@ -63,11 +76,10 @@ bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int,
     return update();
 }
 
-template<unsigned rounds>
-bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating,
+bool Permutation::guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating,
                                              int num_alternatives) {
   bool update_works = false;
-  std::unique_ptr<Permutation<rounds>> temp;
+  std::unique_ptr<Permutation> temp;
   temp.reset(this->clone());
 
   for (int i = 0; i < num_alternatives; ++i) {
@@ -85,11 +97,10 @@ bool Permutation<rounds>::guessbestsbox(SboxPos pos, std::function<int(int, int,
   return false;
 }
 
-template<unsigned rounds>
-bool Permutation<rounds>::guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating,
+bool Permutation::guessbestsboxrandom(SboxPos pos, std::function<int(int, int, int)> rating,
                                              int num_alternatives) {
   bool update_works = false;
-  std::unique_ptr<Permutation<rounds>> temp;
+  std::unique_ptr<Permutation> temp;
   temp.reset(this->clone());
 
   for (int i = 0; i < num_alternatives; ++i) {
@@ -112,13 +123,12 @@ bool Permutation<rounds>::guessbestsboxrandom(SboxPos pos, std::function<int(int
   return false;
 }
 
-template<unsigned rounds>
-void Permutation<rounds>::set(Permutation<rounds>* perm){
-  for(int i = 0; i< 2*rounds +1; ++i){
+void Permutation::set(Permutation* perm){
+  for(unsigned int i = 0; i< 2*rounds_ +1; ++i){
     this->state_masks_[i].reset(perm->state_masks_[i]->clone());
   }
 
-  for (int i = 0; i < rounds; ++i) {
+  for (unsigned int i = 0; i < rounds_; ++i) {
     this->sbox_layers_[i].reset(perm->sbox_layers_[i]->clone());
     this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());
     this->linear_layers_[i].reset(perm->linear_layers_[i]->clone());
@@ -128,14 +138,13 @@ void Permutation<rounds>::set(Permutation<rounds>* perm){
   this->toupdate_nonlinear = perm->toupdate_nonlinear;
 }
 
-template <unsigned rounds>
-bool Permutation<rounds>::update() {
+bool Permutation::update() {
   //TODO: Better update
   std::unique_ptr<StateMaskBase> tempin, tempout;
   while (this->toupdate_linear == true || this->toupdate_nonlinear == true) {
     if (this->toupdate_nonlinear == true) {
       this->toupdate_nonlinear = false;
-      for (size_t layer = 0; layer < rounds; ++layer) {
+      for (unsigned int layer = 0; layer < rounds_; ++layer) {
         tempin.reset(this->sbox_layers_[layer]->in->clone());
         tempout.reset(this->sbox_layers_[layer]->out->clone());
         for (int i = 0; i < this->sbox_layers_[layer]->GetNumLayer(); ++i)
@@ -148,7 +157,7 @@ bool Permutation<rounds>::update() {
     }
     if (this->toupdate_linear == true) {
       this->toupdate_linear = false;
-      for (size_t layer = 0; layer < rounds; ++layer) {
+      for (unsigned int layer = 0; layer < rounds_; ++layer) {
         tempin.reset(this->linear_layers_[layer]->in->clone());
         tempout.reset(this->linear_layers_[layer]->out->clone());
         for (int i = 0; i < this->linear_layers_[layer]->GetNumLayer(); ++i)
@@ -163,8 +172,7 @@ bool Permutation<rounds>::update() {
   return true;
 }
 
-template<unsigned rounds>
-ProbabilityPair Permutation<rounds>::GetProbability() {
+ProbabilityPair Permutation::GetProbability() {
   ProbabilityPair prob { 1, 0.0 };
   ProbabilityPair temp_prob;
 
@@ -174,13 +182,12 @@ ProbabilityPair Permutation<rounds>::GetProbability() {
     prob.bias += temp_prob.bias;
   }
 
-  prob.bias += rounds - 1;
+  prob.bias += rounds_ - 1;
 
   return prob;
 }
 
-template<unsigned rounds>
-unsigned int Permutation<rounds>::GetActiveSboxes() {
+unsigned int Permutation::GetActiveSboxes() {
   unsigned int active_sboxes_layer = 0;
 
   for (auto& layer : this->sbox_layers_) {
@@ -191,8 +198,7 @@ unsigned int Permutation<rounds>::GetActiveSboxes() {
   return active_sboxes_layer;
 }
 
-template <unsigned rounds>
-bool Permutation<rounds>::checkchar(std::ostream& stream) {
+bool Permutation::checkchar(std::ostream& stream) {
   bool correct;
   stream << "Characteristic before propagation" << std::endl;
   this->print(stream);
@@ -202,8 +208,7 @@ bool Permutation<rounds>::checkchar(std::ostream& stream) {
   return correct;
 }
 
-template <unsigned rounds>
-void Permutation<rounds>::print(std::ostream& stream) {
+void Permutation::print(std::ostream& stream) {
   int i = 0;
   for (const auto& state : state_masks_) {
     stream << "State Mask " << ++i << std::endl;
@@ -212,14 +217,13 @@ void Permutation<rounds>::print(std::ostream& stream) {
   }
 }
 
-template<unsigned rounds>
-void Permutation<rounds>::PrintWithProbability(std::ostream& stream, int offset) {
+void Permutation::PrintWithProbability(std::ostream& stream, unsigned int offset) {
   ProbabilityPair prob { 1, 0.0 };
   ProbabilityPair temp_prob;
   int active_sboxes = 0;
-  for (int i = 0; i <= 2 * rounds; ++i) {
+  for (unsigned int i = 0; i <= 2 * rounds_; ++i) {
     stream << "State Mask " << i + 1;
-    if (i % 2 == offset && i < 2 * rounds) {
+    if (i % 2 == offset && i < 2 * rounds_) {
       temp_prob = this->sbox_layers_[i / 2]->GetProbability();
       int active_sboxes_layer = 0;
       for (int j = 0; j < this->sbox_layers_[i / 2]->GetNumLayer(); ++j)
@@ -234,23 +238,21 @@ void Permutation<rounds>::PrintWithProbability(std::ostream& stream, int offset)
     this->state_masks_[i]->print(stream);
     stream << std::endl;
   }
-  prob.bias += rounds - 1;
+  prob.bias += rounds_ - 1;
   stream << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
       << " active sboxes: " << active_sboxes << std::endl << std::endl;
 
   stream << "----------------------------------------------------------------" << std::endl;
 }
 
-template <unsigned rounds>
-void Permutation<rounds>::touchall() {
+void Permutation::touchall() {
   this->toupdate_linear = true;
   this->toupdate_nonlinear = true;
 }
 
-template <unsigned rounds>
-bool Permutation<rounds>::setBit(BitMask cond, unsigned int bit, unsigned char num_words, unsigned char num_bits){
+bool Permutation::setBit(BitMask cond, unsigned int bit, unsigned char num_words, unsigned char num_bits){
 unsigned int state = bit / (num_words*num_bits);
-if (state > 2*rounds +1)
+if (state > 2*rounds_ +1)
   return false;
 
 bit %= (num_words*num_bits);

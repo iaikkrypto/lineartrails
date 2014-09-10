@@ -7,14 +7,14 @@
 
 #include "search.h"
 
-Search::Search(PermutationBase &perm)
+Search::Search(Permutation &perm)
     : perm_(&perm) {
 
 }
 
 void Search::RandomSearch1(unsigned int iterations,
                            std::function<int(int, int, int)> rating) {
-  std::unique_ptr<PermutationBase> working_copy, temp_copy;
+  std::unique_ptr<Permutation> working_copy, temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
   working_copy->checkchar();
@@ -66,8 +66,8 @@ void Search::HeuristicSearch1(unsigned int iterations, GuessWeights weights,
                               std::function<int(int, int, int)> rating,
                               int try_one_box, bool count_active) {
 
-  std::unique_ptr<PermutationBase> working_copy;
-  std::unique_ptr<PermutationBase> temp_copy;
+  std::unique_ptr<Permutation> working_copy;
+  std::unique_ptr<Permutation> temp_copy;
   double best_prob = -DBL_MAX;
   working_copy.reset(perm_->clone());
   if (working_copy->checkchar() == false)
@@ -151,8 +151,8 @@ void Search::HeuristicSearch2(unsigned int iterations, GuessWeights weights,
                               std::function<int(int, int, int)> rating,
                               int try_one_box, bool count_active) {
 
-  std::unique_ptr<PermutationBase> working_copy;
-  std::unique_ptr<PermutationBase> temp_copy;
+  std::unique_ptr<Permutation> working_copy;
+  std::unique_ptr<Permutation> temp_copy;
   double best_prob = -DBL_MAX;
   GuessMask guesses;
   SboxPos guessed_box(0, 0);
@@ -197,8 +197,8 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
                               std::function<int(int, int, int)> rating,
                               int try_one_box, bool count_active) {
 
-  std::unique_ptr<PermutationBase> working_copy;
-  std::unique_ptr<PermutationBase> temp_copy;
+  std::unique_ptr<Permutation> working_copy;
+  std::unique_ptr<Permutation> temp_copy;
   double best_prob = -DBL_MAX;
   GuessMask guesses;
   SboxPos guessed_box(0, 0);
@@ -253,8 +253,8 @@ void Search::StackSearch1(Commandlineparser& cl_param,
                           std::function<int(int, int, int)> rating,
                           bool count_active, float push_stack_prob) {
 
-  std::unique_ptr<PermutationBase> working_copy;
-  std::stack<std::unique_ptr<PermutationBase>> char_stack;
+  std::unique_ptr<Permutation> working_copy;
+  std::stack<std::unique_ptr<Permutation>> char_stack;
 
   double best_prob = -DBL_MAX;
   GuessMask guesses;

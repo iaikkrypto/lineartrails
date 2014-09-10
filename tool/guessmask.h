@@ -22,7 +22,7 @@ typedef std::vector<std::vector<std::array<float, 2>>> GuessWeights;
 
 struct GuessMask {
 
-  int createMask(PermutationBase *perm, GuessWeights& weights);
+  int createMask(Permutation *perm, GuessWeights& weights);
   int getRandPos(SboxPos& box, bool& active);
 
 

@@ -16,7 +16,7 @@ bool Configparser::parseFile(std::string filename) {
   int rounds = 3;
 
   //FIXME: Better solution
-  perm_.reset(new AsconPermutation<3>);
+  perm_.reset(new AsconPermutation(3));
 
   if (root->FirstChildElement("parameters") != nullptr) {
     tinyxml2::XMLElement* parameters = root->FirstChildElement("parameters");
@@ -26,81 +26,14 @@ bool Configparser::parseFile(std::string filename) {
       rounds = 1;
 
 //    std::cout << rounds << std::endl;
-    //FIXME: NO
     std::string instance { parameters->FirstChildElement("permutation")->Attribute("value")};
 
     if (instance.compare("ascon") == 0)
-    switch (rounds) {
-      case 1:
-        perm_.reset(new AsconPermutation<1>);
-        break;
-      case 2:
-        perm_.reset(new AsconPermutation<2>);
-        break;
-      case 3:
-        perm_.reset(new AsconPermutation<3>);
-        break;
-      case 4:
-        perm_.reset(new AsconPermutation<4>);
-        break;
-      case 5:
-        perm_.reset(new AsconPermutation<5>);
-        break;
-      case 6:
-        perm_.reset(new AsconPermutation<6>);
-        break;
-      default:
-        perm_.reset(new AsconPermutation<3>);
-        break;
-    }
+        perm_.reset(new AsconPermutation(rounds));
     if (instance.compare("hamsi") == 0)
-      switch (rounds) {
-        case 1:
-          perm_.reset(new HamsiPermutation<1>);
-          break;
-        case 2:
-          perm_.reset(new HamsiPermutation<2>);
-          break;
-        case 3:
-          perm_.reset(new HamsiPermutation<3>);
-          break;
-        case 4:
-          perm_.reset(new HamsiPermutation<4>);
-          break;
-        case 5:
-          perm_.reset(new HamsiPermutation<5>);
-          break;
-        case 6:
-          perm_.reset(new HamsiPermutation<6>);
-          break;
-        default:
-          perm_.reset(new HamsiPermutation<3>);
-          break;
-      }
+          perm_.reset(new HamsiPermutation(rounds));
     if (instance.compare("pride") == 0)
-      switch (rounds) {
-        case 1:
-          perm_.reset(new PridePermutation<1>);
-          break;
-        case 2:
-          perm_.reset(new PridePermutation<2>);
-          break;
-        case 3:
-          perm_.reset(new PridePermutation<3>);
-          break;
-        case 4:
-          perm_.reset(new PridePermutation<4>);
-          break;
-        case 5:
-          perm_.reset(new PridePermutation<5>);
-          break;
-        case 6:
-          perm_.reset(new PridePermutation<6>);
-          break;
-        default:
-          perm_.reset(new PridePermutation<3>);
-          break;
-      }
+          perm_.reset(new PridePermutation(rounds));
   }
 
   if (root->FirstChildElement("char") != nullptr) {
@@ -175,7 +108,7 @@ bool Configparser::parseFile(std::string filename) {
 
   return true;
 }
-PermutationBase* Configparser::getPermutation() {
+Permutation* Configparser::getPermutation() {
   assert(perm_.get() != nullptr);
   return perm_->clone();
 }

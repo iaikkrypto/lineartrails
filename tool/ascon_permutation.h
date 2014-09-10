@@ -7,23 +7,17 @@
 #include "mask.h"
 #include "permutation.h"
 
-template <unsigned rounds>
-struct AsconPermutation : public Permutation<rounds> {
-  AsconPermutation<rounds>& operator=(const AsconPermutation<rounds>& rhs);
-  AsconPermutation();
+
+struct AsconPermutation : public Permutation {
+  AsconPermutation& operator=(const AsconPermutation& rhs);
+  AsconPermutation(unsigned int rounds);
   AsconPermutation(const AsconPermutation& other);
   void touchall();
-  AsconPermutation<rounds>* clone() const;
+  AsconPermutation* clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
   virtual bool setBit(BitMask cond, unsigned int bit);
 
-  friend std::ostream& operator<<(std::ostream& stream,
-                                  const AsconPermutation<rounds>& permutation) {
-    permutation->print(stream);
-    return stream;
-  }
 };
 
 
-#include "ascon_permutation.hpp"
 #endif

@@ -7,7 +7,7 @@
 
 #include "guessmask.h"
 
-int GuessMask::createMask(PermutationBase *perm, GuessWeights& weights){
+int GuessMask::createMask(Permutation *perm, GuessWeights& weights){
 std::array<std::vector<SboxPos>,2> active_boxes;
 
   weighted_pos_.clear();

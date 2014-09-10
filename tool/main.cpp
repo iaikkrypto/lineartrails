@@ -201,7 +201,7 @@ void test_linearlayer() {
 }
 
 void test_permutation() {
-  AsconPermutation<1> perm;
+  AsconPermutation perm(1);
 
   perm.state_masks_[0]->SetState(BM_0);
   perm.state_masks_[0]->SetBit(BM_1, 3, 0);
@@ -226,7 +226,7 @@ void test_permutation() {
 }
 
 void test_active() {
-  AsconPermutation<1> perm;
+  AsconPermutation perm(1);
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0]->SetBit(BM_1, 0, 0);
@@ -255,7 +255,7 @@ void test_active() {
 }
 
 void test_active_guess(Commandlineparser& args) {
-  AsconPermutation<3> perm;
+  AsconPermutation perm(3);
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0]->SetBit(BM_1, 0, 0);
@@ -285,7 +285,7 @@ void test_heuristic_guess(Commandlineparser& args) {
 //  std::vector<std::vector<std::array<int,2>>> weights = {{{1,0},{2,0},{3,0}},{{0,1},{0,1},{0,1}}};
 
   //searchmasks for 4 rounds
-  AsconPermutation<4> perm;
+  AsconPermutation perm(4);
   perm.state_masks_[5]->SetBit(BM_1, 2, 35);
   //first variant
 //  perm.state_masks_[3]->SetState(BM_0);
@@ -345,7 +345,7 @@ void test_heuristic_guess(Commandlineparser& args) {
 }
 
 void test_active_guess_layered() {
-  AsconPermutation<2> perm;
+  AsconPermutation perm(2);
 
 //  perm.state_masks_[0].SetState(BM_0);
   perm.state_masks_[0]->SetBit(BM_1, 3, 0);
@@ -363,7 +363,7 @@ void test_active_guess_layered() {
   perm.SboxStatus(active, inactive);
   std::default_random_engine generator;
 
-  AsconPermutation<2> temp;
+  AsconPermutation temp(2);
   temp = perm;
   for (int layer = 0; layer < 2; ++layer)
     while (active[layer].size() != 0 || inactive[layer].size() != 0) {

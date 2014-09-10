@@ -1,7 +1,7 @@
 #ifndef ASCONPERMUTATION_H_
 #define ASCONPERMUTATION_H_
 
-#include <array>
+#include <vector>
 
 #include "ascon.h"
 #include "mask.h"

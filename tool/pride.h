@@ -3,15 +3,13 @@
 
 #include <vector>
 #include <array>
-#include <random>
+#include <memory>
 
 #include "layer.h"
 #include "mask.h"
 #include "statemask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
-#include "updatequeue.h"
-#include "memory"
 #include "lrucache.h"
 
 

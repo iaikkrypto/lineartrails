@@ -1,15 +1,12 @@
 #ifndef PERMUTATION_H_
 #define PERMUTATION_H_
 
-#include <stdint.h>
 #include <vector>
+#include <memory>
 
 #include "layer.h"
-#include "mask.h"
+#include "statemask.h"
 #include "updatequeue.h"
-#include "memory"
-
-#include "layer.h"
 
 
 struct Permutation {

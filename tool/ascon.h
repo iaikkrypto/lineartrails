@@ -10,8 +10,6 @@
 #include "statemask.h"
 #include "step_linear.h"
 #include "step_nonlinear.h"
-#include "updatequeue.h"
-#include "memory"
 #include "lrucache.h"
 
 

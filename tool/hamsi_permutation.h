@@ -1,7 +1,7 @@
 #ifndef HAMSIPERMUTATION_H_
 #define HAMSIPERMUTATION_H_
 
-#include <array>
+#include <vector>
 
 #include "hamsi.h"
 #include "mask.h"

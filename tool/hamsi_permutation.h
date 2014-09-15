@@ -14,7 +14,6 @@ struct HamsiPermutation : public Permutation {
   void touchall();
   HamsiPermutation* clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
-  virtual bool setBit(BitMask cond, unsigned int bit);
 };
 
 struct HamsiCompression : public Permutation {
@@ -24,7 +23,6 @@ struct HamsiCompression : public Permutation {
   void touchall();
   HamsiCompression* clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
-  virtual bool setBit(BitMask cond, unsigned int bit);
   void set(Permutation* perm);
 };
 

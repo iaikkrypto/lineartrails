@@ -19,6 +19,8 @@ struct StateMaskBase {
   virtual std::vector<UpdatePos> diff(const StateMaskBase& other) = 0;
   virtual Mask& operator[](const int index) = 0;
   virtual const Mask& operator[](const int index) const = 0;
+  virtual const unsigned int getnumwords() const = 0;
+  virtual const unsigned int getnumbits() const = 0;
 };
 
 template <unsigned words, unsigned bits>
@@ -32,6 +34,8 @@ struct StateMask : public StateMaskBase {
   virtual std::vector<UpdatePos> diff(const StateMaskBase& other);
   virtual Mask& operator[](const int index);
   virtual const Mask& operator[](const int index) const ;
+  virtual const unsigned int getnumwords() const {return words;};
+  virtual const unsigned int getnumbits() const {return bits;};
 
  protected:
   std::array<Mask, words> words_;

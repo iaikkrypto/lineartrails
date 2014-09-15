@@ -28,7 +28,7 @@ struct Permutation {
   virtual void touchall();
   virtual ProbabilityPair GetProbability();
   virtual unsigned int GetActiveSboxes();
-  virtual bool setBit(BitMask cond, unsigned int bit) = 0;
+  virtual bool setBit(BitMask cond, unsigned int bit);
   bool setBit(const char cond, unsigned int bit, unsigned char num_words, unsigned char num_bits);
 
   std::vector<std::unique_ptr<StateMaskBase>> state_masks_;

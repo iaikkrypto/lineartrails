@@ -48,11 +48,6 @@ void HamsiPermutation::touchall() {
   Permutation::touchall();
 }
 
-
-bool HamsiPermutation::setBit(BitMask cond, unsigned int bit){
-  return Permutation::setBit(cond,bit,16,32);
-}
-
 //-----------------------------------------------------------------------------
 
 HamsiCompression::HamsiCompression(unsigned int rounds) : Permutation(rounds) {
@@ -108,10 +103,6 @@ void HamsiCompression::touchall() {
   Permutation::touchall();
 }
 
-
-bool HamsiCompression::setBit(BitMask cond, unsigned int bit){
-  return Permutation::setBit(cond,bit,16,32);
-}
 
 void HamsiCompression::set(Permutation* perm){
   for(unsigned int i = 1; i< 2*rounds_ +1; ++i){

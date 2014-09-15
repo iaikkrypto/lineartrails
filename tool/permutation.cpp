@@ -268,4 +268,8 @@ state_masks_[state]->SetBit(cond, word, bit);
   return true;
 }
 
+bool Permutation::setBit(BitMask cond, unsigned int bit){
+  return setBit(cond,bit,state_masks_.begin()->get()->getnumwords(),state_masks_.begin()->get()->getnumbits());
+}
+
 

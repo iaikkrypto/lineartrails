@@ -48,9 +48,3 @@ void PridePermutation::touchall() {
   Permutation::touchall();
 }
 
-
-bool PridePermutation::setBit(BitMask cond, unsigned int bit){
-  return Permutation::setBit(cond,bit,8,8);
-}
-
-

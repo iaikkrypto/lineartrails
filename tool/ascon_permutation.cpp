@@ -49,9 +49,3 @@ void AsconPermutation::touchall() {
   Permutation::touchall();
 }
 
-
-bool AsconPermutation::setBit(BitMask cond, unsigned int bit){
-  return Permutation::setBit(cond,bit,5,64);
-}
-
-

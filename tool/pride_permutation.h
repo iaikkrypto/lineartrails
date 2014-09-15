@@ -14,8 +14,6 @@ struct PridePermutation : public Permutation {
   void touchall();
   PridePermutation* clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
-  virtual bool setBit(BitMask cond, unsigned int bit);
-
 };
 
 

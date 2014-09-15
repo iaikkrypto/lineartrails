@@ -9,9 +9,7 @@
 #include "../tinyxml2/tinyxml2.h"
 #include "permutation.h"
 #include "guessmask.h"
-#include "ascon_permutation.h" //TODO: make configparser independent from permutation
-#include "hamsi_permutation.h" //TODO: make configparser independent from permutation
-#include "pride_permutation.h" //TODO: make configparser independent from permutation
+#include "permutation_list.h"
 
 
 struct Configparser {

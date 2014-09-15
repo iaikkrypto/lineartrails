@@ -16,7 +16,7 @@ bool Configparser::parseFile(std::string filename) {
   int rounds = 3;
 
   //FIXME: Better solution
-  perm_.reset(new AsconPermutation(3));
+//  perm_.reset(new AsconPermutation(3));
 
   if (root->FirstChildElement("parameters") != nullptr) {
     tinyxml2::XMLElement* parameters = root->FirstChildElement("parameters");
@@ -28,14 +28,7 @@ bool Configparser::parseFile(std::string filename) {
 //    std::cout << rounds << std::endl;
     std::string instance { parameters->FirstChildElement("permutation")->Attribute("value")};
 
-    if (instance.compare("ascon") == 0)
-      perm_.reset(new AsconPermutation(rounds));
-    if (instance.compare("hamsi") == 0)
-      perm_.reset(new HamsiPermutation(rounds));
-    if (instance.compare("hamsicompression") == 0)
-      perm_.reset(new HamsiCompression(rounds));
-    if (instance.compare("pride") == 0)
-      perm_.reset(new PridePermutation(rounds));
+    perm_.reset(permutation_list(instance,rounds));
   }
 
   if (root->FirstChildElement("char") != nullptr) {

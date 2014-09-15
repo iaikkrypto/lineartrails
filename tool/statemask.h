@@ -32,6 +32,8 @@ struct StateMask : public StateMaskBase {
   virtual std::vector<UpdatePos> diff(const StateMaskBase& other);
   virtual Mask& operator[](const int index);
   virtual const Mask& operator[](const int index) const ;
+
+ protected:
   std::array<Mask, words> words_;
 };
 

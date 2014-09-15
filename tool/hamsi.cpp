@@ -39,6 +39,127 @@ std::ostream& operator<<(std::ostream& stream, const HamsiState& statemask) {
 
 //-----------------------------------------------------------------------------
 
+HamsiStateFeedForward::HamsiStateFeedForward(HamsiState* other_state)
+    : HamsiState() {
+  other_state_ = other_state;
+}
+
+
+HamsiStateFeedForward*  HamsiStateFeedForward::clone(){
+  HamsiStateFeedForward* obj =  new HamsiStateFeedForward(other_state_);
+  for(size_t j = 0; j< words_.size(); ++j)
+    obj->words_[j] = words_[j];
+  return obj;
+}
+
+HamsiStateFeedForward*  HamsiStateFeedForward::clone(HamsiState* other_state){
+  HamsiStateFeedForward* obj =  new HamsiStateFeedForward(other_state);
+  for(size_t j = 0; j< words_.size(); ++j)
+    (*obj)[j] = (*this)[j];
+  return obj;
+}
+
+Mask& HamsiStateFeedForward::operator[](const int index) {
+  switch (index) {
+    case 0:
+      return words_[0];
+    case 1:
+      return words_[1];
+    case 2:
+      return (*other_state_)[0];
+    case 3:
+      return (*other_state_)[1];
+    case 4:
+      return (*other_state_)[2];
+    case 5:
+      return (*other_state_)[3];
+    case 6:
+      return words_[6];
+    case 7:
+      return words_[7];
+    case 8:
+      return words_[8];
+    case 9:
+      return words_[9];
+    case 10:
+      return (*other_state_)[8];
+    case 11:
+      return (*other_state_)[9];
+    case 12:
+      return (*other_state_)[10];
+    case 13:
+      return (*other_state_)[11];
+    case 14:
+      return words_[14];
+    case 15:
+      return words_[15];
+  }
+
+  return words_[index];
+}
+
+const Mask& HamsiStateFeedForward::operator[](const int index) const {
+  switch (index) {
+    case 0:
+      return words_[0];
+    case 1:
+      return words_[1];
+    case 2:
+      return (*other_state_)[0];
+    case 3:
+      return (*other_state_)[1];
+    case 4:
+      return (*other_state_)[2];
+    case 5:
+      return (*other_state_)[3];
+    case 6:
+      return words_[6];
+    case 7:
+      return words_[7];
+    case 8:
+      return words_[8];
+    case 9:
+      return words_[9];
+    case 10:
+      return (*other_state_)[8];
+    case 11:
+      return (*other_state_)[9];
+    case 12:
+      return (*other_state_)[10];
+    case 13:
+      return (*other_state_)[11];
+    case 14:
+      return words_[14];
+    case 15:
+      return words_[15];
+  }
+  return words_[index];
+}
+
+void HamsiStateFeedForward::print(std::ostream& stream){
+  stream << *this;
+}
+
+
+std::ostream& operator<<(std::ostream& stream, const HamsiStateFeedForward& statemask) {
+#ifndef TERMINALCOLORS
+  char symbol[4] {'#', '1', '0', '?'};
+#else
+  std::string symbol[4] {"\033[1;35m#\033[0m", "\033[1;31m1\033[0m", "0", "\033[1;33m?\033[0m"};
+#endif
+  for (size_t j = 0; j< statemask.words_.size(); ++j){
+    for (auto it = statemask[j].bitmasks.rbegin(); it != statemask[j].bitmasks.rend(); ++it){
+      stream << symbol[*it % 4];
+    }
+    stream << "\t";
+    if((j%4) == 3)
+    stream << std::endl;
+  }
+  return stream;
+}
+
+//-----------------------------------------------------------------------------
+
 std::array<BitVector, 4> HamsiLinear(std::array<BitVector, 4> in) {
 
 in[0] = ROTL32(in[0],13);

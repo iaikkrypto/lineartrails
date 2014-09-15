@@ -21,6 +21,18 @@ struct HamsiState : public StateMask<16,32> {
   virtual HamsiState* clone();
 };
 
+struct HamsiStateFeedForward : public HamsiState{
+  HamsiStateFeedForward(HamsiState* other_state);
+  friend std::ostream& operator<<(std::ostream& stream, const HamsiStateFeedForward& statemask);
+  void print(std::ostream& stream);
+  virtual HamsiStateFeedForward* clone();
+  virtual HamsiStateFeedForward* clone(HamsiState* other_state);
+  virtual Mask& operator[](const int index);
+  virtual const Mask& operator[](const int index) const ;
+
+  HamsiState* other_state_;
+};
+
 
 #define ROTL32(x,n) (((x)<<(n))|((x)>>(32-(n))))
 

@@ -17,4 +17,15 @@ struct HamsiPermutation : public Permutation {
   virtual bool setBit(BitMask cond, unsigned int bit);
 };
 
+struct HamsiCompression : public Permutation {
+  HamsiCompression& operator=(const HamsiCompression& rhs);
+  HamsiCompression(unsigned int rounds);
+  HamsiCompression(const HamsiCompression& other);
+  void touchall();
+  HamsiCompression* clone() const;
+  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
+  virtual bool setBit(BitMask cond, unsigned int bit);
+  void set(Permutation* perm);
+};
+
 #endif

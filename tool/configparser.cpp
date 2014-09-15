@@ -29,11 +29,13 @@ bool Configparser::parseFile(std::string filename) {
     std::string instance { parameters->FirstChildElement("permutation")->Attribute("value")};
 
     if (instance.compare("ascon") == 0)
-        perm_.reset(new AsconPermutation(rounds));
+      perm_.reset(new AsconPermutation(rounds));
     if (instance.compare("hamsi") == 0)
-          perm_.reset(new HamsiPermutation(rounds));
+      perm_.reset(new HamsiPermutation(rounds));
+    if (instance.compare("hamsicompression") == 0)
+      perm_.reset(new HamsiCompression(rounds));
     if (instance.compare("pride") == 0)
-          perm_.reset(new PridePermutation(rounds));
+      perm_.reset(new PridePermutation(rounds));
   }
 
   if (root->FirstChildElement("char") != nullptr) {

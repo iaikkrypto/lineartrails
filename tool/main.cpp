@@ -23,7 +23,7 @@ void config_search(Commandlineparser& args) {
   auto myfunction = [] (int bias, int hw_in, int hw_out) {
     return 2*std::abs(bias) +1*((5-hw_in)+(5-hw_out));
   };
-  my_search.StackSearch1(args, parser, myfunction, false, 0.1);
+  my_search.StackSearch1(args, parser, myfunction);
 }
 
 void checkchar(Commandlineparser& args) {

@@ -7,11 +7,14 @@
 
 #include "search.h"
 
+
 Search::Search(Permutation &perm)
     : perm_(&perm) {
 
 }
 
+
+/*
 void Search::RandomSearch1(unsigned int iterations,
                            std::function<int(int, int, int)> rating) {
   std::unique_ptr<Permutation> working_copy, temp_copy;
@@ -246,12 +249,11 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
     }
 
   }
-}
+}*/
 
 void Search::StackSearch1(Commandlineparser& cl_param,
                           Configparser& config_param,
-                          std::function<int(int, int, int)> rating,
-                          bool count_active, float push_stack_prob) {
+                          std::function<int(int, int, int)> rating) {
 
   std::unique_ptr<Permutation> working_copy;
   std::stack<std::unique_ptr<Permutation>> char_stack;
@@ -268,7 +270,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
     std::cout << "Initial checkchar failed" << std::endl;
     return;
   }
-  GuessWeights weights = config_param.getWeights();
+  Settings settings = config_param.getSettings();
 
   auto start_count = std::chrono::system_clock::now();
   std::mt19937 generator(
@@ -288,7 +290,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
     char_stack.emplace(working_copy->clone());
     char_stack.emplace(working_copy->clone());
     backtrack = false;
-    guesses.createMask(char_stack.top().get(), weights);
+    guesses.createMask(char_stack.top().get(), settings);
     unsigned int curr_credit = config_param.getCredits();
     while (guesses.getRandPos(guessed_box, active)) {
       total_iterations++;
@@ -318,7 +320,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
 //          std::cout << "worked " << char_stack.size() << std::endl;
 //          char_stack.top()->print(std::cout);
         backtrack = false;
-        if (push_stack_rand(generator) <= push_stack_prob)
+        if (push_stack_rand(generator) <= guesses.getPushStackProb())
           char_stack.emplace(char_stack.top()->clone());
       } else {
 //          std::cout << "failed" << std::endl;
@@ -330,10 +332,10 @@ void Search::StackSearch1(Commandlineparser& cl_param,
         if (char_stack.size() == 1)
           char_stack.emplace(working_copy->clone());
       }
-      guesses.createMask(char_stack.top().get(), weights);
+      guesses.createMask(char_stack.top().get(), settings);
     }
     double current_prob;
-    if (count_active)
+    if (config_param.printActive())
       current_prob = -char_stack.top()->GetActiveSboxes();
     else
       current_prob = char_stack.top()->GetProbability().bias;

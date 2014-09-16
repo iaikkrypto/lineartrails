@@ -13,16 +13,19 @@
 
 
 struct Configparser {
+  Configparser();
   bool parseFile(std::string filename);
   Permutation* getPermutation();
-  GuessWeights getWeights();
+  Settings getSettings();
   unsigned int getCredits();
+  bool printActive();
   bool Error(const char *format, ...);
   bool Warning(const char *format, ...);
 
   std::unique_ptr<Permutation> perm_;
-  GuessWeights weights_;
+  Settings settings_;
   unsigned int credits_;
+  bool print_active_;
 };
 
 #endif /* CONFIGPARSER_H_ */

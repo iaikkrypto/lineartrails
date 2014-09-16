@@ -51,14 +51,14 @@
 0000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000001
 "/>
-<search credits = "10000">
+<search credits = "10000" print_active = "1">
   <phase>
-    <setting>
+    <setting push_stack = "0.1">
       <guess sbox_layer="0" active_weight="0" inactive_weight="100"/>
       <guess sbox_layer="1" active_weight="0" inactive_weight="500"/>
       <guess sbox_layer="2" active_weight="0" inactive_weight="500"/>
     </setting>
-    <setting>
+    <setting push_stack = "0.5">
       <guess sbox_layer="0" active_weight="1" inactive_weight="0"/>
       <guess sbox_layer="1" active_weight="2" inactive_weight="0"/>
       <guess sbox_layer="2" active_weight="3" inactive_weight="0"/>

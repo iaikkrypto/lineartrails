@@ -1,7 +1,11 @@
 #include "configparser.h"
 
+Configparser::Configparser() : credits_(1000), print_active_(false){
+  settings_.clear();
+}
+
 bool Configparser::parseFile(std::string filename) {
-  weights_.clear();
+  settings_.clear();
   tinyxml2::XMLDocument doc;
   doc.LoadFile(filename.data());
 
@@ -96,37 +100,47 @@ bool Configparser::parseFile(std::string filename) {
       != nullptr) {
 
     credits_ =
-        root->FirstChildElement("search")->IntAttribute("credits") ?
-            root->FirstChildElement("search")->IntAttribute("credits") : 0;
+        root->FirstChildElement("search")->UnsignedAttribute("credits") ?
+            root->FirstChildElement("search")->UnsignedAttribute("credits") : 1000;
 
-    std::cout << credits_ << std::endl;
+    std::cout << "Credits:" << credits_ << std::endl;
+
+    print_active_ =
+            root->FirstChildElement("search")->BoolAttribute("print_active") ?
+                root->FirstChildElement("search")->BoolAttribute("print_active") : false;
+    std::cout << "print_active:" << print_active_ << std::endl;
 
     tinyxml2::XMLElement* phase = root->FirstChildElement("search")
         ->FirstChildElement("phase");
     tinyxml2::XMLElement* setting = phase->FirstChildElement("setting");
     while (setting != nullptr) {
-      std::vector<std::array<float, 2>> set;
-      set.resize(rounds);
-      for (auto& entry : set)
+      Setting set;
+      set.guess_weights_.resize(rounds);
+      for (auto& entry : set.guess_weights_)
         entry[0] = entry[1] = 0;
+
+      set.push_stack_probability_ = setting->FloatAttribute("push_stack") ?
+          setting->FloatAttribute("push_stack") : 0.05;
+      std::cout << "Setting pushstack prob: " << set.push_stack_probability_ << std::endl;
+
 
       tinyxml2::XMLElement* guess = setting->FirstChildElement("guess");
 
       while (guess != nullptr) {
         assert(guess->IntAttribute("sbox_layer") < rounds);
-        set[guess->IntAttribute("sbox_layer")][0] = guess->FloatAttribute(
+        set.guess_weights_[guess->IntAttribute("sbox_layer")][0] = guess->FloatAttribute(
             "inactive_weight");
-        set[guess->IntAttribute("sbox_layer")][1] = guess->FloatAttribute(
+        set.guess_weights_[guess->IntAttribute("sbox_layer")][1] = guess->FloatAttribute(
             "active_weight");
         guess = guess->NextSiblingElement("guess");
       }
-      weights_.push_back(set);
+      settings_.push_back(set);
       setting = setting->NextSiblingElement("setting");
     }
   }
 
-  for(auto& weight : weights_){
-    for(auto& entry : weight){
+  for(auto& set : settings_){
+    for(auto& entry : set.guess_weights_){
       std::cout << "(" << entry[0] << ", " << entry[1] << "), ";
     }
     std::cout << std::endl;
@@ -138,8 +152,8 @@ Permutation* Configparser::getPermutation() {
   assert(perm_.get() != nullptr);
   return perm_->clone();
 }
-GuessWeights Configparser::getWeights() {
-  return weights_;
+Settings Configparser::getSettings() {
+  return settings_;
 }
 
 unsigned int Configparser::getCredits() {
@@ -164,4 +178,8 @@ bool Configparser::Warning(const char *format, ...) {
   printf("\n");
   va_end(argptr);
   return false;
+}
+
+bool Configparser::printActive(){
+  return print_active_;
 }

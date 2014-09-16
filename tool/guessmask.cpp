@@ -7,7 +7,7 @@
 
 #include "guessmask.h"
 
-int GuessMask::createMask(Permutation *perm, GuessWeights& weights){
+int GuessMask::createMask(Permutation *perm, Settings& settings){
 std::array<std::vector<SboxPos>,2> active_boxes;
 
   weighted_pos_.clear();
@@ -15,17 +15,19 @@ std::array<std::vector<SboxPos>,2> active_boxes;
 
   perm->SboxStatus(active_boxes[1], active_boxes[0]);
 
-  for (auto& set : weights) {
+  for (auto& set : settings) {
     for (int i = 0; i < 2; ++i) {
       for (auto& box : active_boxes[i]) {
-        if (set[box.layer_][i] != 0) {
-          total_weight_ += set[box.layer_][i];
-          weighted_pos_.push_back(std::tuple<SboxPos, float, bool>(box, set[box.layer_][i], i==1 ));
+        if (set.guess_weights_[box.layer_][i] != 0) {
+          total_weight_ += set.guess_weights_[box.layer_][i];
+          weighted_pos_.push_back(std::tuple<SboxPos, float, bool>(box, set.guess_weights_[box.layer_][i], i==1 ));
         }
       }
     }
-    if(total_weight_ != 0)
+    if(total_weight_ != 0){
+      current_setting_ = &set;
       return 1;
+    }
   }
 
   return 0;
@@ -49,4 +51,14 @@ int GuessMask::getRandPos(SboxPos& box, bool& active) {
   }
 
   return 0;
+}
+
+float GuessMask::getPushStackProb(){
+return current_setting_->push_stack_probability_;
+}
+float GuessMask::getSboxWeigthProb(){
+  return current_setting_->sbox_weight_probability_;
+}
+float GuessMask::getSboxWeightHamming(){
+  return current_setting_->sbox_weight_hamming_;
 }

@@ -64,6 +64,7 @@ template <unsigned bitsize>
 void NonlinearStep<bitsize>::Initialize(std::function<BitVector(BitVector)> fun) {
   is_active_ = false;
   is_guessable_ = true;
+  has_to_be_active_ = false;
   ldt_.reset(new LinearDistributionTable<bitsize>(fun));
 }
 
@@ -71,6 +72,7 @@ template <unsigned bitsize>
 void NonlinearStep<bitsize>::Initialize(std::shared_ptr<LinearDistributionTable<bitsize>> ldt) {
   is_active_ = false;
   is_guessable_ = true;
+  has_to_be_active_ = false;
   ldt_ = ldt;
 }
 
@@ -120,6 +122,9 @@ bool NonlinearStep<bitsize>::Update(Mask& x, Mask& y) {
       break;
     }
 
+  //FIXME: hack
+  if(has_to_be_active_ == true && is_active_ == false && is_guessable_ == false)
+    return false;
 
   return true;
 }
@@ -140,6 +145,10 @@ bool NonlinearStep<bitsize>::Update(
     y.bitmasks = stepdata.outmask_;
     x.reinit_caremask();
     y.reinit_caremask();
+    //FIXME: hack
+    if (has_to_be_active_ == true && is_active_ == false
+        && is_guessable_ == false)
+      return false;
     return true;
   }
 
@@ -186,6 +195,7 @@ template <unsigned bitsize>
 NonlinearStep<bitsize>& NonlinearStep<bitsize>::operator=(const NonlinearStep<bitsize>& rhs){
   ldt_ = rhs.ldt_;
   is_active_ = rhs.is_active_;
+  has_to_be_active_ = rhs.has_to_be_active_;
   is_guessable_ = rhs.is_guessable_;
   return *this;
 }
@@ -196,7 +206,7 @@ void NonlinearStep<bitsize>::TakeBestBox(Mask& x, Mask& y, std::function<int(int
   create_masks(inmasks, x);
   create_masks(outmasks, y);
     int best_rate = 0;
-    unsigned int best_inmask = 0;
+    unsigned int best_inmask = (unsigned int) has_to_be_active_;
     unsigned int best_outmask = 0;
 
   for (const auto& inmask : inmasks)
@@ -233,6 +243,14 @@ int NonlinearStep<bitsize>::TakeBestBox(
   create_masks(inmasks, x);
   create_masks(outmasks, y);
   std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks;
+
+  //FIXME: not nice, just to be able to set boxes active
+  if (has_to_be_active_ == true)
+    for (auto it = inmasks.begin(); it != inmasks.end(); ++it)
+      if (*it == 0) {
+        inmasks.erase(it);
+        break;
+      }
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {
@@ -276,6 +294,14 @@ void NonlinearStep<bitsize>::TakeBestBoxRandom(
   create_masks(inmasks, x);
   create_masks(outmasks, y);
   std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks;
+
+  //FIXME: not nice, just to be able to set boxes active
+  if (has_to_be_active_ == true)
+    for (auto it = inmasks.begin(); it != inmasks.end(); ++it)
+      if (*it == 0) {
+        inmasks.erase(it);
+        break;
+      }
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {

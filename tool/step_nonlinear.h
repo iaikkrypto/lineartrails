@@ -66,6 +66,7 @@ struct NonlinearStep {
   std::shared_ptr<LinearDistributionTable<bitsize>> ldt_;
   bool is_active_;
   bool is_guessable_;
+  bool has_to_be_active_;
 };
 
 #include "step_nonlinear.hpp"

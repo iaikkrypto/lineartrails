@@ -57,9 +57,40 @@ bool Configparser::parseFile(std::string filename) {
         ++bit_pos;
       }
     }
+  }
+    if (root->FirstChildElement("active") != nullptr) {
+      std::string characteristic { root->FirstChildElement("active")->Attribute(
+          "value") };
+      bool active;
+      int bit_pos = -1;
+      for (auto& val : characteristic) {
+        switch (val) {
+          case '0':
+            active = false;
+            ++bit_pos;
+            break;
+          case '1':
+            active = true;
+            ++bit_pos;
+            break;
+          default:
+            active = false;
+            break;
+        }
+        if (active == true) {
+          if (perm_->setBox(active, bit_pos) == false)
+            break;
+        }
+      }
 //    perm_->print(std::cout);
 //    std::cout << characteristic << std::endl;
   }
+    std::vector<SboxPos> active, inactive;
+    perm_->SboxStatus(active, inactive);
+    for(auto& box : active){
+      std::cout << "(" << (int) box.layer_ << ", " << (int) box.pos_ << ") ";
+    }
+    std::cout << std::endl;
 
   if (root->FirstChildElement("search")->FirstChildElement("phase")
       != nullptr) {

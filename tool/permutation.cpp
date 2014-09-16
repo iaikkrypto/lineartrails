@@ -272,4 +272,17 @@ bool Permutation::setBit(BitMask cond, unsigned int bit){
   return setBit(cond,bit,state_masks_.begin()->get()->getnumwords(),state_masks_.begin()->get()->getnumbits());
 }
 
+bool Permutation::setBox(bool active, unsigned int box_num){
+  //FIXME: Do not assume every layer has the same amount of sboxes
+  unsigned int box_per_layer = sbox_layers_.begin()->get()->GetNumLayer();
+  unsigned int sbox_layer = box_num / box_per_layer;
+  if (sbox_layer >= sbox_layers_.size())
+    return false;
+
+
+  sbox_layers_[sbox_layer]->SetSboxActive(box_per_layer - (box_num % box_per_layer) -1, active);
+
+    return true;
+}
+
 

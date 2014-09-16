@@ -45,6 +45,7 @@ struct SboxLayerBase: public Layer {
   virtual SboxLayerBase* clone() = 0;
   virtual ProbabilityPair GetProbability()= 0;
   virtual int GetNumLayer() = 0;
+  virtual void SetSboxActive(int pos, bool active) = 0;
   virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
 };
@@ -63,6 +64,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual SboxLayer* clone() = 0;
   virtual ProbabilityPair GetProbability();
   virtual int GetNumLayer();
+  virtual void SetSboxActive(int pos, bool active);
   virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
   virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
@@ -110,7 +112,13 @@ bool SboxLayer<bits, boxes>::Update(UpdatePos pos) {
 template <unsigned bits, unsigned boxes>
 bool SboxLayer<bits, boxes>::SboxActive(int pos){
   assert(pos < boxes);
-  return sboxes[pos].is_active_;
+  return sboxes[pos].is_active_ | sboxes[pos].has_to_be_active_;
+}
+
+template <unsigned bits, unsigned boxes>
+void SboxLayer<bits, boxes>::SetSboxActive(int pos, bool active){
+  assert(pos < boxes);
+  sboxes[pos].has_to_be_active_ = active;
 }
 
 template <unsigned bits, unsigned boxes>

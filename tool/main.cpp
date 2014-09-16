@@ -20,10 +20,7 @@ void config_search(Commandlineparser& args) {
   parser.parseFile(args.getParameter("-i"));
 
   Search my_search(*(parser.getPermutation()));
-  auto myfunction = [] (int bias, int hw_in, int hw_out) {
-    return 2*std::abs(bias) +1*((5-hw_in)+(5-hw_out));
-  };
-  my_search.StackSearch1(args, parser, myfunction);
+  my_search.StackSearch1(args, parser);
 }
 
 void checkchar(Commandlineparser& args) {
@@ -43,7 +40,6 @@ int main(int argc, const char* argv[]) {
   Commandlineparser args;
 
   args.addParameter("-iter", "-1");
-  args.addParameter("-sba", "3");
   args.addParameter("-S", "5");
   args.addParameter("-I", "2");
 
@@ -53,7 +49,6 @@ int main(int argc, const char* argv[]) {
   args.parse(argc, argv);
 
   std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
-  std::cout << "S-box guesses: " << args.getIntParameter("-sba") << std::endl;
   std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
 
   if (std::strcmp(args.getParameter("-u"), "checkchar") == 0) {

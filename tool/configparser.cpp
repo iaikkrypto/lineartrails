@@ -119,9 +119,30 @@ bool Configparser::parseFile(std::string filename) {
       for (auto& entry : set.guess_weights_)
         entry[0] = entry[1] = 0;
 
-      set.push_stack_probability_ = setting->FloatAttribute("push_stack") ?
-          setting->FloatAttribute("push_stack") : 0.05;
-      std::cout << "Setting pushstack prob: " << set.push_stack_probability_ << std::endl;
+      set.push_stack_probability_ =
+          setting->FloatAttribute("push_stack") ?
+              setting->FloatAttribute("push_stack") : 0.05;
+      std::cout << "Setting pushstack prob: " << set.push_stack_probability_
+                << std::endl;
+
+      set.alternative_sbox_guesses_ =
+          setting->UnsignedAttribute("alternative_sbox_guesses") ?
+              setting->UnsignedAttribute("alternative_sbox_guesses") : 3;
+      std::cout << "Setting alternative sboxguesses: "
+                << set.alternative_sbox_guesses_ << std::endl;
+
+      set.sbox_weight_hamming_ =
+          setting->UnsignedAttribute("sbox_weight_hamming") ?
+              setting->UnsignedAttribute("sbox_weight_hamming") : 1;
+      std::cout
+          << "Setting weight for sbox selection considering hammingweight: "
+          << set.sbox_weight_hamming_ << std::endl;
+
+      set.sbox_weight_probability_ =
+          setting->UnsignedAttribute("sbox_weight_probability") ?
+              setting->UnsignedAttribute("sbox_weight_probability") : 2;
+      std::cout << "Setting weight for sbox selection considering ldt entries: "
+                << set.sbox_weight_probability_ << std::endl;
 
 
       tinyxml2::XMLElement* guess = setting->FirstChildElement("guess");

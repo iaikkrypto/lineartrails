@@ -252,8 +252,7 @@ void Search::HeuristicSearch3(unsigned int iterations, GuessWeights weights,
 }*/
 
 void Search::StackSearch1(Commandlineparser& cl_param,
-                          Configparser& config_param,
-                          std::function<int(int, int, int)> rating) {
+                          Configparser& config_param) {
 
   std::unique_ptr<Permutation> working_copy;
   std::stack<std::unique_ptr<Permutation>> char_stack;
@@ -315,8 +314,14 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       if (backtrack)
         guessed_box = backtrack_box;
 
+      unsigned int wbias = guesses.getSboxWeigthProb();
+      unsigned int whamming = guesses.getSboxWeightHamming();
+      //FIXME: get rid of the 10
+      auto rating = [wbias, whamming] (int bias, int hw_in, int hw_out) {
+        return wbias*std::abs(bias) +whamming*((10-hw_in)+(10-hw_out));
+      };
       if (char_stack.top()->guessbestsboxrandom(
-          guessed_box, rating, cl_param.getIntParameter("-sba"))) {
+          guessed_box, rating, guesses.getAlternativeSboxGuesses())) {
 //          std::cout << "worked " << char_stack.size() << std::endl;
 //          char_stack.top()->print(std::cout);
         backtrack = false;

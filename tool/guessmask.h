@@ -25,6 +25,7 @@ struct Setting {
   float push_stack_probability_;
   float sbox_weight_probability_;
   float sbox_weight_hamming_;
+  unsigned int alternative_sbox_guesses_;
 };
 
 typedef std::vector<Setting> Settings;
@@ -37,6 +38,7 @@ struct GuessMask {
   float getPushStackProb();
   float getSboxWeigthProb();
   float getSboxWeightHamming();
+  unsigned int getAlternativeSboxGuesses();
 
 
   std::list<std::tuple<SboxPos,float, bool>> weighted_pos_;

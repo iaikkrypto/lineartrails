@@ -62,3 +62,7 @@ float GuessMask::getSboxWeigthProb(){
 float GuessMask::getSboxWeightHamming(){
   return current_setting_->sbox_weight_hamming_;
 }
+
+unsigned int GuessMask::getAlternativeSboxGuesses(){
+  return current_setting_->alternative_sbox_guesses_;
+}

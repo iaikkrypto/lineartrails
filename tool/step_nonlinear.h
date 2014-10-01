@@ -51,7 +51,7 @@ struct NonlinearStep {
   NonlinearStep(std::function<BitVector(BitVector)> fun);
   void Initialize(std::function<BitVector(BitVector)> fun);
   void Initialize(std::shared_ptr<LinearDistributionTable<bitsize>> ldt);
-  ProbabilityPair GetProbability(Mask& x, Mask& y);
+  double GetProbability(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y);
   bool Update(Mask& x, Mask& y, Cache<unsigned long long, NonlinearStepUpdateInfo>* box_cache);
   void TakeBestBox(Mask& x, Mask& y, std::function<int(int, int, int)> rating);

@@ -43,7 +43,7 @@ struct SboxLayerBase: public Layer {
   virtual bool SboxActive(int pos)= 0;
   virtual bool SboxGuessable(int pos)= 0;
   virtual SboxLayerBase* clone() = 0;
-  virtual ProbabilityPair GetProbability()= 0;
+  virtual double GetProbability()= 0;
   virtual int GetNumLayer() = 0;
   virtual void SetSboxActive(int pos, bool active) = 0;
   virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
@@ -62,7 +62,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual bool SboxActive(int pos);
   virtual bool SboxGuessable(int pos);
   virtual SboxLayer* clone() = 0;
-  virtual ProbabilityPair GetProbability();
+  virtual double GetProbability();
   virtual int GetNumLayer();
   virtual void SetSboxActive(int pos, bool active);
   virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
@@ -76,18 +76,17 @@ SboxLayer<bits, boxes>::SboxLayer(StateMaskBase *in, StateMaskBase *out) : SboxL
 }
 
 template <unsigned bits, unsigned boxes>
-ProbabilityPair SboxLayer<bits, boxes>::GetProbability(){
-  ProbabilityPair prob {1,0.0};
+double SboxLayer<bits, boxes>::GetProbability(){
+  double prob = {0.0};
 
   for (int i = 0; i < boxes; ++i){
     Mask copyin(GetVerticalMask(i, *in));
     Mask copyout(GetVerticalMask(i, *out));
-    ProbabilityPair temp_prob = sboxes[i].GetProbability(copyin, copyout);
-    prob.sign *= temp_prob.sign;
-    prob.bias += temp_prob.bias;
+    double temp_prob = sboxes[i].GetProbability(copyin, copyout);
+    prob += temp_prob;
   }
 
-  prob.bias += boxes-1;
+  prob += boxes-1;
 
   return prob;
 }

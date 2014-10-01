@@ -26,7 +26,7 @@ struct Permutation {
   virtual bool guessbestsbox(SboxPos pos, std::function<int(int, int, int)> rating, int num_alternatives);
   virtual void PrintWithProbability(std::ostream& stream = std::cout, unsigned int offset = 0);
   virtual void touchall();
-  virtual ProbabilityPair GetProbability();
+  virtual double GetProbability();
   virtual unsigned int GetActiveSboxes();
   virtual bool setBit(BitMask cond, unsigned int bit);
   bool setBit(const char cond, unsigned int bit, unsigned char num_words, unsigned char num_bits);

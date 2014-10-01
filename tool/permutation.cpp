@@ -172,17 +172,16 @@ bool Permutation::update() {
   return true;
 }
 
-ProbabilityPair Permutation::GetProbability() {
-  ProbabilityPair prob { 1, 0.0 };
-  ProbabilityPair temp_prob;
+double Permutation::GetProbability() {
+  double prob = 0.0;
+  double temp_prob;
 
   for (auto& layer : this->sbox_layers_) {
     temp_prob = layer->GetProbability();
-    prob.sign *= temp_prob.sign;
-    prob.bias += temp_prob.bias;
+    prob += temp_prob;
   }
 
-  prob.bias += rounds_ - 1;
+  prob += rounds_ - 1;
 
   return prob;
 }
@@ -218,8 +217,8 @@ void Permutation::print(std::ostream& stream) {
 }
 
 void Permutation::PrintWithProbability(std::ostream& stream, unsigned int offset) {
-  ProbabilityPair prob { 1, 0.0 };
-  ProbabilityPair temp_prob;
+  double prob = 0.0;
+  double temp_prob;
   int active_sboxes = 0;
   for (unsigned int i = 0; i <= 2 * rounds_; ++i) {
     stream << "State Mask " << i + 1;
@@ -229,17 +228,16 @@ void Permutation::PrintWithProbability(std::ostream& stream, unsigned int offset
       for (int j = 0; j < this->sbox_layers_[i / 2]->GetNumLayer(); ++j)
         active_sboxes_layer += (int) this->sbox_layers_[i / 2]->SboxActive(j);
       active_sboxes += active_sboxes_layer;
-      prob.sign *= temp_prob.sign;
-      prob.bias += temp_prob.bias;
-      stream << " sign: " << (int) temp_prob.sign << " bias: "
-                << temp_prob.bias << " active sboxes: " << active_sboxes_layer;
+      prob += temp_prob;
+      stream <<  " bias: "
+                << temp_prob << " active sboxes: " << active_sboxes_layer;
     }
     stream << std::endl;
     this->state_masks_[i]->print(stream);
     stream << std::endl;
   }
-  prob.bias += rounds_ - 1;
-  stream << "Total: sign: " << (int) prob.sign << " bias: " << prob.bias
+  prob += rounds_ - 1;
+  stream << "Total: bias: " << prob
       << " active sboxes: " << active_sboxes << std::endl << std::endl;
 
   stream << "----------------------------------------------------------------" << std::endl;

@@ -4,7 +4,7 @@ SHELL=/bin/sh
 
 CXX=g++
 #CXXFLAGS=-c -Wall -g -std=c++11
-CXXFLAGS=-c -Wall -O3 -std=c++11
+CXXFLAGS=-c -Wall -O3 -march=native -std=c++11
 #LDFLAGS=-pthread
 LDFLAGS=
 SRC_DIR=tool

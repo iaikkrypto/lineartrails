@@ -175,19 +175,18 @@ unsigned long long NonlinearStep<bitsize>::getKey(Mask& in, Mask& out) {
 }
 
 template <unsigned bitsize>
-ProbabilityPair NonlinearStep<bitsize>::GetProbability(Mask& x, Mask& y) {
+double NonlinearStep<bitsize>::GetProbability(Mask& x, Mask& y) {
   std::vector<unsigned int> inmasks, outmasks;
   create_masks(inmasks, x);
   create_masks(outmasks, y);
 
-  //TODO: Maybe calculate some probability if undefined bits are present
+  //TODO: Calculate some probability if undefined bits are present
   if(inmasks.size() > 1)
-    return ProbabilityPair {1,-1};
+    return -10000000;
  if(ldt_->ldt[inmasks[0]][outmasks[0]] == 0)
-    return ProbabilityPair {1,-1};
-  return ProbabilityPair {(char)(ldt_->ldt[inmasks[0]][outmasks[0]]
-      / std::abs(ldt_->ldt[inmasks[0]][outmasks[0]])), (double) (std::log2((double)std::abs(
-      ldt_->ldt[inmasks[0]][outmasks[0]])) - bitsize)};
+    return -1;
+  return  (double) (std::log2((double)std::abs(
+      ldt_->ldt[inmasks[0]][outmasks[0]])) - bitsize);
 
 }
 

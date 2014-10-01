@@ -135,7 +135,7 @@ PrideLinearLayer::PrideLinearLayer() {
   Init();
 }
 
-int PrideLinearLayer::GetNumLayer() {
+unsigned int PrideLinearLayer::GetNumSteps() {
   return layers.size();
 }
 
@@ -162,10 +162,10 @@ void PrideLinearLayer::Init(){
 }
 
 //TODO: map update to bits
-bool PrideLinearLayer::Update(UpdatePos pos) {
-    return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
-                            { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) },
-                            cache_[pos.word].get());
+bool PrideLinearLayer::Update(unsigned int step_pos) {
+    return layers[step_pos].Update( { &((*in)[2*step_pos]), &((*in)[2*step_pos+1]) },
+                            { &((*out)[2*step_pos]), &((*out)[2*step_pos+1]) },
+                            cache_[step_pos].get());
 
 
 
@@ -236,20 +236,20 @@ PrideSboxLayer* PrideSboxLayer::clone(){
 }
 
 
-bool PrideSboxLayer::Update(UpdatePos pos) {
+bool PrideSboxLayer::Update(unsigned int step_pos) {
 
-  assert(pos.bit < sboxes.size());
+  assert(step_pos < sboxes.size());
 
   bool ret_val;
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-  ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
+  Mask copyin(GetVerticalMask(step_pos, *in));
+  Mask copyout(GetVerticalMask(step_pos, *out));
+  ret_val = sboxes[step_pos].Update(copyin, copyout, cache_.get());
+  SetVerticalMask(step_pos, *in, copyin);
+  SetVerticalMask(step_pos, *out, copyout);
   return ret_val;
 }
 
-Mask PrideSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
+Mask PrideSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) const {
   if(b < 8)
   return Mask(
       { s[0].bitmasks[b%8], s[2].bitmasks[b%8], s[4].bitmasks[b%8], s[6].bitmasks[b%8]});
@@ -257,7 +257,7 @@ Mask PrideSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
         { s[1].bitmasks[b%8], s[3].bitmasks[b%8], s[5].bitmasks[b%8], s[7].bitmasks[b%8]});
 }
 
-void PrideSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
+void PrideSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) {
   int offset = 0;
   if(b > 7)
     offset++;

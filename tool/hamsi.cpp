@@ -195,7 +195,7 @@ HamsiLinearLayer::HamsiLinearLayer() {
   Init();
 }
 
-int HamsiLinearLayer::GetNumLayer() {
+unsigned int HamsiLinearLayer::GetNumSteps() {
   return layers.size();
 }
 
@@ -220,27 +220,27 @@ void HamsiLinearLayer::Init(){
           new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
-bool HamsiLinearLayer::Update(UpdatePos pos) {
-  if (pos.word == 0 || pos.word == 5 || pos.word == 10 || pos.word == 15)
+bool HamsiLinearLayer::Update(unsigned int step_pos) {
+  if (step_pos == 0 || step_pos == 5 || step_pos == 10 || step_pos == 15)
     return layers[0].Update( { &((*in)[0]), &((*in)[5]), &((*in)[10]),
                                 &((*in)[15]) },
                             { &((*out)[0]), &((*out)[5]), &((*out)[10]),
                                 &((*out)[15]) },
                             cache_[0].get());
-  if (pos.word == 1 || pos.word == 6 || pos.word == 11 || pos.word == 12)
+  if (step_pos == 1 || step_pos == 6 || step_pos == 11 || step_pos == 12)
       return layers[1].Update( { &((*in)[1]), &((*in)[6]), &((*in)[11]),
                                   &((*in)[12]) },
                               { &((*out)[1]), &((*out)[6]), &((*out)[11]),
                                   &((*out)[12]) },
                               cache_[0].get());
-  if (pos.word == 2 || pos.word == 7 || pos.word == 8 || pos.word == 13)
+  if (step_pos == 2 || step_pos == 7 || step_pos == 8 || step_pos == 13)
       return layers[2].Update( { &((*in)[2]), &((*in)[7]), &((*in)[8]),
                                   &((*in)[13]) },
                               { &((*out)[2]), &((*out)[7]), &((*out)[8]),
                                   &((*out)[13]) },
                               cache_[0].get());
 
-  if (pos.word == 3 || pos.word == 4 || pos.word == 9 || pos.word == 14)
+  if (step_pos == 3 || step_pos == 4 || step_pos== 9 || step_pos == 14)
       return layers[3].Update( { &((*in)[3]), &((*in)[4]), &((*in)[9]),
                                   &((*in)[14]) },
                               { &((*out)[3]), &((*out)[4]), &((*out)[9]),
@@ -294,24 +294,24 @@ HamsiSboxLayer* HamsiSboxLayer::clone(){
 }
 
 
-bool HamsiSboxLayer::Update(UpdatePos pos) {
-  assert(pos.bit < sboxes.size());
+bool HamsiSboxLayer::Update(unsigned int step_pos) {
+  assert(step_pos < sboxes.size());
 
   bool ret_val;
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-  ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
+  Mask copyin(GetVerticalMask(step_pos, *in));
+  Mask copyout(GetVerticalMask(step_pos, *out));
+  ret_val = sboxes[step_pos].Update(copyin, copyout, cache_.get());
+  SetVerticalMask(step_pos, *in, copyin);
+  SetVerticalMask(step_pos, *out, copyout);
   return ret_val;
 }
 
-Mask HamsiSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
+Mask HamsiSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) const {
   return Mask(
       { s[b/32].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 +12].bitmasks[b%32]});
 }
 
-void HamsiSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
+void HamsiSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) {
   s[b/32+12].bitmasks[b%32] = mask.bitmasks[3];
   s[b/32+8].bitmasks[b%32] = mask.bitmasks[2];
   s[b/32+4].bitmasks[b%32] = mask.bitmasks[1];

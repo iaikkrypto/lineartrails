@@ -17,9 +17,9 @@ struct Layer {
   virtual ~Layer(){};
   Layer(StateMaskBase *in, StateMaskBase *out);
   void SetMasks(StateMaskBase *inmask, StateMaskBase *outmask);
-  virtual bool Update(UpdatePos pos) = 0;
+  virtual bool Update(unsigned int step_pos) = 0;
   virtual Layer* clone() = 0;
-  virtual int GetNumLayer() = 0;
+  virtual unsigned int GetNumSteps() = 0;
   StateMaskBase *in;
   StateMaskBase *out;
 };
@@ -28,45 +28,45 @@ struct LinearLayer: public Layer {
   LinearLayer() = default;
   LinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual LinearLayer* clone() = 0;
-  virtual bool Update(UpdatePos pos) = 0;
-  virtual int GetNumLayer() = 0;
+  virtual bool Update(unsigned int step_pos) = 0;
+  virtual unsigned int GetNumSteps() = 0;
 };
 
 struct SboxLayerBase: public Layer {
   SboxLayerBase() = default;
   SboxLayerBase(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(UpdatePos pos)= 0;
+  virtual bool Update(unsigned int step_pos)= 0;
   virtual void InitSboxes(std::function<BitVector(BitVector)> fun) = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating) = 0;
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos)= 0;
-  virtual bool SboxActive(int pos)= 0;
-  virtual bool SboxGuessable(int pos)= 0;
+  virtual bool SboxActive(unsigned int step_pos)= 0;
+  virtual bool SboxGuessable(unsigned int step_pos)= 0;
   virtual SboxLayerBase* clone() = 0;
   virtual double GetProbability()= 0;
-  virtual int GetNumLayer() = 0;
-  virtual void SetSboxActive(int pos, bool active) = 0;
-  virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
-  virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
+  virtual unsigned int GetNumSteps() = 0;
+  virtual void SetSboxActive(unsigned int step_pos, bool active) = 0;
+  virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
+  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) = 0;
 };
 
 template <unsigned bits, unsigned boxes>
 struct SboxLayer: public SboxLayerBase {
   SboxLayer() = default;
   SboxLayer(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(UpdatePos pos);
+  virtual bool Update(unsigned int step_pos);
   virtual void InitSboxes(std::function<BitVector(BitVector)> fun);
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual int GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating, int mask_pos);
-  virtual bool SboxActive(int pos);
-  virtual bool SboxGuessable(int pos);
+  virtual bool SboxActive(unsigned int step_pos);
+  virtual bool SboxGuessable(unsigned int step_pos);
   virtual SboxLayer* clone() = 0;
   virtual double GetProbability();
-  virtual int GetNumLayer();
-  virtual void SetSboxActive(int pos, bool active);
-  virtual Mask GetVerticalMask(int b, const StateMaskBase& s) const  = 0;
-  virtual void SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) = 0;
+  virtual unsigned int GetNumSteps();
+  virtual void SetSboxActive(unsigned int step_pos, bool active);
+  virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
+  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
 };
 
@@ -92,38 +92,38 @@ double SboxLayer<bits, boxes>::GetProbability(){
 }
 
 template <unsigned bits, unsigned boxes>
-int SboxLayer<bits, boxes>::GetNumLayer(){
+unsigned int SboxLayer<bits, boxes>::GetNumSteps(){
   return boxes;
 }
 
 template <unsigned bits, unsigned boxes>
-bool SboxLayer<bits, boxes>::Update(UpdatePos pos) {
-  assert(pos.bit < boxes);
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
-  if (!sboxes[pos.bit].Update(copyin, copyout))
+bool SboxLayer<bits, boxes>::Update(unsigned int step_pos) {
+  assert(step_pos < boxes);
+  Mask copyin(GetVerticalMask(step_pos, *in));
+  Mask copyout(GetVerticalMask(step_pos, *out));
+  if (!sboxes[step_pos].Update(copyin, copyout))
     return false;
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin);
+  SetVerticalMask(step_pos, *out, copyout);
   return true;
 }
 
 template <unsigned bits, unsigned boxes>
-bool SboxLayer<bits, boxes>::SboxActive(int pos){
-  assert(pos < boxes);
-  return sboxes[pos].is_active_ | sboxes[pos].has_to_be_active_;
+bool SboxLayer<bits, boxes>::SboxActive(unsigned int step_pos){
+  assert(step_pos < boxes);
+  return sboxes[step_pos].is_active_ | sboxes[step_pos].has_to_be_active_;
 }
 
 template <unsigned bits, unsigned boxes>
-void SboxLayer<bits, boxes>::SetSboxActive(int pos, bool active){
-  assert(pos < boxes);
-  sboxes[pos].has_to_be_active_ = active;
+void SboxLayer<bits, boxes>::SetSboxActive(unsigned int step_pos, bool active){
+  assert(step_pos < boxes);
+  sboxes[step_pos].has_to_be_active_ = active;
 }
 
 template <unsigned bits, unsigned boxes>
-bool SboxLayer<bits, boxes>::SboxGuessable(int pos){
-  assert(pos < boxes);
-  return sboxes[pos].is_guessable_;
+bool SboxLayer<bits, boxes>::SboxGuessable(unsigned int step_pos){
+  assert(step_pos < boxes);
+  return sboxes[step_pos].is_guessable_;
 }
 
 template <unsigned bits, unsigned boxes>

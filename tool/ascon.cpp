@@ -50,7 +50,7 @@ AsconLinearLayer::AsconLinearLayer() {
   Init();
 }
 
-int AsconLinearLayer::GetNumLayer() {
+unsigned int AsconLinearLayer::GetNumSteps() {
   return linear_steps_;
 }
 
@@ -77,8 +77,8 @@ void AsconLinearLayer::Init(){
           new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
-bool AsconLinearLayer::Update(UpdatePos pos) {
-  return sigmas[pos.word].Update({&((*in)[pos.word])}, {&((*out)[pos.word])}, cache_[pos.word].get());
+bool AsconLinearLayer::Update(unsigned int step_pos) {
+  return sigmas[step_pos].Update({&((*in)[step_pos])}, {&((*out)[step_pos])}, cache_[step_pos].get());
 }
 
 //-----------------------------------------------------------------------------
@@ -124,22 +124,22 @@ AsconSboxLayer* AsconSboxLayer::clone(){
 }
 
 
-bool AsconSboxLayer::Update(UpdatePos pos) {
-  assert(pos.bit < sboxes.size());
+bool AsconSboxLayer::Update(unsigned int step_pos) {
+  assert(step_pos < sboxes.size());
   bool ret_val;
-  Mask copyin(GetVerticalMask(pos.bit, *in));
-  Mask copyout(GetVerticalMask(pos.bit, *out));
- ret_val = sboxes[pos.bit].Update(copyin, copyout, cache_.get());
-  SetVerticalMask(pos.bit, *in, copyin);
-  SetVerticalMask(pos.bit, *out, copyout);
+  Mask copyin(GetVerticalMask(step_pos, *in));
+  Mask copyout(GetVerticalMask(step_pos, *out));
+ ret_val = sboxes[step_pos].Update(copyin, copyout, cache_.get());
+  SetVerticalMask(step_pos, *in, copyin);
+  SetVerticalMask(step_pos, *out, copyout);
   return ret_val;
 }
 
-Mask AsconSboxLayer::GetVerticalMask(int b, const StateMaskBase& s) const {
+Mask AsconSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) const {
   return Mask({s[4].bitmasks[b], s[3].bitmasks[b], s[2].bitmasks[b], s[1].bitmasks[b], s[0].bitmasks[b]});
 }
 
-void AsconSboxLayer::SetVerticalMask(int b, StateMaskBase& s, const Mask& mask) {
+void AsconSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) {
   s[0].bitmasks[b] = mask.bitmasks[4];
   s[1].bitmasks[b] = mask.bitmasks[3];
   s[2].bitmasks[b] = mask.bitmasks[2];

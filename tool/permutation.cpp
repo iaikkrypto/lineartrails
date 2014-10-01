@@ -35,7 +35,7 @@ void Permutation::SboxStatus(std::vector<SboxPos>& active,
   inactive.clear();
 
   for (unsigned int layer = 0; layer < rounds_; ++layer)
-    for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
+    for (unsigned int pos = 0; pos < this->sbox_layers_[layer]->GetNumSteps(); ++pos)
       if (this->sbox_layers_[layer]->SboxGuessable(pos)) {
         if (this->sbox_layers_[layer]->SboxActive(pos))
           active.emplace_back(layer, pos);
@@ -52,7 +52,7 @@ void Permutation::SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vec
   inactive.resize(rounds_);
 
   for (size_t layer = 0; layer < this->sbox_layers_.size(); ++layer)
-    for (int pos = 0; pos < this->sbox_layers_[layer]->GetNumLayer(); ++pos)
+    for (unsigned int pos = 0; pos < this->sbox_layers_[layer]->GetNumSteps(); ++pos)
       if (this->sbox_layers_[layer]->SboxGuessable(pos)) {
         if (this->sbox_layers_[layer]->SboxActive(pos))
           active[layer].emplace_back(layer, pos);
@@ -147,8 +147,8 @@ bool Permutation::update() {
       for (unsigned int layer = 0; layer < rounds_; ++layer) {
         tempin.reset(this->sbox_layers_[layer]->in->clone());
         tempout.reset(this->sbox_layers_[layer]->out->clone());
-        for (int i = 0; i < this->sbox_layers_[layer]->GetNumLayer(); ++i)
-          if(this->sbox_layers_[layer]->Update(UpdatePos(i, i, i, 1)) == false)
+        for (unsigned int i = 0; i < this->sbox_layers_[layer]->GetNumSteps(); ++i)
+          if(this->sbox_layers_[layer]->Update(i) == false)
             return false;
         if (tempin->diff(*( this->sbox_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->sbox_layers_[layer]->out)).size() != 0)
@@ -160,8 +160,8 @@ bool Permutation::update() {
       for (unsigned int layer = 0; layer < rounds_; ++layer) {
         tempin.reset(this->linear_layers_[layer]->in->clone());
         tempout.reset(this->linear_layers_[layer]->out->clone());
-        for (int i = 0; i < this->linear_layers_[layer]->GetNumLayer(); ++i)
-          if(this->linear_layers_[layer]->Update(UpdatePos(i, i, i, 1)) == false)
+        for (unsigned int i = 0; i < this->linear_layers_[layer]->GetNumSteps(); ++i)
+          if(this->linear_layers_[layer]->Update(i) == false)
             return false;
         if (tempin->diff(*( this->linear_layers_[layer]->in)).size() != 0
             || tempout->diff(*( this->linear_layers_[layer]->out)).size() != 0)
@@ -190,7 +190,7 @@ unsigned int Permutation::GetActiveSboxes() {
   unsigned int active_sboxes_layer = 0;
 
   for (auto& layer : this->sbox_layers_) {
-    for (int j = 0; j < layer->GetNumLayer(); ++j)
+    for (unsigned int j = 0; j < layer->GetNumSteps(); ++j)
             active_sboxes_layer += layer->SboxActive(j);
   }
 
@@ -225,7 +225,7 @@ void Permutation::PrintWithProbability(std::ostream& stream, unsigned int offset
     if (i % 2 == offset && i < 2 * rounds_) {
       temp_prob = this->sbox_layers_[i / 2]->GetProbability();
       int active_sboxes_layer = 0;
-      for (int j = 0; j < this->sbox_layers_[i / 2]->GetNumLayer(); ++j)
+      for (unsigned int j = 0; j < this->sbox_layers_[i / 2]->GetNumSteps(); ++j)
         active_sboxes_layer += (int) this->sbox_layers_[i / 2]->SboxActive(j);
       active_sboxes += active_sboxes_layer;
       prob += temp_prob;
@@ -272,7 +272,7 @@ bool Permutation::setBit(BitMask cond, unsigned int bit){
 
 bool Permutation::setBox(bool active, unsigned int box_num){
   //FIXME: Do not assume every layer has the same amount of sboxes
-  unsigned int box_per_layer = sbox_layers_.begin()->get()->GetNumLayer();
+  unsigned int box_per_layer = sbox_layers_.begin()->get()->GetNumSteps();
   unsigned int sbox_layer = box_num / box_per_layer;
   if (sbox_layer >= sbox_layers_.size())
     return false;

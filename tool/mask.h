@@ -7,8 +7,6 @@
 #include <assert.h>
 #include <functional>
 
-#include "updatequeue.h"
-
 #define BM_DUNNO  3
 #define BM_0      2
 #define BM_1      1

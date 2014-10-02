@@ -69,7 +69,7 @@ bool Permutation::isActive(SboxPos pos) {
 bool Permutation::guessbestsbox(SboxPos pos,
                                 std::function<int(int, int, int)> rating) {
 
-  this->sbox_layers_[pos.layer_]->GuessBox(UpdatePos(0, 0, pos.pos_, 0),
+  this->sbox_layers_[pos.layer_]->GuessBox(pos.pos_,
                                            rating);
 
   this->toupdate_linear = true;
@@ -85,7 +85,7 @@ bool Permutation::guessbestsbox(SboxPos pos,
 
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(
-        UpdatePos(0, 0, pos.pos_, 0), rating, i);
+        pos.pos_, rating, i);
     num_alternatives =
         total_alternatives < num_alternatives ?
             total_alternatives : num_alternatives;
@@ -108,11 +108,9 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = 0xffff;
     if (i)
-      total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(
-          UpdatePos(0, 0, pos.pos_, 0), rating, i);
+      total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(pos.pos_, rating, i);
     else
-      this->sbox_layers_[pos.layer_]->GuessBoxRandom(
-          UpdatePos(0, 0, pos.pos_, 0), rating);
+      this->sbox_layers_[pos.layer_]->GuessBoxRandom(pos.pos_, rating);
     num_alternatives =
         total_alternatives < num_alternatives ?
             total_alternatives : num_alternatives;

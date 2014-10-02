@@ -6,7 +6,6 @@
 
 #include "layer.h"
 #include "statemask.h"
-#include "updatequeue.h"
 
 
 struct Permutation {
@@ -37,8 +36,6 @@ struct Permutation {
   std::vector<std::unique_ptr<LinearLayer>> linear_layers_;
   bool toupdate_linear;
   bool toupdate_nonlinear;
-  UpdateQueue queue_linear_;
-  UpdateQueue queue_nonlinear_;
   unsigned int rounds_;
 };
 

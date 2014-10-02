@@ -14,15 +14,20 @@ void Layer::SetMasks(StateMaskBase *inmask, StateMaskBase *outmask) {
   out = outmask;
 }
 
-//bool Layer::Update(UpdatePos pos) {
-//  // TODO delegate to the correct steps.
-//  // return false if contradictory
-//  return true;
-//}
-
 //-----------------------------------------------------------------------------
 
 LinearLayer::LinearLayer(StateMaskBase *in, StateMaskBase *out) : Layer(in, out) {
+}
+
+bool LinearLayer::Update(){
+  bool ret_val = true;
+
+  for(unsigned int i = 0; i < GetNumSteps(); ++i)
+    ret_val &= updateStep(i);
+
+  in->resetChangesLinear();
+  out->resetChangesLinear();
+  return ret_val;
 }
 
 //-----------------------------------------------------------------------------

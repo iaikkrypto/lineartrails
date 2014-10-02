@@ -31,7 +31,7 @@ struct PrideLinearLayer : public LinearLayer {
   virtual PrideLinearLayer* clone();
   void Init();
   PrideLinearLayer(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   unsigned int GetNumSteps();
 
   static const unsigned int word_size_ = { 8 };
@@ -48,7 +48,7 @@ struct PrideSboxLayer : public SboxLayer<4, 16> {
   PrideSboxLayer();
   PrideSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual PrideSboxLayer* clone();
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const;
   void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask);
 

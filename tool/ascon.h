@@ -52,7 +52,7 @@ struct AsconLinearLayer : public LinearLayer {
   virtual AsconLinearLayer* clone();
   void Init();
   AsconLinearLayer(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   unsigned int GetNumSteps();
 
   static const unsigned int word_size_ = { 64 };
@@ -71,7 +71,7 @@ struct AsconSboxLayer : public SboxLayer<5, 64> {
   AsconSboxLayer();
   AsconSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual AsconSboxLayer* clone();
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const;
   void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask);
 

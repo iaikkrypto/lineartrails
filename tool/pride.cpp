@@ -8,8 +8,11 @@ PrideState::PrideState()
 
 PrideState*  PrideState::clone(){
   PrideState* obj =  new PrideState();
-  for(size_t j = 0; j< words_.size(); ++j)
+  for(size_t j = 0; j< words_.size(); ++j){
     obj->words_[j] = words_[j];
+    obj->changes_for_linear_layer_[j] = changes_for_linear_layer_[j];
+    obj->changes_for_sbox_layer_[j] = changes_for_sbox_layer_[j];
+  }
   return obj;
 }
 
@@ -162,7 +165,7 @@ void PrideLinearLayer::Init(){
 }
 
 //TODO: map update to bits
-bool PrideLinearLayer::Update(unsigned int step_pos) {
+bool PrideLinearLayer::updateStep(unsigned int step_pos) {
     return layers[step_pos].Update( { &((*in)[2*step_pos]), &((*in)[2*step_pos+1]) },
                             { &((*out)[2*step_pos]), &((*out)[2*step_pos+1]) },
                             cache_[step_pos].get());
@@ -236,7 +239,7 @@ PrideSboxLayer* PrideSboxLayer::clone(){
 }
 
 
-bool PrideSboxLayer::Update(unsigned int step_pos) {
+bool PrideSboxLayer::updateStep(unsigned int step_pos) {
 
   assert(step_pos < sboxes.size());
 

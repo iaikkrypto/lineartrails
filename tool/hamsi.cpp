@@ -10,8 +10,11 @@ HamsiState::HamsiState()
 
 HamsiState*  HamsiState::clone(){
   HamsiState* obj =  new HamsiState();
-  for(size_t j = 0; j< words_.size(); ++j)
+  for(size_t j = 0; j< words_.size(); ++j){
     obj->words_[j] = words_[j];
+    obj->changes_for_linear_layer_[j] = changes_for_linear_layer_[j];
+    obj->changes_for_sbox_layer_[j] = changes_for_sbox_layer_[j];
+  }
   return obj;
 }
 
@@ -220,7 +223,7 @@ void HamsiLinearLayer::Init(){
           new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
-bool HamsiLinearLayer::Update(unsigned int step_pos) {
+bool HamsiLinearLayer::updateStep(unsigned int step_pos) {
   if (step_pos == 0 || step_pos == 5 || step_pos == 10 || step_pos == 15)
     return layers[0].Update( { &((*in)[0]), &((*in)[5]), &((*in)[10]),
                                 &((*in)[15]) },
@@ -294,7 +297,7 @@ HamsiSboxLayer* HamsiSboxLayer::clone(){
 }
 
 
-bool HamsiSboxLayer::Update(unsigned int step_pos) {
+bool HamsiSboxLayer::updateStep(unsigned int step_pos) {
   assert(step_pos < sboxes.size());
 
   bool ret_val;

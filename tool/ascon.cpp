@@ -7,8 +7,11 @@ AsconState::AsconState() : StateMask() {
 
 AsconState*  AsconState::clone(){
   AsconState* obj =  new AsconState();
-  for(size_t j = 0; j< words_.size(); ++j)
+  for(size_t j = 0; j< words_.size(); ++j){
     obj->words_[j] = words_[j];
+    obj->changes_for_linear_layer_[j] = changes_for_linear_layer_[j];
+    obj->changes_for_sbox_layer_[j] = changes_for_sbox_layer_[j];
+  }
   return obj;
 }
 
@@ -77,7 +80,7 @@ void AsconLinearLayer::Init(){
           new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
-bool AsconLinearLayer::Update(unsigned int step_pos) {
+bool AsconLinearLayer::updateStep(unsigned int step_pos) {
   return sigmas[step_pos].Update({&((*in)[step_pos])}, {&((*out)[step_pos])}, cache_[step_pos].get());
 }
 
@@ -124,7 +127,7 @@ AsconSboxLayer* AsconSboxLayer::clone(){
 }
 
 
-bool AsconSboxLayer::Update(unsigned int step_pos) {
+bool AsconSboxLayer::updateStep(unsigned int step_pos) {
   assert(step_pos < sboxes.size());
   bool ret_val;
   Mask copyin(GetVerticalMask(step_pos, *in));

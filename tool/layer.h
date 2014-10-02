@@ -17,7 +17,8 @@ struct Layer {
   virtual ~Layer(){};
   Layer(StateMaskBase *in, StateMaskBase *out);
   void SetMasks(StateMaskBase *inmask, StateMaskBase *outmask);
-  virtual bool Update(unsigned int step_pos) = 0;
+  virtual bool Update() = 0;
+  virtual bool updateStep(unsigned int step_pos) = 0;
   virtual Layer* clone() = 0;
   virtual unsigned int GetNumSteps() = 0;
   StateMaskBase *in;
@@ -27,15 +28,17 @@ struct Layer {
 struct LinearLayer: public Layer {
   LinearLayer() = default;
   LinearLayer(StateMaskBase *in, StateMaskBase *out);
+  virtual bool Update();
   virtual LinearLayer* clone() = 0;
-  virtual bool Update(unsigned int step_pos) = 0;
+  virtual bool updateStep(unsigned int step_pos) = 0;
   virtual unsigned int GetNumSteps() = 0;
 };
 
 struct SboxLayerBase: public Layer {
   SboxLayerBase() = default;
   SboxLayerBase(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(unsigned int step_pos)= 0;
+  virtual bool Update() = 0;
+  virtual bool updateStep(unsigned int step_pos) = 0;
   virtual void InitSboxes(std::function<BitVector(BitVector)> fun) = 0;
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating)= 0;
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating) = 0;
@@ -54,7 +57,8 @@ template <unsigned bits, unsigned boxes>
 struct SboxLayer: public SboxLayerBase {
   SboxLayer() = default;
   SboxLayer(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(unsigned int step_pos);
+  virtual bool Update();
+  virtual bool updateStep(unsigned int step_pos);
   virtual void InitSboxes(std::function<BitVector(BitVector)> fun);
   virtual void GuessBox(UpdatePos pos, std::function<int(int, int, int)> rating);
   virtual void GuessBoxRandom(UpdatePos pos, std::function<int(int, int, int)> rating);
@@ -97,7 +101,7 @@ unsigned int SboxLayer<bits, boxes>::GetNumSteps(){
 }
 
 template <unsigned bits, unsigned boxes>
-bool SboxLayer<bits, boxes>::Update(unsigned int step_pos) {
+bool SboxLayer<bits, boxes>::updateStep(unsigned int step_pos) {
   assert(step_pos < boxes);
   Mask copyin(GetVerticalMask(step_pos, *in));
   Mask copyout(GetVerticalMask(step_pos, *out));
@@ -106,6 +110,18 @@ bool SboxLayer<bits, boxes>::Update(unsigned int step_pos) {
   SetVerticalMask(step_pos, *in, copyin);
   SetVerticalMask(step_pos, *out, copyout);
   return true;
+}
+
+template <unsigned bits, unsigned boxes>
+bool SboxLayer<bits, boxes>::Update(){
+  bool ret_val = true;
+
+  for(unsigned int i = 0; i < boxes; ++i)
+    ret_val &= updateStep(i);
+
+  in->resetChangesSbox();
+  out->resetChangesSbox();
+  return ret_val;
 }
 
 template <unsigned bits, unsigned boxes>

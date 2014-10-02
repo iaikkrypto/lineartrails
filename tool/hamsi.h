@@ -44,7 +44,7 @@ struct HamsiLinearLayer : public LinearLayer {
   virtual HamsiLinearLayer* clone();
   void Init();
   HamsiLinearLayer(StateMaskBase *in, StateMaskBase *out);
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   unsigned int GetNumSteps();
 
   static const unsigned int word_size_ = { 32 };
@@ -63,7 +63,7 @@ struct HamsiSboxLayer : public SboxLayer<4, 128> {
   HamsiSboxLayer();
   HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out);
   virtual HamsiSboxLayer* clone();
-  virtual bool Update(unsigned int step_pos);
+  virtual bool updateStep(unsigned int step_pos);
   Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const;
   void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask);
 

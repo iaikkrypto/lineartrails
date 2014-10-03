@@ -49,7 +49,7 @@ struct SboxLayerBase: public Layer {
   virtual unsigned int GetNumSteps() = 0;
   virtual void SetSboxActive(unsigned int step_pos, bool active) = 0;
   virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
-  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) = 0;
+  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) = 0;
 };
 
 template <unsigned bits, unsigned boxes>
@@ -69,7 +69,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual unsigned int GetNumSteps();
   virtual void SetSboxActive(unsigned int step_pos, bool active);
   virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
-  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) = 0;
+  virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) = 0;
   std::array<NonlinearStep<bits>, boxes> sboxes;
 };
 
@@ -106,8 +106,8 @@ bool SboxLayer<bits, boxes>::updateStep(unsigned int step_pos) {
   Mask copyout(GetVerticalMask(step_pos, *out));
   if (!sboxes[step_pos].Update(copyin, copyout))
     return false;
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, false);
+  SetVerticalMask(step_pos, *out, copyout, false);
   return true;
 }
 
@@ -149,8 +149,8 @@ void SboxLayer<bits, boxes>::GuessBox(unsigned int step_pos, std::function<int(i
 
   sboxes[step_pos].TakeBestBox(copyin, copyout, rating);
 
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, true);
+  SetVerticalMask(step_pos, *out, copyout, true);
 
 }
 
@@ -162,8 +162,8 @@ void SboxLayer<bits, boxes>::GuessBoxRandom(unsigned int step_pos, std::function
 
   sboxes[step_pos].TakeBestBoxRandom(copyin, copyout, rating);
 
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, true);
+  SetVerticalMask(step_pos, *out, copyout, true);
 
 }
 
@@ -176,8 +176,8 @@ int SboxLayer<bits, boxes>::GuessBox(unsigned int step_pos, std::function<int(in
 
   choises = sboxes[step_pos].TakeBestBox(copyin, copyout, rating, mask_pos);
 
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, true);
+  SetVerticalMask(step_pos, *out, copyout, true);
   return choises;
 }
 

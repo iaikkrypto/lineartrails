@@ -304,8 +304,8 @@ bool HamsiSboxLayer::updateStep(unsigned int step_pos) {
   Mask copyin(GetVerticalMask(step_pos, *in));
   Mask copyout(GetVerticalMask(step_pos, *out));
   ret_val = sboxes[step_pos].Update(copyin, copyout, cache_.get());
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, false);
+  SetVerticalMask(step_pos, *out, copyout, false);
   return ret_val;
 }
 
@@ -314,7 +314,7 @@ Mask HamsiSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) con
       { s[b/32].bitmasks[b%32], s[b/32 + 4].bitmasks[b%32], s[b/32 + 8].bitmasks[b%32], s[b/32 +12].bitmasks[b%32]});
 }
 
-void HamsiSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) {
+void HamsiSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) {
   s[b/32+12].bitmasks[b%32] = mask.bitmasks[3];
   s[b/32+8].bitmasks[b%32] = mask.bitmasks[2];
   s[b/32+4].bitmasks[b%32] = mask.bitmasks[1];

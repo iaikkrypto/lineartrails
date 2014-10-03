@@ -20,8 +20,8 @@ struct StateMaskBase {
   virtual bool diffSbox(const StateMaskBase& other) = 0;
   virtual void resetChangesLinear() = 0;
   virtual void resetChangesSbox() = 0;
-  virtual unsigned long long getWordLinear(const int index) = 0;
-  virtual unsigned long long getWordSbox(const int index) = 0;
+  virtual unsigned long long& getWordLinear(const int index) = 0;
+  virtual unsigned long long& getWordSbox(const int index) = 0;
   virtual Mask& operator[](const int index) = 0;
   virtual const Mask& operator[](const int index) const = 0;
   virtual const unsigned int getnumwords() const = 0;
@@ -41,8 +41,8 @@ struct StateMask : public StateMaskBase {
   virtual void resetChangesLinear();
   virtual void resetChangesSbox();
   void resetChanges(std::array<unsigned long long, words>& changes);
-  virtual unsigned long long getWordLinear(const int index);
-  virtual unsigned long long getWordSbox(const int index);
+  virtual unsigned long long& getWordLinear(const int index);
+  virtual unsigned long long& getWordSbox(const int index);
   virtual Mask& operator[](const int index);
   virtual const Mask& operator[](const int index) const ;
   virtual const unsigned int getnumwords() const {return words;};

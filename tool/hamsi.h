@@ -65,7 +65,7 @@ struct HamsiSboxLayer : public SboxLayer<4, 128> {
   virtual HamsiSboxLayer* clone();
   virtual bool updateStep(unsigned int step_pos);
   Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const;
-  void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask);
+  void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty);
 
  static const unsigned int cache_size_ = { 0x1000 };
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;

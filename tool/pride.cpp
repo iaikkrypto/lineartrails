@@ -247,8 +247,8 @@ bool PrideSboxLayer::updateStep(unsigned int step_pos) {
   Mask copyin(GetVerticalMask(step_pos, *in));
   Mask copyout(GetVerticalMask(step_pos, *out));
   ret_val = sboxes[step_pos].Update(copyin, copyout, cache_.get());
-  SetVerticalMask(step_pos, *in, copyin);
-  SetVerticalMask(step_pos, *out, copyout);
+  SetVerticalMask(step_pos, *in, copyin, false);
+  SetVerticalMask(step_pos, *out, copyout, false);
   return ret_val;
 }
 
@@ -260,7 +260,7 @@ Mask PrideSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) con
         { s[1].bitmasks[b%8], s[3].bitmasks[b%8], s[5].bitmasks[b%8], s[7].bitmasks[b%8]});
 }
 
-void PrideSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask) {
+void PrideSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) {
   int offset = 0;
   if(b > 7)
     offset++;

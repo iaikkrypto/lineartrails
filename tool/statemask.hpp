@@ -7,8 +7,11 @@
 
 template<unsigned words, unsigned bits>
 StateMask<words, bits>::StateMask() {
-  for (int i = 0; i < words; ++i)
+  for (int i = 0; i < words; ++i){
     words_[i].reset(bits);
+    changes_for_linear_layer_[i] = ~0ULL;
+    changes_for_sbox_layer_[i] = ~0ULL;
+  }
 }
 
 template<unsigned words, unsigned bits>
@@ -81,14 +84,14 @@ void StateMask<words, bits>::resetChanges(
 }
 
 template<unsigned words, unsigned bits>
-unsigned long long StateMask<words, bits>::getWordLinear(
+unsigned long long& StateMask<words, bits>::getWordLinear(
     const int index) {
 
   return changes_for_linear_layer_[index];
 }
 
 template<unsigned words, unsigned bits>
-unsigned long long StateMask<words, bits>::getWordSbox(
+unsigned long long& StateMask<words, bits>::getWordSbox(
     const int index) {
 
   return changes_for_sbox_layer_[index];

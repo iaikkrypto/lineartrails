@@ -121,6 +121,7 @@ BitVector AsconSbox(BitVector in) {
 }
 
 std::unique_ptr<LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>> AsconSboxLayer::cache_;
+std::shared_ptr<LinearDistributionTable<5>> AsconSboxLayer::ldt_;
 
 AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs) {
   sboxes = rhs.sboxes;
@@ -128,7 +129,9 @@ AsconSboxLayer& AsconSboxLayer::operator=(const AsconSboxLayer& rhs) {
 }
 
 AsconSboxLayer::AsconSboxLayer() {
-  InitSboxes(AsconSbox);
+  if(ldt_ == nullptr)
+    ldt_.reset(new LinearDistributionTable<5>(AsconSbox));
+  InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(
@@ -137,7 +140,9 @@ AsconSboxLayer::AsconSboxLayer() {
 
 AsconSboxLayer::AsconSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer(in, out) {
-  InitSboxes(AsconSbox);
+  if(ldt_ == nullptr)
+    ldt_.reset(new LinearDistributionTable<5>(AsconSbox));
+  InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(

@@ -210,6 +210,7 @@ BitVector PrideSbox(BitVector in) {
 }
 
 std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> PrideSboxLayer::cache_;
+std::shared_ptr<LinearDistributionTable<4>> PrideSboxLayer::ldt_;
 
 PrideSboxLayer& PrideSboxLayer::operator=(const PrideSboxLayer& rhs){
   sboxes = rhs.sboxes;
@@ -217,7 +218,9 @@ PrideSboxLayer& PrideSboxLayer::operator=(const PrideSboxLayer& rhs){
 }
 
 PrideSboxLayer::PrideSboxLayer() {
-  InitSboxes(PrideSbox);
+  if(ldt_ == nullptr)
+      ldt_.reset(new LinearDistributionTable<4>(PrideSbox));
+    InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
@@ -225,7 +228,9 @@ PrideSboxLayer::PrideSboxLayer() {
 
 PrideSboxLayer::PrideSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer(in, out) {
-  InitSboxes(PrideSbox);
+  if(ldt_ == nullptr)
+      ldt_.reset(new LinearDistributionTable<4>(PrideSbox));
+    InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));

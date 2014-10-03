@@ -189,6 +189,7 @@ std::unique_ptr<
         LinearStepUpdateInfo<HamsiLinearLayer::word_size_,
             HamsiLinearLayer::words_per_step_>>> HamsiLinearLayer::cache_[1];
 
+
 HamsiLinearLayer& HamsiLinearLayer::operator=(const HamsiLinearLayer& rhs){
   layers = rhs.layers;
   return *this;
@@ -267,6 +268,7 @@ BitVector HamsiSbox(BitVector in) {
 }
 
 std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> HamsiSboxLayer::cache_;
+std::shared_ptr<LinearDistributionTable<4>> HamsiSboxLayer::ldt_;
 
 HamsiSboxLayer& HamsiSboxLayer::operator=(const HamsiSboxLayer& rhs){
   sboxes = rhs.sboxes;
@@ -274,7 +276,9 @@ HamsiSboxLayer& HamsiSboxLayer::operator=(const HamsiSboxLayer& rhs){
 }
 
 HamsiSboxLayer::HamsiSboxLayer() {
-  InitSboxes(HamsiSbox);
+  if(ldt_ == nullptr)
+      ldt_.reset(new LinearDistributionTable<4>(HamsiSbox));
+    InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));
@@ -282,7 +286,9 @@ HamsiSboxLayer::HamsiSboxLayer() {
 
 HamsiSboxLayer::HamsiSboxLayer(StateMaskBase *in, StateMaskBase *out)
     : SboxLayer(in, out) {
-  InitSboxes(HamsiSbox);
+  if(ldt_ == nullptr)
+      ldt_.reset(new LinearDistributionTable<4>(HamsiSbox));
+    InitSboxes(ldt_);
   if (this->cache_.get() == nullptr)
     this->cache_.reset(
         new LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>(cache_size_));

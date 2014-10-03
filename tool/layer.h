@@ -59,6 +59,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual bool Update();
   virtual bool updateStep(unsigned int step_pos);
   virtual void InitSboxes(std::function<BitVector(BitVector)> fun);
+  virtual void InitSboxes(std::shared_ptr<LinearDistributionTable<bits>> ldt);
   virtual void GuessBox(unsigned int step_pos, std::function<int(int, int, int)> rating);
   virtual void GuessBoxRandom(unsigned int step_pos, std::function<int(int, int, int)> rating);
   virtual int GuessBox(unsigned int step_pos, std::function<int(int, int, int)> rating, int mask_pos);
@@ -184,6 +185,13 @@ int SboxLayer<bits, boxes>::GuessBox(unsigned int step_pos, std::function<int(in
 template <unsigned bits, unsigned boxes>
 void SboxLayer<bits, boxes>::InitSboxes(std::function<BitVector(BitVector)> fun){
   std::shared_ptr<LinearDistributionTable<bits>> ldt(new LinearDistributionTable<bits>(fun));
+      for (size_t i = 0; i < boxes; i++)
+        sboxes[i].Initialize(ldt);
+}
+
+template <unsigned bits, unsigned boxes>
+void SboxLayer<bits, boxes>::InitSboxes(std::shared_ptr<LinearDistributionTable<bits>> ldt){
+
       for (size_t i = 0; i < boxes; i++)
         sboxes[i].Initialize(ldt);
 }

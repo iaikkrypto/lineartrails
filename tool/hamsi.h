@@ -69,6 +69,7 @@ struct HamsiSboxLayer : public SboxLayer<4, 128> {
 
  static const unsigned int cache_size_ = { 0x1000 };
  static std::unique_ptr<LRU_Cache<unsigned long long,NonlinearStepUpdateInfo>> cache_;
+ static std::shared_ptr<LinearDistributionTable<4>> ldt_;
 };
 
 

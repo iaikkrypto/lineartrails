@@ -244,12 +244,16 @@ int NonlinearStep<bitsize>::TakeBestBox(
   std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks;
 
   //FIXME: not nice, just to be able to set boxes active
-  if (has_to_be_active_ == true)
+  if (has_to_be_active_ == true){
     for (auto it = inmasks.begin(); it != inmasks.end(); ++it)
       if (*it == 0) {
         inmasks.erase(it);
+        //FIXME: even worse
+        if(pos > 0)
+          --pos;
         break;
       }
+  }
 
   for (const auto& inmask : inmasks)
     for (const auto& outmask : outmasks) {

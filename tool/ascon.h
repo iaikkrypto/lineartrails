@@ -25,26 +25,23 @@ struct AsconState : public StateMask<5,64> {
 #define ROTR(x,n) (((x)>>(n))|((x)<<(64-(n))))
 //#define ROTL(x,n) (((x)<<(n))|((x)>>(64-(n))))
 
-//([0, 13, 63], [0, 27, 39], [0, 57, 2],  [0, 23, 31], [0, 42, 59])  #  75
-
 template <unsigned round>
 std::array<BitVector, 1> AsconSigma(std::array<BitVector, 1> in) {
   switch (round) {
     case 0: 
-      return {in[0] ^ ROTR(in[0], 13) ^ ROTR(in[0], 63)};
+      return {in[0] ^ ROTR(in[0], 19) ^ ROTR(in[0], 28)};
     case 1:
-      return {in[0] ^ ROTR(in[0], 27) ^ ROTR(in[0], 39)};
+      return {in[0] ^ ROTR(in[0], 61) ^ ROTR(in[0], 39)};
     case 2: 
-      return {in[0] ^ ROTR(in[0], 57) ^ ROTR(in[0],  2)};
+      return {in[0] ^ ROTR(in[0],  1) ^ ROTR(in[0],  6)};
     case 3: 
-      return {in[0] ^ ROTR(in[0], 23) ^ ROTR(in[0], 31)};
-    case 4: 
-      return {in[0] ^ ROTR(in[0], 42) ^ ROTR(in[0], 59)};
+      return {in[0] ^ ROTR(in[0], 10) ^ ROTR(in[0], 17)};
+    case 4:
+      return {in[0] ^ ROTR(in[0],  7) ^ ROTR(in[0], 41)};
     default: 
       return {0};
   }
 }
-
 
 
 struct AsconLinearLayer : public LinearLayer {

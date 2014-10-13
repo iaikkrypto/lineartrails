@@ -105,18 +105,23 @@ bool AsconLinearLayer::Update(){
 }
 
 bool AsconLinearLayer::updateStep(unsigned int step_pos) {
+//  return sigmas[step_pos].Update( { &((*in)[step_pos]) },
+//                                 { &((*out)[step_pos]) },
+//                                 cache_[step_pos].get());
+
   return sigmas[step_pos].Update( { &((*in)[step_pos]) },
-                                 { &((*out)[step_pos]) },
-                                 cache_[step_pos].get());
+                                   { &((*out)[step_pos]) });
 }
 
 //-----------------------------------------------------------------------------
 
 BitVector AsconSbox(BitVector in) {
   // with x0 as MSB
-  static const BitVector sbox[32] =
-      { 19, 25, 28, 23, 6, 12, 11, 0, 14, 8, 3, 4, 29, 27, 18, 21, 5, 31, 26, 1, 16, 10, 13, 22, 20, 2, 9, 30, 7, 17, 24, 15 };
-  return sbox[in % 32]  & 0x1F;
+  static const BitVector sbox[32] = {
+       4, 11, 31, 20, 26, 21,  9,  2, 27,  5,  8, 18, 29,  3,  6, 28,
+      30, 19,  7, 14,  0, 13, 17, 24, 16, 12,  1, 25, 22, 10, 15, 23,
+  };
+  return sbox[in % 32] & 0x1f;
 }
 
 std::unique_ptr<LRU_Cache<unsigned long long, NonlinearStepUpdateInfo>> AsconSboxLayer::cache_;

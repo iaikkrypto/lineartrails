@@ -257,7 +257,7 @@ void Permutation::touchall() {
 bool Permutation::setBit(BitMask cond, unsigned int bit,
                          unsigned char num_words, unsigned char num_bits) {
   unsigned int state = bit / (num_words * num_bits);
-  if (state > 2 * rounds_ + 1)
+  if (state >= 2 * rounds_ + 1)
     return false;
 
   bit %= (num_words * num_bits);

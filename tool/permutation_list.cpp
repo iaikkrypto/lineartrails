@@ -14,6 +14,8 @@ Permutation* permutation_list(std::string name, int rounds) {
     return new HamsiCompression(rounds);
   if (name.compare("pride") == 0)
     return new PridePermutation(rounds);
+  if (name.compare("keccak1600") == 0)
+      return new Keccak1600Permutation(rounds);
 
   assert(!"instance with this name not found");
   return nullptr;

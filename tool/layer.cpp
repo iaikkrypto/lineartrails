@@ -1,6 +1,6 @@
 #include "layer.h"
 
-SboxPos::SboxPos(uint8_t layer, uint8_t pos) : layer_(layer),pos_(pos){
+SboxPos::SboxPos(uint16_t layer, uint16_t pos) : layer_(layer),pos_(pos){
 }
 
 

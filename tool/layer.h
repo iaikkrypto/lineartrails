@@ -6,9 +6,9 @@
 #include "step_nonlinear.h"
 
 struct SboxPos {
-  SboxPos(uint8_t layer, uint8_t pos);
+  SboxPos(uint16_t layer, uint16_t pos);
 
-  uint8_t layer_; uint8_t pos_;
+  uint16_t layer_; uint16_t pos_;
 };
 
 struct Layer {

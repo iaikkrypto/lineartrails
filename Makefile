@@ -3,8 +3,9 @@ SHELL=/bin/sh
 .SUFFIXES: .cpp .h .o
 
 CXX=g++
-#CXXFLAGS=-c -Wall -g -std=c++11
-CXXFLAGS=-c -Wall -O3 -march=native -std=c++11
+CXXFLAGS=-c -Wall -march=native -std=c++11
+FASTFLAGS=-O3
+DEBUGFLAGS=-g
 #LDFLAGS=-pthread
 LDFLAGS=
 SRC_DIR=tool target
@@ -16,13 +17,24 @@ INCLUDES=$(addprefix -I,$(SRC_DIR))
 vpath %.cpp $(SRC_DIR)
 vpath %.h $(SRC_DIR)
 vpath %.hpp $(SRC_DIR)
-#/usr/include
 TITLE=lin
 
 .PHONY : all clean
 
 # make all
-all: $(TITLE)
+all: fast
+
+# make fast
+fast: CXXFLAGS += $(FASTFLAGS)
+fast: $(TITLE)
+
+# make fastdebug
+fastdebug: CXXFLAGS += $(FASTFLAGS) $(DEBUGFLAGS)
+fastdebug: $(TITLE)
+
+# make debug
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: $(TITLE)
 
 # make
 $(TITLE): $(OBJECTS) $(BUILD_DIR)/tinyxml2.o
@@ -36,7 +48,7 @@ $(BUILD_DIR)/tinyxml2.o: tinyxml2/tinyxml2.cpp
 	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(LDFLAGS)
 
 # make clean
-clean :
+clean:
 	rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d $(TITLE)
 
 -include $(wildcard $(BUILD_DIR)/*.d)

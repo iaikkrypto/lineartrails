@@ -15,7 +15,7 @@
 struct Configparser {
   Configparser();
   bool parseFile(std::string filename);
-  Permutation* getPermutation();
+  std::unique_ptr<Permutation> getPermutation();
   Settings getSettings();
   unsigned int getCredits();
   bool printActive();

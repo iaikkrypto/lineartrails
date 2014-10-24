@@ -2,6 +2,7 @@
 #define ASCONPERMUTATION_H_
 
 #include <vector>
+#include <memory>
 
 #include "ascon.h"
 #include "mask.h"
@@ -13,7 +14,7 @@ struct AsconPermutation : public Permutation {
   AsconPermutation(unsigned int rounds);
   AsconPermutation(const AsconPermutation& other);
   void touchall();
-  AsconPermutation* clone() const;
+  PermPtr clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
 
 };

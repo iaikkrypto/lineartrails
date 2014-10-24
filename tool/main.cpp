@@ -19,7 +19,7 @@ void config_search(Commandlineparser& args) {
 
   parser.parseFile(args.getParameter("-i"));
 
-  Search my_search(*(parser.getPermutation()));
+  Search my_search(*parser.getPermutation());
   my_search.StackSearch1(args, parser);
 }
 
@@ -28,7 +28,7 @@ void checkchar(Commandlineparser& args) {
 
   parser.parseFile(args.getParameter("-i"));
 
-  if(parser.getPermutation()->checkchar())
+  if (parser.getPermutation()->checkchar())
     std::cout << "checkchar worked" << std::endl;
   else
     std::cout << "checkchar failed" << std::endl;

@@ -264,7 +264,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
   bool backtrack;
   bool active;
 
-  working_copy.reset(config_param.getPermutation());
+  working_copy = config_param.getPermutation();
   if (working_copy->checkchar() == false) {
     std::cout << "Initial checkchar failed" << std::endl;
     return;

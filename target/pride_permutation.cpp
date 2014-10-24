@@ -34,8 +34,8 @@ PridePermutation& PridePermutation::operator=(const PridePermutation& rhs){
 }
 
 
-PridePermutation* PridePermutation::clone() const{
-  return new PridePermutation(*this);
+Permutation::PermPtr PridePermutation::clone() const {
+  return PermPtr(new PridePermutation(*this));
 }
 
 

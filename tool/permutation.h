@@ -9,13 +9,14 @@
 
 
 struct Permutation {
+  typedef std::unique_ptr<Permutation> PermPtr;
   Permutation(unsigned int rounds);
   Permutation(const Permutation& other);
   virtual ~Permutation(){};
   virtual bool checkchar(std::ostream& stream = std::cout);
   virtual bool update();
   virtual void print(std::ostream& stream);
-  virtual Permutation* clone() const = 0;
+  virtual PermPtr clone() const = 0;
   virtual void set(Permutation* perm);
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);

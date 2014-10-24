@@ -1,6 +1,7 @@
 #ifndef HAMSIPERMUTATION_H_
 #define HAMSIPERMUTATION_H_
 
+#include <memory>
 #include <vector>
 
 #include "hamsi.h"
@@ -12,7 +13,7 @@ struct HamsiPermutation : public Permutation {
   HamsiPermutation(unsigned int rounds);
   HamsiPermutation(const HamsiPermutation& other);
   void touchall();
-  HamsiPermutation* clone() const;
+  PermPtr clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
 };
 
@@ -21,7 +22,7 @@ struct HamsiCompression : public Permutation {
   HamsiCompression(unsigned int rounds);
   HamsiCompression(const HamsiCompression& other);
   void touchall();
-  HamsiCompression* clone() const;
+  PermPtr clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
   void set(Permutation* perm);
 };

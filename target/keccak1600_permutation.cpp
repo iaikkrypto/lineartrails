@@ -102,8 +102,8 @@ bool Keccak1600Permutation::update() {
 }
 
 
-Keccak1600Permutation* Keccak1600Permutation::clone() const{
-  return new Keccak1600Permutation(*this);
+Permutation::PermPtr Keccak1600Permutation::clone() const {
+  return PermPtr(new Keccak1600Permutation(*this));
 }
 
 

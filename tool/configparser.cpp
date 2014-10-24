@@ -169,7 +169,7 @@ bool Configparser::parseFile(std::string filename) {
 
   return true;
 }
-Permutation* Configparser::getPermutation() {
+std::unique_ptr<Permutation> Configparser::getPermutation() {
   assert(perm_.get() != nullptr);
   return perm_->clone();
 }

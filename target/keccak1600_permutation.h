@@ -1,6 +1,7 @@
 #ifndef KECCAK1600PERMUTATION_H_
 #define KECCAK1600PERMUTATION_H_
 
+#include <memory>
 #include <vector>
 
 #include "keccak1600.h"
@@ -15,7 +16,7 @@ struct Keccak1600Permutation : public Permutation {
   virtual void set(Permutation* perm);
   bool update();
   void touchall();
-  Keccak1600Permutation* clone() const;
+  PermPtr clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
 
 };

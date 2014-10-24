@@ -80,8 +80,7 @@ bool Permutation::guessbestsbox(SboxPos pos,
                                 std::function<int(int, int, int)> rating,
                                 int num_alternatives) {
   bool update_works = false;
-  std::unique_ptr<Permutation> temp;
-  temp.reset(this->clone());
+  PermPtr temp = this->clone();
 
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = this->sbox_layers_[pos.layer_]->GuessBox(
@@ -102,8 +101,7 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
                                       std::function<int(int, int, int)> rating,
                                       int num_alternatives) {
   bool update_works = false;
-  std::unique_ptr<Permutation> temp;
-  temp.reset(this->clone());
+  PermPtr temp = this->clone();
 
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = 0xffff;

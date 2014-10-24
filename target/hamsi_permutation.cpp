@@ -35,8 +35,8 @@ HamsiPermutation& HamsiPermutation::operator=(const HamsiPermutation& rhs){
 }
 
 
-HamsiPermutation* HamsiPermutation::clone() const{
-  return new HamsiPermutation(*this);
+Permutation::PermPtr HamsiPermutation::clone() const {
+  return PermPtr(new HamsiPermutation(*this));
 }
 
 void HamsiPermutation::PrintWithProbability(std::ostream& stream, int offset) {
@@ -90,8 +90,8 @@ HamsiCompression::HamsiCompression(const HamsiCompression& other) : Permutation(
   this->toupdate_nonlinear = other.toupdate_nonlinear;
 }
 
-HamsiCompression* HamsiCompression::clone() const{
-  return new HamsiCompression(*this);
+Permutation::PermPtr HamsiCompression::clone() const {
+  return PermPtr(new HamsiCompression(*this));
 }
 
 void HamsiCompression::PrintWithProbability(std::ostream& stream, int offset) {

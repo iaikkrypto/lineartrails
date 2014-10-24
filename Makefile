@@ -17,7 +17,6 @@ vpath %.cpp $(SRC_DIR)
 vpath %.h $(SRC_DIR)
 vpath %.hpp $(SRC_DIR)
 #/usr/include
-#VPATH=$(SRC_DIR)
 TITLE=lin
 
 .PHONY : all clean
@@ -34,7 +33,7 @@ $(BUILD_DIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $< -MMD -MF ./$@.d $(INCLUDES) $(LDFLAGS)
 
 $(BUILD_DIR)/tinyxml2.o: tinyxml2/tinyxml2.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(INCLUDES) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(LDFLAGS)
 
 # make clean
 clean :

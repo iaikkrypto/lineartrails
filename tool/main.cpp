@@ -37,24 +37,29 @@ void checkchar(Commandlineparser& args) {
 // ==== Main / Search ====
 int main(int argc, const char* argv[]) {
 
-  Commandlineparser args;
+  Commandlineparser args("Tool to automatically search for linear characteristics");
 
-  args.addParameter("-iter", "-1");
-  args.addParameter("-S", "5");
-  args.addParameter("-I", "2");
+  args.addParameter("-iter", "max number of iterations or -1 for unlimited", "-1");
+  args.addParameter("-S",    "???", "5");
+  args.addParameter("-I",    "???", "2");
 
-  args.addParameter("-i", "char/example.xml");
-  args.addParameter("-u", "");
+  args.addParameter("-i",    "characteristic input file", "char/example.xml");
+  args.addParameter("-u",    "requested function: checkchar, search", "search");
+
+  args.addParameter("-h",    "display help", 0);
 
   args.parse(argc, argv);
 
-  std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
-  std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
-
-  if (std::strcmp(args.getParameter("-u"), "checkchar") == 0) {
+  if (args.getBoolParameter("-h")) {
+    args.print_help();
+  } else if (std::strcmp(args.getParameter("-u"), "checkchar") == 0) {
+    std::cout << "Checking characteristic ... " << std::endl;
+    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
     checkchar(args);
   } else {
-    std::cout << "config search" << std::endl;
+    std::cout << "Searching ... " << std::endl;
+    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
+    std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
     config_search(args);
   }
 

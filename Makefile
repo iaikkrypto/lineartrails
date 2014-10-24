@@ -7,13 +7,16 @@ CXX=g++
 CXXFLAGS=-c -Wall -O3 -march=native -std=c++11
 #LDFLAGS=-pthread
 LDFLAGS=
-SRC_DIR=tool
+SRC_DIR=tool target
 BUILD_DIR=build
-SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
+SOURCES=$(foreach srcdir,$(SRC_DIR),$(wildcard $(srcdir)/*.cpp))
 #OBJECTS=$(addprefix build/,${SOURCES:.cpp=.o})
-OBJECTS=$(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
-INCLUDES=-I$(SRC_DIR)
+OBJECTS=$(foreach srcdir,$(SRC_DIR),$(patsubst $(srcdir)/%.cpp,$(BUILD_DIR)/%.o,$(filter $(srcdir)/%.cpp,$(SOURCES))))
+INCLUDES=$(addprefix -I,$(SRC_DIR))
 vpath %.cpp $(SRC_DIR)
+vpath %.h $(SRC_DIR)
+vpath %.hpp $(SRC_DIR)
+#/usr/include
 #VPATH=$(SRC_DIR)
 TITLE=lin
 
@@ -24,14 +27,14 @@ all: $(TITLE)
 
 # make
 $(TITLE): $(OBJECTS) $(BUILD_DIR)/tinyxml2.o
-	$(CXX) -g -o $@ $^ $(LDFLAGS)
+	$(CXX) -g -o $@ $^ $(INCLUDES) $(LDFLAGS)
 
 # make %.o
 $(BUILD_DIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $< -MMD -MF ./$@.d $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $< -MMD -MF ./$@.d $(INCLUDES) $(LDFLAGS)
 
 $(BUILD_DIR)/tinyxml2.o: tinyxml2/tinyxml2.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ tinyxml2/tinyxml2.cpp -MMD -MF ./$@.d $(INCLUDES) $(LDFLAGS)
 
 # make clean
 clean :

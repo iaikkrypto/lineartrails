@@ -23,6 +23,15 @@ void config_search(Commandlineparser& args) {
   my_search.StackSearch1(args, parser);
 }
 
+void config_search_keccak(Commandlineparser& args) {
+  Configparser parser;
+
+  parser.parseFile(args.getParameter("-i"));
+
+  Search my_search(*parser.getPermutation());
+  my_search.StackSearchKeccak(args, parser);
+}
+
 void checkchar(Commandlineparser& args) {
   Configparser parser;
 
@@ -56,6 +65,11 @@ int main(int argc, const char* argv[]) {
     std::cout << "Checking characteristic ... " << std::endl;
     std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
     checkchar(args);
+  } else if (std::strcmp(args.getParameter("-u"), "keccak") == 0) {
+    std::cout << "Searching ... " << std::endl;
+    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
+    std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
+    config_search_keccak(args);
   } else {
     std::cout << "Searching ... " << std::endl;
     std::cout << "Configfile: " << args.getParameter("-i") << std::endl;

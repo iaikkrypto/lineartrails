@@ -353,3 +353,119 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       char_stack.pop();
   }
 }
+
+void Search::StackSearchKeccak(Commandlineparser& cl_param,
+                          Configparser& config_param) {
+
+  std::unique_ptr<Permutation> working_copy;
+  std::stack<std::unique_ptr<Permutation>> char_stack;
+
+  double best_prob = -DBL_MAX;
+  GuessMask guesses;
+  SboxPos guessed_box(0, 0);
+  SboxPos backtrack_box(0, 0);
+  bool backtrack;
+  bool active;
+
+  working_copy = config_param.getPermutation();
+  if (working_copy->checkchar() == false) {
+    std::cout << "Initial checkchar failed" << std::endl;
+    return;
+  }
+  Settings settings = config_param.getSettings();
+
+  auto start_count = std::chrono::system_clock::now();
+  std::mt19937 generator(
+      std::chrono::high_resolution_clock::now().time_since_epoch().count());
+  std::uniform_real_distribution<float> push_stack_rand(0.0, 1.0);
+
+//  guesses.createMask(working_copy.get(), weights);
+//
+//  for(auto& pos : guesses.weighted_pos_){
+//    std::cout << "(" << (int) pos.first.layer_ << ", " << (int) pos.first.pos_ << " : " << pos.second << ")";
+//  }
+//  std::cout << std::endl;
+  unsigned int interations = (unsigned int) cl_param.getIntParameter("-iter");
+  int total_iterations = 0;
+  int print_char = cl_param.getIntParameter("-S");
+  for (unsigned int i = 0; i < interations; ++i) {
+    char_stack.emplace(working_copy->clone());
+    char_stack.emplace(working_copy->clone());
+    backtrack = false;
+    guesses.createMask(char_stack.top().get(), settings);
+    unsigned int curr_credit = config_param.getCredits();
+    while (guesses.getRandPos(guessed_box, active)) {
+      total_iterations++;
+      auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+          std::chrono::system_clock::now() - start_count);
+      if (cl_param.getIntParameter("-I") > 0
+          && duration.count() > cl_param.getIntParameter("-I")) {
+        std::cout << "PRINT-INFO: total iterations: " << total_iterations
+                  << ", stack size: " << char_stack.size() << ", credits: "
+                  << curr_credit << ", restarts: " << i << std::endl;
+        print_char--;
+        if (print_char == 0) {
+          char_stack.top()->print(std::cout);
+          print_char = cl_param.getIntParameter("-S");
+        }
+        start_count = std::chrono::system_clock::now();
+      }
+
+      if (curr_credit == 0)
+        break;
+
+      if (backtrack)
+        guessed_box = backtrack_box;
+
+      unsigned int wbias = guesses.getSboxWeigthProb();
+      unsigned int whamming = guesses.getSboxWeightHamming();
+      //FIXME: get rid of the 10
+      auto rating = [wbias, whamming] (int bias, int hw_in, int hw_out) {
+        return wbias*std::abs(bias) +whamming*((10-hw_in)+(10-hw_out));
+      };
+      if (char_stack.top()->guessbestsboxrandom(
+          guessed_box, rating, guesses.getAlternativeSboxGuesses())) {
+//          std::cout << "worked " << char_stack.size() << std::endl;
+//          char_stack.top()->print(std::cout);
+        backtrack = false;
+        if (push_stack_rand(generator) <= guesses.getPushStackProb())
+          char_stack.emplace(char_stack.top()->clone());
+      } else {
+//          std::cout << "failed" << std::endl;
+//                    char_stack.top()->print(std::cout);
+        char_stack.pop();
+        curr_credit--;
+        backtrack = true;
+        backtrack_box = guessed_box;
+        if (char_stack.size() == 1)
+          char_stack.emplace(working_copy->clone());
+      }
+      guesses.createMask(char_stack.top().get(), settings);
+    }
+    double current_prob;
+      current_prob = KeccakProb(char_stack);
+    if (current_prob > best_prob && curr_credit > 0) {
+      best_prob = current_prob;
+      std::cout << "iteration: " << i << std::endl;
+      std::cout << "bias without last round: " << best_prob << std::endl;
+      char_stack.top()->PrintWithProbability();
+    }
+    while (char_stack.size())
+      char_stack.pop();
+  }
+}
+
+double Search::KeccakProb(std::stack<std::unique_ptr<Permutation>>& char_stack){
+  double prob = 0.0;
+  double temp_prob;
+
+  for (int i= 0; i < char_stack.top()->sbox_layers_.size() - 1; ++i) {
+    temp_prob = char_stack.top()->sbox_layers_[i]->GetProbability();
+    prob += temp_prob;
+  }
+
+  prob += char_stack.top()->sbox_layers_.size() - 2;
+
+return prob;
+}
+

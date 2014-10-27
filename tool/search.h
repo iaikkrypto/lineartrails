@@ -31,6 +31,10 @@ class Search {
 //  void HeuristicSearch2(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
 //  void HeuristicSearch3(unsigned int iterations, GuessWeights weights, std::function<int(int, int, int)> rating, int try_one_box, bool count_active);
   void StackSearch1(Commandlineparser& cl_param, Configparser& config_param);
+  void StackSearchKeccak(Commandlineparser& cl_param, Configparser& config_param);
+
+ private:
+  double KeccakProb(std::stack<std::unique_ptr<Permutation>>& char_stack);
 
   Permutation *perm_;
 

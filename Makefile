@@ -3,9 +3,10 @@ SHELL=/bin/sh
 .SUFFIXES: .cpp .h .o
 
 CXX=g++
-CXXFLAGS=-c -Wall -march=native -std=c++11
+CXXFLAGS=-c -Wall -march=native -std=c++11 -DTERMINALCOLORS 
 FASTFLAGS=-O3
 DEBUGFLAGS=-g
+CLUSTERCXXFLAGS=-c -Wall -std=c++11 -O3
 #LDFLAGS=-pthread
 LDFLAGS=
 SRC_DIR=tool target
@@ -35,6 +36,10 @@ fastdebug: $(TITLE)
 # make debug
 debug: CXXFLAGS += $(DEBUGFLAGS)
 debug: $(TITLE)
+
+# make cluster
+cluster: CXXFLAGS = $(CLUSTERCXXFLAGS)
+cluster: $(TITLE)
 
 # make
 $(TITLE): $(OBJECTS) $(BUILD_DIR)/tinyxml2.o

@@ -1,7 +1,5 @@
 #include "hamsi.h"
 
-#define TERMINALCOLORS
-
 HamsiState::HamsiState()
     : StateMask() {
 }

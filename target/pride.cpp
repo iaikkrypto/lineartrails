@@ -1,7 +1,5 @@
 #include "pride.h"
 
-#define TERMINALCOLORS
-
 PrideState::PrideState()
     : StateMask() {
 }

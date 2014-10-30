@@ -1,7 +1,5 @@
 #include "ascon.h"
 
-#define TERMINALCOLORS
-
 AsconState::AsconState()
     : StateMask() {
 }

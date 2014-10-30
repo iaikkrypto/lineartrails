@@ -1,7 +1,5 @@
 #include "keccak1600.h"
 
-#define TERMINALCOLORS
-
 Keccak1600State::Keccak1600State()
     : StateMask() {
 }

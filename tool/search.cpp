@@ -421,10 +421,9 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
       unsigned int whamming = guesses.getSboxWeightHamming();
       //FIXME: get rid of the 10
       auto rating = [wbias, whamming] (int bias, int hw_in, int hw_out) {
-        return wbias*std::abs(bias) +whamming*((10-hw_in)+(10-hw_out));
+        return wbias * std::abs(bias) + whamming * ((10 - hw_in) + (10 - hw_out));
       };
-      if (char_stack.top()->guessbestsboxrandom(
-          guessed_box, rating, guesses.getAlternativeSboxGuesses())) {
+      if (char_stack.top()->guessbestsboxrandom(guessed_box, rating, guesses.getAlternativeSboxGuesses())) {
 //          std::cout << "worked " << char_stack.size() << std::endl;
 //          char_stack.top()->print(std::cout);
         backtrack = false;
@@ -443,7 +442,7 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
       guesses.createMask(char_stack.top().get(), settings);
     }
     double current_prob;
-      current_prob = KeccakProb(char_stack);
+    current_prob = KeccakProb(char_stack);
     if (current_prob > best_prob && curr_credit > 0) {
       best_prob = current_prob;
       std::cout << "iteration: " << i << std::endl;
@@ -455,17 +454,17 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
   }
 }
 
-double Search::KeccakProb(std::stack<std::unique_ptr<Permutation>>& char_stack){
+double Search::KeccakProb(std::stack<std::unique_ptr<Permutation>>& char_stack) {
   double prob = 0.0;
   double temp_prob;
 
-  for (int i= 0; i < char_stack.top()->sbox_layers_.size() - 1; ++i) {
+  for (unsigned i = 0; i < char_stack.top()->sbox_layers_.size() - 1; ++i) {
     temp_prob = char_stack.top()->sbox_layers_[i]->GetProbability();
     prob += temp_prob;
   }
 
   prob += char_stack.top()->sbox_layers_.size() - 2;
 
-return prob;
+  return prob;
 }
 

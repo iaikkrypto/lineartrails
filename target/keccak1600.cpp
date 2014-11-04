@@ -1,5 +1,8 @@
 #include "keccak1600.h"
 
+//#define HEXOUTPUT
+//#define LATEX
+
 Keccak1600State::Keccak1600State()
     : StateMask() {
 }
@@ -18,6 +21,42 @@ void Keccak1600State::print(std::ostream& stream) {
   stream << *this;
 }
 
+#ifdef HEXOUTPUT
+#ifdef LATEX
+std::ostream& operator<<(std::ostream& stream, const Keccak1600State& statemask) {
+
+  for (size_t i = 0; i < statemask.words_.size(); ++i) {
+    unsigned long long outword = 0;
+    for (auto it = statemask.words_[i].bitmasks.rbegin(); it != statemask.words_[i].bitmasks.rend(); ++it) {
+      outword <<= 1;
+      if (*it % 4 == 1)
+        outword |=1;
+    }
+    stream << " & \\texttt{" << std::hex << std::setfill('0') << std::setw(16) << outword << std::dec << "}";
+    if(i%5 == 4)
+     stream << " \\\\ "<< std::endl;
+  }
+  stream << " \\\\ "<< std::endl;
+  return stream;
+}
+#else
+std::ostream& operator<<(std::ostream& stream, const Keccak1600State& statemask) {
+
+  for (size_t i = 0; i < statemask.words_.size(); ++i) {
+    unsigned long long outword = 0;
+    for (auto it = statemask.words_[i].bitmasks.rbegin(); it != statemask.words_[i].bitmasks.rend(); ++it) {
+      outword <<= 1;
+      if (*it % 4 == 1)
+        outword |=1;
+    }
+    stream << std::hex << std::setfill('0') << std::setw(16) << outword << std::dec << "\t";
+    if(i%5 == 4)
+     stream << std::endl;
+  }
+  return stream;
+}
+#endif
+#else
 std::ostream& operator<<(std::ostream& stream, const Keccak1600State& statemask) {
 #ifndef TERMINALCOLORS
   char symbol[4] {'#', '1', '0', '?'};
@@ -33,6 +72,7 @@ std::ostream& operator<<(std::ostream& stream, const Keccak1600State& statemask)
   }
   return stream;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 

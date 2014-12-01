@@ -331,8 +331,8 @@ bool LinearStep<bitsize, words>::ExtractMasks(std::array<Mask*, words>& x, std::
     }
   }
   for (unsigned w = 0; w < words; ++w) {
-    x[w]->init_bitmasks();
-    y[w]->init_bitmasks();
+    x[w]->reinit_bitmasks();
+    y[w]->reinit_bitmasks();
   }
   return true;
 }

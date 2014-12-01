@@ -35,27 +35,27 @@ Mask& Mask::operator=(const Mask& rhs)
   return *this;
 }
 
-Mask::Mask() : caremask(64) {
+Mask::Mask() : caremask(64), bitsize_(64) {
 }
 
-Mask::Mask(unsigned bitsize) : caremask(bitsize) {
-  init_bitmasks();
+Mask::Mask(unsigned bitsize) : caremask(bitsize), bitsize_(bitsize) {
+    init_bitmasks();
 }
 
-Mask::Mask(const Mask& other) : bitmasks(other.bitmasks), caremask(other.caremask) {
+Mask::Mask(const Mask& other) : bitmasks(other.bitmasks), caremask(other.caremask), bitsize_(other.bitsize_) {
 }
 
-Mask::Mask(std::initializer_list<char> other) : bitmasks(other), caremask(other.size()) {
+Mask::Mask(std::initializer_list<char> other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()) {
   init_caremask();
 }
 
-Mask::Mask(WordMask& other) : bitmasks(other), caremask(other.size()) {
+Mask::Mask(WordMask& other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()) {
   init_caremask();
 }
 
-Mask::Mask(WordMaskCare& other) : caremask(other) {
-  init_bitmasks();
-}
+//Mask::Mask(WordMaskCare& other) : caremask(other) {
+//  init_bitmasks();
+//}
 
 void Mask::set_bit(BitMask bit, const int index){
   assert(bit <= 3 && bit >=0 && index >= 0 && index < 64);
@@ -89,12 +89,18 @@ void Mask::init_caremask() {
 }
 
 void Mask::init_bitmasks() {
+  bitmasks.resize(bitsize_);
+  for(auto& bitmask : bitmasks )
+    bitmask = BM_DUNNO;
+}
+
+void Mask::reinit_bitmasks() {
   BitVector canbe1 = caremask.canbe1;
   BitVector care   = caremask.care;
   bitmasks.clear();
-  if ((canbe1 | care) >> 32) 
+  if ((canbe1 | care) >> 32)
     bitmasks.reserve(64);
-  else if ((canbe1 | care) >> 56) 
+  else if ((canbe1 | care) >> 56)
     bitmasks.reserve(32);
   else
     bitmasks.reserve(8);
@@ -104,12 +110,14 @@ void Mask::init_bitmasks() {
     canbe1 >>= 1;
     care   >>= 1;
   }
+
 }
 
 void Mask::reset(int bitsize) {
+  bitsize_ = bitsize;
   caremask.canbe1 = ~0ULL >> (64 - bitsize);
   caremask.care = 0;
-  init_bitmasks();
+    init_bitmasks();
 }
 
 std::ostream& operator<<(std::ostream& stream, const Mask& mask) {

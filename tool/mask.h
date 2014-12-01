@@ -159,10 +159,11 @@ struct Mask {
   Mask(const Mask& other);
   Mask(std::initializer_list<char> other);
   Mask(WordMask& other);
-  Mask(WordMaskCare& other);
+//  Mask(WordMaskCare& other);
   void init_caremask();
   void reinit_caremask();
   void init_bitmasks();
+  void reinit_bitmasks();
   void set_bit(BitMask bit, const int index);
   void reset(int bitsize);
 
@@ -170,6 +171,7 @@ struct Mask {
 
   WordMask bitmasks; // maybe don't store this & use just for initialization
   WordMaskCare caremask;
+  unsigned char bitsize_;
 };
 
 

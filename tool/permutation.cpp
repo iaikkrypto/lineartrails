@@ -140,18 +140,20 @@ void Permutation::set(Permutation* perm) {
 
 bool Permutation::update() {
   //TODO: Better update
-  std::unique_ptr<StateMaskBase> tempin, tempout;
+//  std::unique_ptr<StateMaskBase> tempin, tempout;
   bool update_before, update_after;
   while (this->toupdate_linear == true || this->toupdate_nonlinear == true) {
     if (this->toupdate_nonlinear == true) {
       this->toupdate_nonlinear = false;
       for (unsigned int layer = 0; layer < rounds_; ++layer) {
-        tempin.reset(this->sbox_layers_[layer]->in->clone());
-        tempout.reset(this->sbox_layers_[layer]->out->clone());
+//        tempin.reset(this->sbox_layers_[layer]->in->clone());
+//        tempout.reset(this->sbox_layers_[layer]->out->clone());
         if (this->sbox_layers_[layer]->Update() == false)
           return false;
-        update_before = this->sbox_layers_[layer]->in->diffLinear(*(tempin));
-        update_after = this->sbox_layers_[layer]->out->diffLinear(*(tempout));
+//        update_before = this->sbox_layers_[layer]->in->diffLinear(*(tempin));
+//        update_after = this->sbox_layers_[layer]->out->diffLinear(*(tempout));
+        update_before = this->sbox_layers_[layer]->in->changesforLinear();
+        update_after = this->sbox_layers_[layer]->out->changesforLinear();
         if(((update_before == true) && (layer != 0)) ||  update_after)
           this->toupdate_linear = true;
       }
@@ -159,12 +161,14 @@ bool Permutation::update() {
     if (this->toupdate_linear == true) {
       this->toupdate_linear = false;
       for (unsigned int layer = 0; layer < rounds_; ++layer) {
-        tempin.reset(this->linear_layers_[layer]->in->clone());
-        tempout.reset(this->linear_layers_[layer]->out->clone());
+//        tempin.reset(this->linear_layers_[layer]->in->clone());
+//        tempout.reset(this->linear_layers_[layer]->out->clone());
         if (this->linear_layers_[layer]->Update() == false)
           return false;
-        update_before = this->linear_layers_[layer]->in->diffSbox(*(tempin));
-        update_after = this->linear_layers_[layer]->out->diffSbox(*(tempout));
+//        update_before = this->linear_layers_[layer]->in->diffSbox(*(tempin));
+//        update_after = this->linear_layers_[layer]->out->diffSbox(*(tempout));
+        update_before = this->linear_layers_[layer]->in->changesforSbox();
+        update_after = this->linear_layers_[layer]->out->changesforSbox();
         if(((update_after == true) && (layer != rounds_ - 1)) ||  update_before)
           this->toupdate_nonlinear = true;
     }

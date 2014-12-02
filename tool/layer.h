@@ -11,11 +11,6 @@ struct SboxPos {
   uint16_t layer_; uint16_t pos_;
 };
 
-struct UpdateInfo {
-  bool worked_;
-  bool changed_;
-};
-
 struct Layer {
   Layer() = default;
   virtual ~Layer(){};

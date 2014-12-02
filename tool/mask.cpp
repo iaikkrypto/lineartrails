@@ -32,6 +32,8 @@ Mask& Mask::operator=(const Mask& rhs)
 {
   bitmasks = rhs.bitmasks;
   caremask = rhs.caremask;
+  bitsize_ = rhs.bitsize_;
+  changes_ = rhs.changes_;
   return *this;
 }
 
@@ -60,6 +62,7 @@ Mask::Mask(WordMask& other) : bitmasks(other), caremask(other.size()), bitsize_(
 void Mask::set_bit(BitMask bit, const int index){
   assert(bit <= 3 && bit >=0 && index >= 0 && index < 64);
   bitmasks[index] = bit;
+  changes_ |= 1 << index;
   BitVector hole = ~0ULL - 1;
   hole = (hole << index) | (hole >> (64-index));
   caremask.canbe1 &= hole;
@@ -115,7 +118,7 @@ void Mask::reinit_bitmasks() {
 
   while (canbe1 | care) {
     unsigned char bitval = ((canbe1 & 1) | ((!(canbe1 & care & 1)) << 1));
-    changes_ |= (( (BitVector) (bitmasks[i] == bitval))&1) << i;
+    changes_ |= (( (BitVector) (bitmasks[i] != bitval))&1) << i;
     bitmasks[i++] = bitval;
     canbe1 >>= 1;
     care   >>= 1;

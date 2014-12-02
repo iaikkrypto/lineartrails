@@ -67,6 +67,24 @@ bool StateMask<words, bits>::diff(
 }
 
 template<unsigned words, unsigned bits>
+bool StateMask<words, bits>::changesforLinear() {
+  for (int i = 0; i < words; ++i)
+    if(changes_for_linear_layer_[i] != 0)
+      return true;
+
+  return false;
+}
+
+template<unsigned words, unsigned bits>
+bool StateMask<words, bits>::changesforSbox() {
+  for (int i = 0; i < words; ++i)
+    if(changes_for_sbox_layer_[i] != 0)
+      return true;
+
+  return false;
+}
+
+template<unsigned words, unsigned bits>
 void StateMask<words, bits>::resetChangesLinear() {
   resetChanges(changes_for_linear_layer_);
 }

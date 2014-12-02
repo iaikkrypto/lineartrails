@@ -69,34 +69,35 @@ void AsconLinearLayer::Init() {
   sigmas[4].Initialize(AsconSigma<4>);
 }
 
-//bool AsconLinearLayer::Update(){
-//  bool ret_val = true;
-//
-//  unsigned long long words_to_update[linear_steps_];
-//
-//    for (unsigned int i = 0; i < linear_steps_; ++i)
-//      words_to_update[i] = in->getWordLinear(i) | out->getWordLinear(i);
-//
-//    for (unsigned int i = 0; i < linear_steps_; ++i)
-//      for (unsigned int j = 0; j < word_size_; ++j)
-//          words_to_update[i] |= words_to_update[i] >> j;
-//
-//    for (unsigned int i = 0; i < linear_steps_; ++i)
-//      if(words_to_update[i] & 1)
-//        ret_val &= updateStep(i);
-//
-//  in->resetChangesLinear();
-//  out->resetChangesLinear();
-//  return ret_val;
-//}
+bool AsconLinearLayer::Update(){
+  bool ret_val = true;
+
+  unsigned long long words_to_update[linear_steps_];
+
+    for (unsigned int i = 0; i < linear_steps_; ++i)
+      words_to_update[i] = in->getWordLinear(i) | out->getWordLinear(i);
+
+    for (unsigned int i = 0; i < linear_steps_; ++i)
+      for (unsigned int j = 0; j < word_size_; ++j)
+          words_to_update[i] |= words_to_update[i] >> j;
+
+    for (unsigned int i = 0; i < linear_steps_; ++i)
+      if(words_to_update[i] & 1)
+        ret_val &= updateStep(i);
+
+  in->resetChangesLinear();
+  out->resetChangesLinear();
+  return ret_val;
+}
 
 bool AsconLinearLayer::updateStep(unsigned int step_pos) {
-//  return sigmas[step_pos].Update( { &((*in)[step_pos]) },
-//                                 { &((*out)[step_pos]) },
-//                                 cache_[step_pos].get());
 
-  return sigmas[step_pos].Update( { &((*in)[step_pos]) },
+  bool ret_val =  sigmas[step_pos].Update( { &((*in)[step_pos]) },
                                    { &((*out)[step_pos]) });
+  in->getWordSbox(step_pos) |= (*in)[step_pos].changes_;
+  out->getWordSbox(step_pos) |= (*out)[step_pos].changes_;
+
+  return ret_val;
 }
 
 //-----------------------------------------------------------------------------
@@ -146,25 +147,25 @@ AsconSboxLayer* AsconSboxLayer::clone() {
   return obj;
 }
 
-//bool AsconSboxLayer::Update() {
-//  bool ret_val = true;
-//
-//  unsigned long long boxes_to_update = 0;
-//
-//  for (unsigned int i = 0; i < in->getnumwords(); ++i)
-//    boxes_to_update |= in->getWordSbox(i) | out->getWordSbox(i);
-//
-//  for (unsigned int i = 0; i < GetNumSteps(); ++i) {
-//    if (boxes_to_update & 1){
-//      ret_val &= updateStep(i);
-//    }
-//    boxes_to_update >>= 1;
-//  }
-//
-//  in->resetChangesSbox();
-//  out->resetChangesSbox();
-//  return ret_val;
-//}
+bool AsconSboxLayer::Update() {
+  bool ret_val = true;
+
+  unsigned long long boxes_to_update = 0;
+
+  for (unsigned int i = 0; i < in->getnumwords(); ++i)
+    boxes_to_update |= in->getWordSbox(i) | out->getWordSbox(i);
+
+  for (unsigned int i = 0; i < GetNumSteps(); ++i) {
+    if (boxes_to_update & 1){
+      ret_val &= updateStep(i);
+    }
+    boxes_to_update >>= 1;
+  }
+
+  in->resetChangesSbox();
+  out->resetChangesSbox();
+  return ret_val;
+}
 
 bool AsconSboxLayer::updateStep(unsigned int step_pos) {
   assert(step_pos < sboxes.size());
@@ -187,10 +188,8 @@ Mask AsconSboxLayer::GetVerticalMask(unsigned int b,
 void AsconSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s,
                                      const Mask& mask, bool make_dirty) {
 
-  if(make_dirty){
     for(int i = 0; i < 5; ++i)
-      s.getWordLinear(i) |= 1ULL << b;
-  }
+      s.getWordLinear(i) |= ((mask.changes_>>(4-i))&1) << b;
 
   s[0].bitmasks[b] = mask.bitmasks[4];
   s[1].bitmasks[b] = mask.bitmasks[3];

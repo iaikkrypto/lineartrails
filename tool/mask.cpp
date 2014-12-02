@@ -35,21 +35,21 @@ Mask& Mask::operator=(const Mask& rhs)
   return *this;
 }
 
-Mask::Mask() : caremask(64), bitsize_(64) {
+Mask::Mask() : caremask(64), bitsize_(64), changes_(~0ULL) {
 }
 
-Mask::Mask(unsigned bitsize) : caremask(bitsize), bitsize_(bitsize) {
+Mask::Mask(unsigned bitsize) : caremask(bitsize), bitsize_(bitsize), changes_(~0ULL) {
     init_bitmasks();
 }
 
-Mask::Mask(const Mask& other) : bitmasks(other.bitmasks), caremask(other.caremask), bitsize_(other.bitsize_) {
+Mask::Mask(const Mask& other) : bitmasks(other.bitmasks), caremask(other.caremask), bitsize_(other.bitsize_), changes_(~0ULL) {
 }
 
-Mask::Mask(std::initializer_list<char> other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()) {
+Mask::Mask(std::initializer_list<char> other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()), changes_(~0ULL) {
   init_caremask();
 }
 
-Mask::Mask(WordMask& other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()) {
+Mask::Mask(WordMask& other) : bitmasks(other), caremask(other.size()), bitsize_(other.size()), changes_(~0ULL) {
   init_caremask();
 }
 
@@ -70,12 +70,16 @@ void Mask::set_bit(BitMask bit, const int index){
 }
 
 void Mask::reinit_caremask(){
-  caremask.canbe1 = 0;
-  caremask.care  = 0;
+  BitVector canbe1 = 0;
+  BitVector care  = 0;
   for (unsigned i = 0; i < bitmasks.size(); ++i) {
-    caremask.canbe1 |= ((((BitVector)(bitmasks[i] != BM_0)) << i));
-    caremask.care   |= (((BitVector)(bitmasks[i] != BM_DUNNO)) << i);
+    canbe1 |= ((((BitVector)(bitmasks[i] != BM_0)) << i));
+    care   |= (((BitVector)(bitmasks[i] != BM_DUNNO)) << i);
   }
+  changes_ = caremask.canbe1 ^ canbe1;
+  changes_ |= caremask.care ^ care;
+  caremask.canbe1 = canbe1;
+  caremask.care = care;
 }
 
 void Mask::init_caremask() {
@@ -97,16 +101,22 @@ void Mask::init_bitmasks() {
 void Mask::reinit_bitmasks() {
   BitVector canbe1 = caremask.canbe1;
   BitVector care   = caremask.care;
-  bitmasks.clear();
-  if ((canbe1 | care) >> 32)
-    bitmasks.reserve(64);
-  else if ((canbe1 | care) >> 56)
-    bitmasks.reserve(32);
-  else
-    bitmasks.reserve(8);
+//  bitmasks.clear();
+//  if ((canbe1 | care) >> 32)
+//    bitmasks.reserve(64);
+//  else if ((canbe1 | care) >> 56)
+//    bitmasks.reserve(32);
+//  else
+//    bitmasks.reserve(8);
+
+  int i = 0;
+
+  changes_ = 0;
 
   while (canbe1 | care) {
-    bitmasks.push_back((canbe1 & 1) | ((!(canbe1 & care & 1)) << 1));
+    unsigned char bitval = ((canbe1 & 1) | ((!(canbe1 & care & 1)) << 1));
+    changes_ |= (( (BitVector) (bitmasks[i] == bitval))&1) << i;
+    bitmasks[i++] = bitval;
     canbe1 >>= 1;
     care   >>= 1;
   }

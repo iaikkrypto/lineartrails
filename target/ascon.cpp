@@ -69,26 +69,26 @@ void AsconLinearLayer::Init() {
   sigmas[4].Initialize(AsconSigma<4>);
 }
 
-bool AsconLinearLayer::Update(){
-  bool ret_val = true;
-
-  unsigned long long words_to_update[linear_steps_];
-
-    for (unsigned int i = 0; i < linear_steps_; ++i)
-      words_to_update[i] = in->getWordLinear(i) | out->getWordLinear(i);
-
-    for (unsigned int i = 0; i < linear_steps_; ++i)
-      for (unsigned int j = 0; j < word_size_; ++j)
-          words_to_update[i] |= words_to_update[i] >> j;
-
-    for (unsigned int i = 0; i < linear_steps_; ++i)
-      if(words_to_update[i] & 1)
-        ret_val &= updateStep(i);
-
-  in->resetChangesLinear();
-  out->resetChangesLinear();
-  return ret_val;
-}
+//bool AsconLinearLayer::Update(){
+//  bool ret_val = true;
+//
+//  unsigned long long words_to_update[linear_steps_];
+//
+//    for (unsigned int i = 0; i < linear_steps_; ++i)
+//      words_to_update[i] = in->getWordLinear(i) | out->getWordLinear(i);
+//
+//    for (unsigned int i = 0; i < linear_steps_; ++i)
+//      for (unsigned int j = 0; j < word_size_; ++j)
+//          words_to_update[i] |= words_to_update[i] >> j;
+//
+//    for (unsigned int i = 0; i < linear_steps_; ++i)
+//      if(words_to_update[i] & 1)
+//        ret_val &= updateStep(i);
+//
+//  in->resetChangesLinear();
+//  out->resetChangesLinear();
+//  return ret_val;
+//}
 
 bool AsconLinearLayer::updateStep(unsigned int step_pos) {
 //  return sigmas[step_pos].Update( { &((*in)[step_pos]) },
@@ -146,25 +146,25 @@ AsconSboxLayer* AsconSboxLayer::clone() {
   return obj;
 }
 
-bool AsconSboxLayer::Update() {
-  bool ret_val = true;
-
-  unsigned long long boxes_to_update = 0;
-
-  for (unsigned int i = 0; i < in->getnumwords(); ++i)
-    boxes_to_update |= in->getWordSbox(i) | out->getWordSbox(i);
-
-  for (unsigned int i = 0; i < GetNumSteps(); ++i) {
-    if (boxes_to_update & 1){
-      ret_val &= updateStep(i);
-    }
-    boxes_to_update >>= 1;
-  }
-
-  in->resetChangesSbox();
-  out->resetChangesSbox();
-  return ret_val;
-}
+//bool AsconSboxLayer::Update() {
+//  bool ret_val = true;
+//
+//  unsigned long long boxes_to_update = 0;
+//
+//  for (unsigned int i = 0; i < in->getnumwords(); ++i)
+//    boxes_to_update |= in->getWordSbox(i) | out->getWordSbox(i);
+//
+//  for (unsigned int i = 0; i < GetNumSteps(); ++i) {
+//    if (boxes_to_update & 1){
+//      ret_val &= updateStep(i);
+//    }
+//    boxes_to_update >>= 1;
+//  }
+//
+//  in->resetChangesSbox();
+//  out->resetChangesSbox();
+//  return ret_val;
+//}
 
 bool AsconSboxLayer::updateStep(unsigned int step_pos) {
   assert(step_pos < sboxes.size());

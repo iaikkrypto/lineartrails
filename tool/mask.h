@@ -172,6 +172,7 @@ struct Mask {
   WordMask bitmasks; // maybe don't store this & use just for initialization
   WordMaskCare caremask;
   unsigned char bitsize_;
+  BitVector changes_;
 };
 
 

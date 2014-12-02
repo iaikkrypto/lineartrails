@@ -44,6 +44,9 @@ struct GuessMask {
   std::list<std::tuple<SboxPos,float, bool>> weighted_pos_;
   float total_weight_;
   Setting* current_setting_;
+
+ private:
+  std::array<std::vector<SboxPos>,2> temp_active_boxes_;
 };
 
 

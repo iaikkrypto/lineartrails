@@ -23,7 +23,6 @@ struct NonlinearStepUpdateInfo{
   WordMask outmask_;
 };
 
-
 template <unsigned bitsize> struct LinearDistributionTable; 
 template <unsigned bitsize> std::ostream& operator<<(std::ostream& stream, const LinearDistributionTable<bitsize>& ldt);
 
@@ -67,6 +66,8 @@ struct NonlinearStep {
   bool is_active_;
   bool is_guessable_;
   bool has_to_be_active_;
+  static std::vector<unsigned int> inmasks_, outmasks_;
+  static std::multimap<int, std::pair<unsigned int, unsigned int>, std::greater<int>> valid_masks_;
 };
 
 #include "step_nonlinear.hpp"

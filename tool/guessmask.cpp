@@ -8,16 +8,15 @@
 #include "guessmask.h"
 
 int GuessMask::createMask(Permutation *perm, Settings& settings){
-std::array<std::vector<SboxPos>,2> active_boxes;
 
   weighted_pos_.clear();
   total_weight_ = 0;
 
-  perm->SboxStatus(active_boxes[1], active_boxes[0]);
+  perm->SboxStatus(temp_active_boxes_[1], temp_active_boxes_[0]);
 
   for (auto& set : settings) {
     for (int i = 0; i < 2; ++i) {
-      for (auto& box : active_boxes[i]) {
+      for (auto& box : temp_active_boxes_[i]) {
         if (set.guess_weights_[box.layer_][i] != 0) {
           total_weight_ += set.guess_weights_[box.layer_][i];
           weighted_pos_.push_back(std::tuple<SboxPos, float, bool>(box, set.guess_weights_[box.layer_][i], i==1 ));

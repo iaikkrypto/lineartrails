@@ -50,11 +50,7 @@ struct HamsiLinearLayer : public LinearLayer {
   static const unsigned int word_size_ = { 32 };
   static const unsigned int words_per_step_ = { 4 };
   static const unsigned int linear_steps_ = { 4 };
-  static const unsigned int cache_size_ = { 0x1000 };
   std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> layers;
-  static std::unique_ptr<
-      LRU_Cache<WordMaskArray<word_size_, words_per_step_>,
-          LinearStepUpdateInfo<word_size_, words_per_step_>>> cache_[1];
 };
 
 

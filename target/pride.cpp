@@ -120,12 +120,6 @@ for(int i = 0; i < 2; ++i)
   return in;
 }
 
-std::unique_ptr<
-    LRU_Cache<
-        WordMaskArray<PrideLinearLayer::word_size_,
-            PrideLinearLayer::words_per_step_>,
-        LinearStepUpdateInfo<PrideLinearLayer::word_size_,
-            PrideLinearLayer::words_per_step_>>> PrideLinearLayer::cache_[PrideLinearLayer::linear_steps_];
 
 PrideLinearLayer& PrideLinearLayer::operator=(const PrideLinearLayer& rhs){
   layers = rhs.layers;
@@ -156,17 +150,12 @@ void PrideLinearLayer::Init(){
   layers[1].Initialize(PrideLinear1);
   layers[2].Initialize(PrideLinear2);
   layers[3].Initialize(PrideLinear3);
-  for(unsigned int i = 0; i< linear_steps_; ++i)
-  if (this->cache_[i].get() == nullptr)
-      this->cache_[i].reset(
-          new LRU_Cache<WordMaskArray<word_size_, words_per_step_>, LinearStepUpdateInfo<word_size_,words_per_step_>>(cache_size_));
 }
 
 //TODO: map update to bits
 bool PrideLinearLayer::updateStep(unsigned int step_pos) {
     return layers[step_pos].Update( { &((*in)[2*step_pos]), &((*in)[2*step_pos+1]) },
-                            { &((*out)[2*step_pos]), &((*out)[2*step_pos+1]) },
-                            cache_[step_pos].get());
+                            { &((*out)[2*step_pos]), &((*out)[2*step_pos+1]) });
 
 
 

@@ -72,7 +72,6 @@ struct LinearStep {
   bool ExtractMasks(std::array<Mask*, words>& x, std::array<Mask*, words>& y);
   bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y);
   LinearStep<bitsize, words>& operator=(const LinearStep<bitsize, words>& rhs);
-  bool Update(std::array<Mask*, words> x, std::array<Mask*, words> y, Cache<WordMaskArray<bitsize, words>, LinearStepUpdateInfo<bitsize, words>>* box_cache);
 
   friend std::ostream& operator<<<>(std::ostream& stream, const LinearStep<bitsize, words>& sys);
 

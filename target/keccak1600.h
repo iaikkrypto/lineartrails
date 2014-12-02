@@ -40,7 +40,6 @@ struct Keccak1600LinearLayer : public LinearLayer {
   static const unsigned int word_size_ = { 64 };
   static const unsigned int words_per_step_ = { 25 };
   static const unsigned int linear_steps_ = {1 };
-  static const unsigned int cache_size_ = { 0x1000 };
   std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> keccak_linear_;
 };
 

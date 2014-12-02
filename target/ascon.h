@@ -57,11 +57,7 @@ struct AsconLinearLayer : public LinearLayer {
   static const unsigned int word_size_ = { 64 };
   static const unsigned int words_per_step_ = { 1 };
   static const unsigned int linear_steps_ = { 5 };
-  static const unsigned int cache_size_ = { 0x1000 };
   std::array<LinearStep<word_size_, words_per_step_>, linear_steps_> sigmas;
-  static std::unique_ptr<
-      LRU_Cache<WordMaskArray<word_size_, words_per_step_>,
-          LinearStepUpdateInfo<word_size_, words_per_step_>>> cache_[linear_steps_];
 };
 
 

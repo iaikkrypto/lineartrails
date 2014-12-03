@@ -9,7 +9,6 @@
 #include "permutation.h"
 
 struct PridePermutation : public Permutation {
-  PridePermutation& operator=(const PridePermutation& rhs);
   PridePermutation(unsigned int rounds);
   PridePermutation(const PridePermutation& other);
   void touchall();

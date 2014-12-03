@@ -154,20 +154,20 @@ void PrideLinearLayer::Init(){
 
 //TODO: map update to bits
 bool PrideLinearLayer::updateStep(unsigned int step_pos) {
-    return layers[step_pos].Update( { &((*in)[2*step_pos]), &((*in)[2*step_pos+1]) },
+    bool ret_val = layers[step_pos].Update( { &((*in)[2*step_pos]), &((*in)[2*step_pos+1]) },
                             { &((*out)[2*step_pos]), &((*out)[2*step_pos+1]) });
 
+    in->getWordSbox(2*step_pos) |= (*in)[2*step_pos].changes_;
+    out->getWordSbox(2*step_pos) |= (*out)[2*step_pos].changes_;
+    in->getWordSbox(2*step_pos+1) |= (*in)[2*step_pos+1].changes_;
+    out->getWordSbox(2*step_pos+1) |= (*out)[2*step_pos+1].changes_;
 
+return ret_val;
+}
 
-//  return layers[pos.word].Update( { &((*in)[2*pos.word]), &((*in)[2*pos.word+1]) },
-//                          { &((*out)[2*pos.word]), &((*out)[2*pos.word+1]) });
-
-
-
-
-  assert(!"something went wrong");
-
-      return false;
+void PrideLinearLayer::copyValues(LinearLayer* other){
+  PrideLinearLayer* ptr = dynamic_cast<PrideLinearLayer*> (other);
+  layers = ptr->layers;
 }
 
 //-----------------------------------------------------------------------------
@@ -256,6 +256,12 @@ void PrideSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mas
   int offset = 0;
   if(b > 7)
     offset++;
+
+  s.getWordLinear(6+offset) |= ((mask.changes_>>(3))&1) << b%8;
+  s.getWordLinear(4+offset) |= ((mask.changes_>>(2))&1) << b%8;
+  s.getWordLinear(2+offset) |= ((mask.changes_>>(1))&1) << b%8;
+  s.getWordLinear(0+offset) |= ((mask.changes_>>(0))&1) << b%8;
+
   s[6+offset].bitmasks[b%8] = mask.bitmasks[3];
   s[4+offset].bitmasks[b%8] = mask.bitmasks[2];
   s[2+offset].bitmasks[b%8] = mask.bitmasks[1];

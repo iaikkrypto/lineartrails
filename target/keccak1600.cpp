@@ -177,6 +177,11 @@ for(int i = 0; i < 25; ++i){
 return ret_val;
 }
 
+void Keccak1600LinearLayer::copyValues(LinearLayer* other){
+  Keccak1600LinearLayer* ptr = dynamic_cast<Keccak1600LinearLayer*> (other);
+  keccak_linear_ = ptr->keccak_linear_;
+}
+
 //-----------------------------------------------------------------------------
 
 BitVector Keccak1600Sbox(BitVector in) {

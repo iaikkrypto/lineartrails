@@ -31,6 +31,7 @@ struct LinearLayer: public Layer {
   virtual LinearLayer* clone() = 0;
   virtual bool updateStep(unsigned int step_pos) = 0;
   virtual unsigned int GetNumSteps() = 0;
+  virtual void copyValues(LinearLayer* other) = 0;
 };
 
 struct SboxLayerBase: public Layer {
@@ -50,6 +51,7 @@ struct SboxLayerBase: public Layer {
   virtual void SetSboxActive(unsigned int step_pos, bool active) = 0;
   virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
   virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) = 0;
+  virtual void copyValues(SboxLayerBase* other) = 0;
 };
 
 template <unsigned bits, unsigned boxes>
@@ -71,6 +73,7 @@ struct SboxLayer: public SboxLayerBase {
   virtual void SetSboxActive(unsigned int step_pos, bool active);
   virtual Mask GetVerticalMask(unsigned int b, const StateMaskBase& s) const  = 0;
   virtual void SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) = 0;
+  virtual void copyValues(SboxLayerBase* other);
   std::array<NonlinearStep<bits>, boxes> sboxes;
 };
 
@@ -194,6 +197,13 @@ void SboxLayer<bits, boxes>::InitSboxes(std::shared_ptr<LinearDistributionTable<
 
       for (size_t i = 0; i < boxes; i++)
         sboxes[i].Initialize(ldt);
+}
+
+template <unsigned bits, unsigned boxes>
+void SboxLayer<bits, boxes>::copyValues(SboxLayerBase* other){
+  SboxLayer<bits, boxes>* ptr = dynamic_cast<SboxLayer<bits, boxes>*> (other);
+
+  sboxes = ptr->sboxes;
 }
 
 #endif // LAYER_H_

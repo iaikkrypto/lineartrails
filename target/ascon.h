@@ -53,6 +53,7 @@ struct AsconLinearLayer : public LinearLayer {
   bool Update();
   virtual bool updateStep(unsigned int step_pos);
   unsigned int GetNumSteps();
+  virtual void copyValues(LinearLayer* other);
 
   static const unsigned int word_size_ = { 64 };
   static const unsigned int words_per_step_ = { 1 };

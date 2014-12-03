@@ -18,6 +18,7 @@ struct StateMaskBase {
   virtual void SetBit(BitMask value, int word_pos, int bit_pos) = 0;
   virtual bool diffLinear(const StateMaskBase& other) = 0;
   virtual bool diffSbox(const StateMaskBase& other) = 0;
+  virtual void copyValues(const StateMaskBase* other) = 0;
   virtual void resetChangesLinear() = 0;
   virtual void resetChangesSbox() = 0;
   virtual bool changesforLinear() = 0;
@@ -28,6 +29,8 @@ struct StateMaskBase {
   virtual const Mask& operator[](const int index) const = 0;
   virtual const unsigned int getnumwords() const = 0;
   virtual const unsigned int getnumbits() const = 0;
+//  virtual unsigned long long int getChangesforLinearLayer(const int i) const = 0;
+//  virtual unsigned long long getChangesforSboxLayer(const int i) const = 0;
 };
 
 template <unsigned words, unsigned bits>
@@ -40,6 +43,7 @@ struct StateMask : public StateMaskBase {
   virtual void SetBit(BitMask value, int word_pos, int bit_pos);
   virtual bool diffLinear(const StateMaskBase& other);
   virtual bool diffSbox(const StateMaskBase& other);
+  virtual void copyValues(const StateMaskBase* other);
   virtual void resetChangesLinear();
   virtual void resetChangesSbox();
   void resetChanges(std::array<unsigned long long, words>& changes);
@@ -51,11 +55,13 @@ struct StateMask : public StateMaskBase {
   virtual const Mask& operator[](const int index) const ;
   virtual const unsigned int getnumwords() const {return words;};
   virtual const unsigned int getnumbits() const {return bits;};
+//  virtual unsigned long long int getChangesforLinearLayer(const int i) const;
+//  virtual unsigned long long getChangesforSboxLayer(const int i) const;
 
  protected:
   bool diff(const StateMaskBase& other, std::array<unsigned long long, words>& changes);
 
-
+public:
   std::array<Mask, words> words_;
   std::array<unsigned long long, words> changes_for_linear_layer_;
   std::array<unsigned long long, words> changes_for_sbox_layer_;

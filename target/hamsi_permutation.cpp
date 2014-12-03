@@ -4,18 +4,32 @@
 HamsiPermutation::HamsiPermutation(unsigned int rounds) : Permutation(rounds) {
   for(unsigned int i = 0; i< 2*rounds +1; ++i){
       this->state_masks_[i].reset(new HamsiState);
+      this->saved_state_masks_[i].reset(new HamsiState);
     }
   for (unsigned int i = 0; i < rounds; ++i) {
     this->sbox_layers_[i].reset(new HamsiSboxLayer);
     this->sbox_layers_[i]->SetMasks(this->state_masks_[2*i].get(), this->state_masks_[2*i + 1].get());
     this->linear_layers_[i].reset(new HamsiLinearLayer);
     this->linear_layers_[i]->SetMasks(this->state_masks_[2*i + 1].get(), this->state_masks_[2*i + 2].get());
+    this->saved_sbox_layers_[i].reset(new HamsiSboxLayer);
+    this->saved_sbox_layers_[i]->SetMasks(this->saved_state_masks_[2*i].get(), this->saved_state_masks_[2*i + 1].get());
+    this->saved_linear_layers_[i].reset(new HamsiLinearLayer);
+    this->saved_linear_layers_[i]->SetMasks(this->saved_state_masks_[2*i + 1].get(), this->saved_state_masks_[2*i + 2].get());
   }
   touchall();
 }
 
 
 HamsiPermutation::HamsiPermutation(const HamsiPermutation& other) : Permutation(other) {
+  for(unsigned int i = 0; i< 2*rounds_ +1; ++i){
+      this->saved_state_masks_[i].reset(new HamsiState);
+    }
+  for (unsigned int i = 0; i < rounds_; ++i) {
+    this->saved_sbox_layers_[i].reset(new HamsiSboxLayer);
+    this->saved_sbox_layers_[i]->SetMasks(this->saved_state_masks_[2*i].get(), this->saved_state_masks_[2*i + 1].get());
+    this->saved_linear_layers_[i].reset(new HamsiLinearLayer);
+    this->saved_linear_layers_[i]->SetMasks(this->saved_state_masks_[2*i + 1].get(), this->saved_state_masks_[2*i + 2].get());
+  }
 }
 
 

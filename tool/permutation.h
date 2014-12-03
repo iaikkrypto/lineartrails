@@ -18,6 +18,8 @@ struct Permutation {
   virtual void print(std::ostream& stream);
   virtual PermPtr clone() const = 0;
   virtual void set(Permutation* perm);
+  virtual void save();
+  virtual void restore();
   virtual void SboxStatus(std::vector<SboxPos>& active, std::vector<SboxPos>& inactive);
   virtual void SboxStatus(std::vector<std::vector<SboxPos>>& active, std::vector<std::vector<SboxPos>>& inactive);
   virtual bool isActive(SboxPos pos);
@@ -38,6 +40,12 @@ struct Permutation {
   bool toupdate_linear;
   bool toupdate_nonlinear;
   unsigned int rounds_;
+
+  std::vector<std::unique_ptr<StateMaskBase>> saved_state_masks_;
+  std::vector<std::unique_ptr<SboxLayerBase>> saved_sbox_layers_;
+  std::vector<std::unique_ptr<LinearLayer>> saved_linear_layers_;
+  bool saved_toupdate_linear;
+  bool saved_toupdate_nonlinear;
 };
 
 

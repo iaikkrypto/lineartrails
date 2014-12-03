@@ -100,6 +100,11 @@ bool AsconLinearLayer::updateStep(unsigned int step_pos) {
   return ret_val;
 }
 
+void AsconLinearLayer::copyValues(LinearLayer* other){
+  AsconLinearLayer* ptr = dynamic_cast<AsconLinearLayer*> (other);
+  sigmas = ptr->sigmas;
+}
+
 //-----------------------------------------------------------------------------
 
 BitVector AsconSbox(BitVector in) {

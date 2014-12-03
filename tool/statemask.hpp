@@ -85,6 +85,21 @@ bool StateMask<words, bits>::changesforSbox() {
 }
 
 template<unsigned words, unsigned bits>
+void StateMask<words, bits>::copyValues(const StateMaskBase* other) {
+  //TODO: maybe use static cast
+  const StateMask<words, bits>* ptr = dynamic_cast<const StateMask<words, bits>*>(other);
+  words_ = ptr->words_;
+  changes_for_linear_layer_ = ptr->changes_for_linear_layer_;
+  changes_for_sbox_layer_ = ptr->changes_for_sbox_layer_;
+
+//  for(int i = 0; i< words ; ++i){
+//  words_[i] = other[i];
+//  changes_for_linear_layer_[i] = other.getChangesforLinearLayer(i);
+//  changes_for_sbox_layer_[i] = other.getChangesforSboxLayer(i);
+//  }
+}
+
+template<unsigned words, unsigned bits>
 void StateMask<words, bits>::resetChangesLinear() {
   resetChanges(changes_for_linear_layer_);
 }
@@ -114,3 +129,18 @@ unsigned long long& StateMask<words, bits>::getWordSbox(
 
   return changes_for_sbox_layer_[index];
 }
+
+//template<unsigned words, unsigned bits>
+//unsigned long long int StateMask<words, bits>::getChangesforLinearLayer(
+//     int index) {
+//
+//  return changes_for_linear_layer_[index];
+//}
+//
+//template<unsigned words, unsigned bits>
+//unsigned long long StateMask<words, bits>::getChangesforSboxLayer(
+//     int index) {
+//
+//  return changes_for_sbox_layer_[index];
+//}
+

@@ -3,10 +3,15 @@
 Permutation::Permutation(unsigned int rounds)
     : toupdate_linear(true),
       toupdate_nonlinear(true),
-      rounds_(rounds) {
+      rounds_(rounds),
+      saved_toupdate_linear(true),
+      saved_toupdate_nonlinear(true){
   state_masks_.resize(2 * rounds_ + 1);
   sbox_layers_.resize(rounds_);
   linear_layers_.resize(rounds_);
+  saved_state_masks_.resize(2 * rounds_ + 1);
+  saved_sbox_layers_.resize(rounds_);
+  saved_linear_layers_.resize(rounds_);
 }
 
 Permutation::Permutation(const Permutation& other)
@@ -25,6 +30,36 @@ Permutation::Permutation(const Permutation& other)
   }
   this->toupdate_linear = other.toupdate_linear;
   this->toupdate_nonlinear = other.toupdate_nonlinear;
+}
+
+void Permutation::save() {
+  for (unsigned int i = 0; i < 2 * rounds_ + 1; ++i) {
+    saved_state_masks_[i]->copyValues(state_masks_[i].get());
+  }
+//  std::cout << "2" << std::endl;
+
+  for (unsigned int i = 0; i < rounds_; ++i) {
+    saved_sbox_layers_[i]->copyValues(sbox_layers_[i].get());
+//    std::cout << "2.1 " << std::endl;
+    saved_linear_layers_[i]->copyValues(linear_layers_[i].get());
+//    std::cout << "2.2 " << std::endl;
+  }
+//  std::cout << "3 " << std::endl;
+  saved_toupdate_linear = toupdate_linear;
+  saved_toupdate_nonlinear = toupdate_nonlinear;
+}
+
+void Permutation::restore() {
+  for (unsigned int i = 0; i < 2 * rounds_ + 1; ++i) {
+    state_masks_[i]->copyValues(saved_state_masks_[i].get());
+  }
+
+  for (unsigned int i = 0; i < rounds_; ++i) {
+    sbox_layers_[i]->copyValues(saved_sbox_layers_[i].get());
+    linear_layers_[i]->copyValues(saved_linear_layers_[i].get());
+  }
+  toupdate_linear = saved_toupdate_linear;
+  toupdate_nonlinear = saved_toupdate_nonlinear;
 }
 
 void Permutation::SboxStatus(std::vector<SboxPos>& active,
@@ -101,8 +136,10 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
                                       std::function<int(int, int, int)> rating,
                                       int num_alternatives) {
   bool update_works = false;
-  PermPtr temp = this->clone();
-
+//  std::cout << "hi " << std::endl;
+//  PermPtr temp = this->clone();
+save();
+//std::cout << "hi 2" << std::endl;
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = 0xffff;
     if (i)
@@ -116,7 +153,8 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
     update_works = update();
     if (update_works)
       return update_works;
-    this->set(temp.get());
+//    this->set(temp.get());
+    restore();
   }
   return false;
 }

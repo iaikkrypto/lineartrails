@@ -10,7 +10,7 @@
 
 
 struct AsconPermutation : public Permutation {
-  AsconPermutation& operator=(const AsconPermutation& rhs);
+//  AsconPermutation& operator=(const AsconPermutation& rhs);
   AsconPermutation(unsigned int rounds);
   AsconPermutation(const AsconPermutation& other);
   void touchall();

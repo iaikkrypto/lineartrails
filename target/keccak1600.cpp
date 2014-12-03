@@ -157,7 +157,8 @@ void Keccak1600LinearLayer::Init() {
 
 bool Keccak1600LinearLayer::updateStep(unsigned int step_pos) {
 assert(step_pos <= linear_steps_);
-  return keccak_linear_[step_pos].Update( {
+bool ret_val;
+ret_val = keccak_linear_[step_pos].Update( {
         &((*in)[0]), &((*in)[1]), &((*in)[2]), &((*in)[3]), &((*in)[4]),
         &((*in)[5]), &((*in)[6]), &((*in)[7]), &((*in)[8]), &((*in)[9]),
         &((*in)[10]), &((*in)[11]), &((*in)[12]), &((*in)[13]), &((*in)[14]),
@@ -168,6 +169,12 @@ assert(step_pos <= linear_steps_);
         &((*out)[10]), &((*out)[11]), &((*out)[12]), &((*out)[13]), &((*out)[14]),
         &((*out)[15]), &((*out)[16]), &((*out)[17]), &((*out)[18]), &((*out)[19]),
         &((*out)[20]), &((*out)[21]), &((*out)[22]), &((*out)[23]), &((*out)[24])});
+
+for(int i = 0; i < 25; ++i){
+  in->getWordSbox(i) |= (*in)[i].changes_;
+  out->getWordSbox(i) |= (*out)[i].changes_;
+}
+return ret_val;
 }
 
 //-----------------------------------------------------------------------------
@@ -235,6 +242,12 @@ Mask Keccak1600SboxLayer::GetVerticalMask(unsigned int b,
 
 void Keccak1600SboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s,
                                      const Mask& mask, bool make_dirty) {
+
+  s.getWordLinear(((b/64)*5)+0) |= ((mask.changes_>>(4))&1) << b%64;
+  s.getWordLinear(((b/64)*5)+1) |= ((mask.changes_>>(3))&1) << b%64;
+  s.getWordLinear(((b/64)*5)+2) |= ((mask.changes_>>(2))&1) << b%64;
+  s.getWordLinear(((b/64)*5)+3) |= ((mask.changes_>>(1))&1) << b%64;
+  s.getWordLinear(((b/64)*5)+4) |= ((mask.changes_>>(0))&1) << b%64;
 
   s[((b/64)*5)+0].bitmasks[b%64] = mask.bitmasks[4];
   s[((b/64)*5)+1].bitmasks[b%64] = mask.bitmasks[3];

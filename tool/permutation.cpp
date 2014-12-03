@@ -137,8 +137,8 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
                                       int num_alternatives) {
   bool update_works = false;
 //  std::cout << "hi " << std::endl;
-  PermPtr temp = this->clone();
-//save();
+//  PermPtr temp = this->clone();
+save();
 //std::cout << "hi 2" << std::endl;
   for (int i = 0; i < num_alternatives; ++i) {
     int total_alternatives = 0xffff;
@@ -153,8 +153,8 @@ bool Permutation::guessbestsboxrandom(SboxPos pos,
     update_works = update();
     if (update_works)
       return update_works;
-    this->set(temp.get());
-//    restore();
+//    this->set(temp.get());
+    restore();
   }
   return false;
 }

@@ -212,32 +212,71 @@ void HamsiLinearLayer::Init(){
 }
 
 bool HamsiLinearLayer::updateStep(unsigned int step_pos) {
-  if (step_pos == 0 || step_pos == 5 || step_pos == 10 || step_pos == 15)
-    return layers[0].Update( { &((*in)[0]), &((*in)[5]), &((*in)[10]),
+  bool ret_val = false;
+  if (step_pos == 0 || step_pos == 5 || step_pos == 10 || step_pos == 15){
+    ret_val = layers[0].Update( { &((*in)[0]), &((*in)[5]), &((*in)[10]),
                                 &((*in)[15]) },
                             { &((*out)[0]), &((*out)[5]), &((*out)[10]),
                                 &((*out)[15]) });
-  if (step_pos == 1 || step_pos == 6 || step_pos == 11 || step_pos == 12)
-      return layers[1].Update( { &((*in)[1]), &((*in)[6]), &((*in)[11]),
+    in->getWordSbox(0) |= (*in)[0].changes_;
+    out->getWordSbox(0) |= (*out)[0].changes_;
+    in->getWordSbox(5) |= (*in)[5].changes_;
+    out->getWordSbox(5) |= (*out)[5].changes_;
+    in->getWordSbox(10) |= (*in)[10].changes_;
+    out->getWordSbox(10) |= (*out)[10].changes_;
+    in->getWordSbox(15) |= (*in)[15].changes_;
+    out->getWordSbox(15) |= (*out)[15].changes_;
+  }
+  if (step_pos == 1 || step_pos == 6 || step_pos == 11 || step_pos == 12){
+    ret_val = layers[1].Update( { &((*in)[1]), &((*in)[6]), &((*in)[11]),
                                   &((*in)[12]) },
                               { &((*out)[1]), &((*out)[6]), &((*out)[11]),
                                   &((*out)[12]) });
-  if (step_pos == 2 || step_pos == 7 || step_pos == 8 || step_pos == 13)
-      return layers[2].Update( { &((*in)[2]), &((*in)[7]), &((*in)[8]),
+    in->getWordSbox(1) |= (*in)[1].changes_;
+    out->getWordSbox(1) |= (*out)[1].changes_;
+    in->getWordSbox(6) |= (*in)[6].changes_;
+    out->getWordSbox(6) |= (*out)[6].changes_;
+    in->getWordSbox(11) |= (*in)[11].changes_;
+    out->getWordSbox(11) |= (*out)[11].changes_;
+    in->getWordSbox(12) |= (*in)[12].changes_;
+    out->getWordSbox(12) |= (*out)[12].changes_;
+  }
+  if (step_pos == 2 || step_pos == 7 || step_pos == 8 || step_pos == 13){
+    ret_val = layers[2].Update( { &((*in)[2]), &((*in)[7]), &((*in)[8]),
                                   &((*in)[13]) },
                               { &((*out)[2]), &((*out)[7]), &((*out)[8]),
                                   &((*out)[13]) });
+    in->getWordSbox(2) |= (*in)[2].changes_;
+    out->getWordSbox(2) |= (*out)[2].changes_;
+    in->getWordSbox(7) |= (*in)[7].changes_;
+    out->getWordSbox(7) |= (*out)[7].changes_;
+    in->getWordSbox(8) |= (*in)[8].changes_;
+    out->getWordSbox(8) |= (*out)[8].changes_;
+    in->getWordSbox(13) |= (*in)[13].changes_;
+    out->getWordSbox(13) |= (*out)[13].changes_;
+  }
 
-  if (step_pos == 3 || step_pos == 4 || step_pos== 9 || step_pos == 14)
-      return layers[3].Update( { &((*in)[3]), &((*in)[4]), &((*in)[9]),
+  if (step_pos == 3 || step_pos == 4 || step_pos== 9 || step_pos == 14){
+    ret_val = layers[3].Update( { &((*in)[3]), &((*in)[4]), &((*in)[9]),
                                   &((*in)[14]) },
                               { &((*out)[3]), &((*out)[4]), &((*out)[9]),
                                   &((*out)[14]) });
+    in->getWordSbox(3) |= (*in)[3].changes_;
+    out->getWordSbox(3) |= (*out)[3].changes_;
+    in->getWordSbox(4) |= (*in)[4].changes_;
+    out->getWordSbox(4) |= (*out)[4].changes_;
+    in->getWordSbox(9) |= (*in)[9].changes_;
+    out->getWordSbox(9) |= (*out)[9].changes_;
+    in->getWordSbox(14) |= (*in)[14].changes_;
+    out->getWordSbox(14) |= (*out)[14].changes_;
+  }
 
+      return ret_val;
+}
 
-  assert(!"something went wrong");
-
-      return false;
+void HamsiLinearLayer::copyValues(LinearLayer* other){
+  HamsiLinearLayer* ptr = dynamic_cast<HamsiLinearLayer*> (other);
+  layers = ptr->layers;
 }
 
 //-----------------------------------------------------------------------------
@@ -304,6 +343,12 @@ Mask HamsiSboxLayer::GetVerticalMask(unsigned int b, const StateMaskBase& s) con
 }
 
 void HamsiSboxLayer::SetVerticalMask(unsigned int b, StateMaskBase& s, const Mask& mask, bool make_dirty) {
+
+  s.getWordLinear(b/32+12) |= ((mask.changes_>>(3))&1) << b%32;
+  s.getWordLinear(b/32+8) |= ((mask.changes_>>(2))&1) << b%32;
+  s.getWordLinear(b/32+4) |= ((mask.changes_>>(1))&1) << b%32;
+  s.getWordLinear(b/32+0) |= ((mask.changes_>>(0))&1) << b%32;
+
   s[b/32+12].bitmasks[b%32] = mask.bitmasks[3];
   s[b/32+8].bitmasks[b%32] = mask.bitmasks[2];
   s[b/32+4].bitmasks[b%32] = mask.bitmasks[1];

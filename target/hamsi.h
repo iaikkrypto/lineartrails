@@ -46,7 +46,7 @@ struct HamsiLinearLayer : public LinearLayer {
   HamsiLinearLayer(StateMaskBase *in, StateMaskBase *out);
   virtual bool updateStep(unsigned int step_pos);
   unsigned int GetNumSteps();
-  virtual void copyValues(LinearLayer* other){}
+  virtual void copyValues(LinearLayer* other);
 
   static const unsigned int word_size_ = { 32 };
   static const unsigned int words_per_step_ = { 4 };

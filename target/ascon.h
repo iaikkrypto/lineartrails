@@ -5,6 +5,7 @@
 #include <array>
 #include <random>
 #include <iostream>
+#include <iomanip>
 
 #include "layer.h"
 #include "mask.h"

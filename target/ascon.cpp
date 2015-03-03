@@ -1,5 +1,8 @@
 #include "ascon.h"
 
+//#define HEXOUTPUT
+//#define TRUNCATED
+
 AsconState::AsconState()
     : StateMask() {
 }
@@ -18,6 +21,40 @@ void AsconState::print(std::ostream& stream) {
   stream << *this;
 }
 
+
+#ifdef HEXOUTPUT
+#ifdef TRUNCATED
+std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
+
+  unsigned long long resultingword = 0;
+  for (size_t i = 0; i < statemask.words_.size(); ++i) {
+    unsigned long long outword = 0;
+    for (auto it = statemask.words_[i].bitmasks.rbegin(); it != statemask.words_[i].bitmasks.rend(); ++it) {
+      outword <<= 1;
+      if (*it % 4 == 1)
+        outword |=1;
+    }
+    resultingword |= outword;
+  }
+  stream << std::hex << std::setfill('0') << std::setw(16) << resultingword << std::dec <<  std::endl;
+  return stream;
+}
+#else
+std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
+
+  for (size_t i = 0; i < statemask.words_.size(); ++i) {
+    unsigned long long outword = 0;
+    for (auto it = statemask.words_[i].bitmasks.rbegin(); it != statemask.words_[i].bitmasks.rend(); ++it) {
+      outword <<= 1;
+      if (*it % 4 == 1)
+        outword |=1;
+    }
+    stream << std::hex << std::setfill('0') << std::setw(16) << outword << std::dec <<  std::endl;
+  }
+  return stream;
+}
+#endif
+#else
 std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
 #ifndef TERMINALCOLORS
   char symbol[4] {'#', '1', '0', '?'};
@@ -33,6 +70,7 @@ std::ostream& operator<<(std::ostream& stream, const AsconState& statemask) {
   }
   return stream;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 

@@ -1,7 +1,11 @@
 lineartrails
 ============
 
-Tool to automatically search for linear characteristics. There exists a research paper about this tool called "Heuristic Tool for Linear Cryptanalysis with Applications to CAESAR Candidates", which is presented at AsiaCrypt 2015. Soon, there will also be an eprint version. If you use this tool in your work, we would be nice to cite the research paper.
+Tool to automatically search for linear characteristics. There exists a research
+paper about this tool called "Heuristic Tool for Linear Cryptanalysis with
+Applications to CAESAR Candidates", which is presented at AsiaCrypt 2015, an
+online version is available [[https://eprint.iacr.org/2015/1200|here]]. If you
+use this tool in your work, we would be nice to cite the research paper.
 
 Authors
 -------
@@ -32,14 +36,19 @@ Usage
 The folder ./examples contains example search configuration for Ascon, ICEPOLE,
 Keyak, Minalpher and Proest. To start a search simply call for instance:
 
-./lin -I 10 -S 2 -i examples/ascon_3_rounds.xml 
+./lin -I 10 -S 2 -i examples/ascon_3_rounds_typeI.xml
 
 -I determines how often status information of the search is displayed. -I -1 deactivates it.
 -S determines how often the current and probably partial determined linear characteristic is put out. -S -1 deactivates it.
 -i specifies the used xml based search file.
 
-The output of the search are linear characteristics, where Round 0 tags the linear mask of the input of the first round, Round 1 the output of the first round, which is also the input for the second round and so on. Half Rounds, e.g. 1.5 
-represent intermediate result within one round. For instance if one round consists of a substitution layer followed by a permutation layer, a half round marks the output of the substitution layer and the input of the permutation layer.
+The output of the search are linear characteristics, where Round 0 tags the
+linear mask of the input of the first round, Round 1 the output of the first
+round, which is also the input for the second round and so on. Half Rounds, e.g.
+1.5 represent intermediate result within one round. For instance if one round
+consists of a substitution layer followed by a permutation layer, a half round
+marks the output of the substitution layer and the input of the permutation
+layer.
 
 A search file looks like follows:
 
@@ -116,12 +125,12 @@ Settings define which S-boxes are guessed and are treated subsequently. So if th
 
 "active_weight" determines the probability that an active S-box will be guessed (higher values mean higher chance). inactive_weight does the same for inactive S-boxes.
 
-The code snippets describing the behavior of the linear and S-box layer of the implemented ciphers are taken from their reference implementations, which are 
+The code snippets describing the behavior of the linear and S-box layer of the implemented ciphers are taken from their reference implementations, which are
 available at http://bench.cr.yp.to/ebash.html.
 
-The tool is tested under 
+The tool is tested under
 - Xubuntu 14.04 (64 bit) using gcc version 4.8.2
 - Ubuntu 15.04 (64 bit) using gcc version 4.9.2
-- OSX Yosemite using Apple LLVM version 6.0 
+- OSX Yosemite using Apple LLVM version 6.0
 
 

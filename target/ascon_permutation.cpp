@@ -74,7 +74,8 @@ Permutation::PermPtr AsconPermutation::clone() const {
   return PermPtr(new AsconPermutation(*this));
 }
 
-void AsconPermutation::PrintWithProbability(std::ostream& stream, int offset) {
+void AsconPermutation::PrintWithProbability(std::ostream& stream,
+                                            unsigned int offset) {
   Permutation::PrintWithProbability(stream, 0);
 }
 

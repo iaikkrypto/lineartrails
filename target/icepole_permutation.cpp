@@ -126,7 +126,8 @@ Permutation::PermPtr IcepolePermutation::clone() const {
 }
 
 
-void IcepolePermutation::PrintWithProbability(std::ostream& stream, int offset) {
+void IcepolePermutation::PrintWithProbability(std::ostream& stream,
+                                              unsigned int offset) {
   Permutation::PrintWithProbability(stream, 1);
 }
 

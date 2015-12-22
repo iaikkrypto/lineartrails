@@ -40,7 +40,7 @@ struct AsconPermutation : public Permutation {
   void touchall();
   PermPtr clone() const;
   virtual void PrintWithProbability(std::ostream& stream = std::cout,
-                                    int offset = 0);
+                                    unsigned int offset = 0) override;
 
 };
 

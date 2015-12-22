@@ -126,7 +126,8 @@ Permutation::PermPtr Keccak1600Permutation::clone() const {
 }
 
 
-void Keccak1600Permutation::PrintWithProbability(std::ostream& stream, int offset) {
+void Keccak1600Permutation::PrintWithProbability(std::ostream& stream,
+                                                 unsigned int offset) {
   Permutation::PrintWithProbability(stream, 1);
 }
 

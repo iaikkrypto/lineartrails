@@ -15,7 +15,8 @@ struct Prost256Permutation : public Permutation {
   Prost256Permutation(const Prost256Permutation& other);
   void touchall();
   PermPtr clone() const;
-  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
+  virtual void PrintWithProbability(std::ostream& stream = std::cout,
+                                    unsigned int offset = 0) override;
 
 };
 

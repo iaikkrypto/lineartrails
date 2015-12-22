@@ -64,7 +64,7 @@ float Commandlineparser::getFloatParameter(std::string parameter_switch) {
 }
 
 bool Commandlineparser::getBoolParameter(std::string parameter_switch) {
-  return getParameter(parameter_switch) != 0;
+  return getParameter(parameter_switch) != nullptr;
 }
 
 void Commandlineparser::parse(int& argc, const char* argv[]) {
@@ -72,7 +72,7 @@ void Commandlineparser::parse(int& argc, const char* argv[]) {
     auto it = params_.find(std::string (argv[i]));
     if (it == params_.end())
       print_fatal_error(std::string("Invalid parameter '") + argv[i] + "'!");
-    if (it->second.defaultvalue != 0) {
+    if (it->second.defaultvalue != nullptr) {
       ++i;
       if(i >= argc)
         print_fatal_error(std::string("Parameter for switch '") + argv[i-1] + "' is missing!");
@@ -89,7 +89,7 @@ void Commandlineparser::print_pars() {
     std::string pad = "  ";
     for (unsigned l = maxlen_; l >= par.name.length(); l--)
       pad += " ";
-    std::string defaulttext = (par.defaultvalue == 0) ? "" : std::string(" (default '") + par.defaultvalue + "')";
+    std::string defaulttext = (par.defaultvalue == nullptr) ? "" : std::string(" (default '") + par.defaultvalue + "')";
     std::cout << par.name << pad << par.helptext << defaulttext << std::endl;
   }
 }

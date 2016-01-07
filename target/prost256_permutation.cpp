@@ -66,7 +66,8 @@ Permutation::PermPtr Prost256Permutation::clone() const {
 }
 
 
-void Prost256Permutation::PrintWithProbability(std::ostream& stream, int offset) {
+void Prost256Permutation::PrintWithProbability(std::ostream& stream,
+                                               unsigned int offset) {
   Permutation::PrintWithProbability(stream, 0);
 }
 

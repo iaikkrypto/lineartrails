@@ -17,7 +17,8 @@ struct IcepolePermutation : public Permutation {
   bool update();
   void touchall();
   PermPtr clone() const;
-  virtual void PrintWithProbability(std::ostream& stream = std::cout, int offset = 0);
+  virtual void PrintWithProbability(std::ostream& stream = std::cout,
+                                    unsigned int offset = 0) override;
 
 };
 

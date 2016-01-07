@@ -90,7 +90,7 @@ int main(int argc, const char* argv[]) {
   args.addParameter("-i",    "characteristic input file", "examples/ascon_3_rounds_typeI.xml");
   args.addParameter("-u",    "requested function: checkchar, search", "search");
 
-  args.addParameter("-h",    "display help", 0);
+  args.addParameter("-h",    "display help", nullptr);
 
   args.parse(argc, argv);
 

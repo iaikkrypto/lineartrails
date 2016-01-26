@@ -25,7 +25,7 @@ git submodule init && git submodule update
 The build system is created by cmake, so after checking out the git repository, do:
 
 ```
-cd build && cmake .. && make
+mkdir build && cd build && cmake .. && make && cd ..
 ```
 
 

@@ -58,7 +58,7 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
   std::uniform_real_distribution<float> push_stack_rand(0.0, 1.0);
 
-  unsigned int interations = (unsigned int) cl_param.getIntParameter("-iter");
+  unsigned int interations = (unsigned int) cl_param.getIntParameter("-f");
   int total_iterations = 0;
   int print_char = cl_param.getIntParameter("-S");
   for (unsigned int i = 0; i < interations; ++i) {
@@ -155,7 +155,7 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
   std::uniform_real_distribution<float> push_stack_rand(0.0, 1.0);
 
-  unsigned int interations = (unsigned int) cl_param.getIntParameter("-iter");
+  unsigned int interations = (unsigned int) cl_param.getIntParameter("-f");
   int total_iterations = 0;
   int print_char = cl_param.getIntParameter("-S");
   for (unsigned int i = 0; i < interations; ++i) {

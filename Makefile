@@ -3,7 +3,8 @@ SHELL=/bin/sh
 .SUFFIXES: .cpp .h .o
 
 CXX=g++
-CXXFLAGS=-c -Wall -march=native -std=c++11 -DTERMINALCOLORS 
+CFLAGS=-c -Wall -march=native -std=c11
+CXXFLAGS=-c -Wall -march=native -std=c++11 -DTERMINALCOLORS
 FASTFLAGS=-O3
 DEBUGFLAGS=-g
 CLUSTERCXXFLAGS=-c -Wall -std=c++11 -O3
@@ -42,8 +43,12 @@ cluster: CXXFLAGS = $(CLUSTERCXXFLAGS)
 cluster: $(TITLE)
 
 # make
-$(TITLE): $(OBJECTS) $(BUILD_DIR)/tinyxml2.o
+$(TITLE): $(OBJECTS) $(BUILD_DIR)/cmdline.o $(BUILD_DIR)/tinyxml2.o
 	$(CXX) -g -o $@ $^ $(INCLUDES) $(LDFLAGS)
+
+# make %.o
+$(BUILD_DIR)/cmdline.o: tool/cmdline.c
+	$(CC) $(CFLAGS) -o $@ $< -MMD -MF ./$@.d $(INCLUDES) $(LDFLAGS)
 
 # make %.o
 $(BUILD_DIR)/%.o: %.cpp

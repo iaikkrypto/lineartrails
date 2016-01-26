@@ -24,3 +24,9 @@ lin
 # vim tmp files
 *.swp
 *~
+
+# cmake files
+build/CMakeCache.txt
+build/CMakeFiles/
+build/Makefile
+build/cmake_install.cmake

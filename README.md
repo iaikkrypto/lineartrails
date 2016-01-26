@@ -22,10 +22,10 @@ Build
 git submodule init && git submodule update
 ```
 
-To build:
+The build system is created by cmake, so after checking out the git repository, do:
 
 ```
-make
+cd build && cmake .. && make
 ```
 
 
@@ -36,7 +36,7 @@ The folder ./examples contains example search configuration for Ascon, ICEPOLE,
 Keyak, Minalpher and Proest. To start a search simply call for instance:
 
 ```
-./lin -I 10 -S 2 -i examples/ascon_3_rounds_typeI.xml
+bin/lin -I 10 -S 2 -i examples/ascon_3_rounds_typeI.xml
 ```
 
 * `-I` determines how often status information of the search is displayed.

@@ -32,8 +32,7 @@ Search::Search(Permutation &perm)
 
 }
 
-
-void Search::StackSearch1(Commandlineparser& cl_param,
+void Search::StackSearch1(gengetopt_args_info const& cl_param,
                           Configparser& config_param) {
 
   std::unique_ptr<Permutation> working_copy;
@@ -58,10 +57,10 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
   std::uniform_real_distribution<float> push_stack_rand(0.0, 1.0);
 
-  unsigned int interations = (unsigned int) cl_param.getIntParameter("-f");
+  unsigned int iterations = (unsigned int) cl_param.maxIterations_arg;
   int total_iterations = 0;
-  int print_char = cl_param.getIntParameter("-S");
-  for (unsigned int i = 0; i < interations; ++i) {
+  int print_char = cl_param.printStatus_arg;
+  for (unsigned int i = 0; i < iterations; ++i) {
     char_stack.emplace(working_copy->clone());
     char_stack.emplace(working_copy->clone());
     backtrack = false;
@@ -71,15 +70,15 @@ void Search::StackSearch1(Commandlineparser& cl_param,
       total_iterations++;
       auto duration = std::chrono::duration_cast<std::chrono::seconds>(
           std::chrono::system_clock::now() - start_count);
-      if (cl_param.getIntParameter("-I") > 0
-          && duration.count() > cl_param.getIntParameter("-I")) {
+      if (cl_param.interval_arg > 0
+          && duration.count() > cl_param.interval_arg) {
         std::cout << "PRINT-INFO: total iterations: " << total_iterations
                   << ", stack size: " << char_stack.size() << ", credits: "
                   << curr_credit << ", restarts: " << i << std::endl;
         print_char--;
         if (print_char == 0) {
           char_stack.top()->print(std::cout);
-          print_char = cl_param.getIntParameter("-S");
+          print_char = cl_param.printStatus_arg;
         }
         start_count = std::chrono::system_clock::now();
       }
@@ -130,8 +129,8 @@ void Search::StackSearch1(Commandlineparser& cl_param,
   }
 }
 
-void Search::StackSearchKeccak(Commandlineparser& cl_param,
-                          Configparser& config_param) {
+void Search::StackSearchKeccak(gengetopt_args_info const& cl_param,
+                               Configparser& config_param) {
 
   std::unique_ptr<Permutation> working_copy;
   std::stack<std::unique_ptr<Permutation>> char_stack;
@@ -155,10 +154,10 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
   std::uniform_real_distribution<float> push_stack_rand(0.0, 1.0);
 
-  unsigned int interations = (unsigned int) cl_param.getIntParameter("-f");
+  unsigned int iterations = (unsigned int) cl_param.maxIterations_arg;
   int total_iterations = 0;
-  int print_char = cl_param.getIntParameter("-S");
-  for (unsigned int i = 0; i < interations; ++i) {
+  int print_char = cl_param.printStatus_arg;
+  for (unsigned int i = 0; i < iterations; ++i) {
     char_stack.emplace(working_copy->clone());
     char_stack.emplace(working_copy->clone());
     backtrack = false;
@@ -168,15 +167,15 @@ void Search::StackSearchKeccak(Commandlineparser& cl_param,
       total_iterations++;
       auto duration = std::chrono::duration_cast<std::chrono::seconds>(
           std::chrono::system_clock::now() - start_count);
-      if (cl_param.getIntParameter("-I") > 0
-          && duration.count() > cl_param.getIntParameter("-I")) {
+      if (cl_param.interval_arg > 0
+          && duration.count() > cl_param.interval_arg) {
         std::cout << "PRINT-INFO: total iterations: " << total_iterations
                   << ", stack size: " << char_stack.size() << ", credits: "
                   << curr_credit << ", restarts: " << i << std::endl;
         print_char--;
         if (print_char == 0) {
           char_stack.top()->print(std::cout);
-          print_char = cl_param.getIntParameter("-S");
+          print_char = cl_param.printStatus_arg;
         }
         start_count = std::chrono::system_clock::now();
       }

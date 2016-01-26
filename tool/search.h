@@ -39,14 +39,14 @@ For more information, please refer to <http://unlicense.org/>
 #include "mask.h"
 #include "guessmask.h"
 #include "configparser.h"
-#include "commandlineparser.h"
+#include "cmdline.h"
 
 class Search {
 
  public:
   Search(Permutation &perm);
-  void StackSearch1(Commandlineparser& cl_param, Configparser& config_param);
-  void StackSearchKeccak(Commandlineparser& cl_param, Configparser& config_param);
+  void StackSearch1(gengetopt_args_info const& cl_param, Configparser& config_param);
+  void StackSearchKeccak(gengetopt_args_info const& cl_param, Configparser& config_param);
 
  private:
   double KeccakProb(std::stack<std::unique_ptr<Permutation>>& char_stack);

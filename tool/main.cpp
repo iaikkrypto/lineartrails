@@ -37,38 +37,35 @@ For more information, please refer to <http://unlicense.org/>
 #include "ascon_permutation.h"
 #include "search.h"
 #include "configparser.h"
-#include "commandlineparser.h"
+#include "cmdline.h"
 
 
-void config_search(Commandlineparser& args) {
+void config_search(gengetopt_args_info const& args_info) {
   Configparser parser;
 
-  bool config_ok = parser.parseFile(args.getParameter("-i"));
-
+  bool config_ok = parser.parseFile(args_info.inputFile_arg);
   if(config_ok == false)
     exit(config_ok);
 
   Search my_search(*parser.getPermutation());
-  my_search.StackSearch1(args, parser);
+  my_search.StackSearch1(args_info, parser);
 }
 
-void config_search_keccak(Commandlineparser& args) {
+void config_search_keccak(gengetopt_args_info const& args_info) {
   Configparser parser;
 
-  bool config_ok = parser.parseFile(args.getParameter("-i"));
-
+  bool config_ok = parser.parseFile(args_info.inputFile_arg);
   if(config_ok == false)
       exit(config_ok);
 
   Search my_search(*parser.getPermutation());
-  my_search.StackSearchKeccak(args, parser);
+  my_search.StackSearchKeccak(args_info, parser);
 }
 
-void checkchar(Commandlineparser& args) {
+void checkchar(gengetopt_args_info const& args_info) {
   Configparser parser;
 
-  bool config_ok = parser.parseFile(args.getParameter("-i"));
-
+  bool config_ok = parser.parseFile(args_info.inputFile_arg);
   if(config_ok == false)
       exit(config_ok);
 
@@ -79,38 +76,37 @@ void checkchar(Commandlineparser& args) {
 }
 
 // ==== Main / Search ====
-int main(int argc, const char* argv[]) {
-
-  Commandlineparser args("Tool to automatically search for linear characteristics");
-
-  args.addParameter("-iter", "max number of iterations or -1 for unlimited", "-1");
-  args.addParameter("-S",    "Multiple of -I where current characteristic is printed", "5");
-  args.addParameter("-I",    "Status update interval", "2");
-
-  args.addParameter("-i",    "characteristic input file", "examples/ascon_3_rounds_typeI.xml");
-  args.addParameter("-u",    "requested function: checkchar, search", "search");
-
-  args.addParameter("-h",    "display help", nullptr);
-
-  args.parse(argc, argv);
-
-  if (args.getBoolParameter("-h") || argc == 1) {
-    args.print_help();
-  } else if (std::strcmp(args.getParameter("-u"), "checkchar") == 0) {
-    std::cout << "Checking characteristic ... " << std::endl;
-    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
-    checkchar(args);
-  } else if (std::strcmp(args.getParameter("-u"), "keccak") == 0) {
-    std::cout << "Searching ... " << std::endl;
-    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
-    std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
-    config_search_keccak(args);
-  } else {
-    std::cout << "Searching ... " << std::endl;
-    std::cout << "Configfile: " << args.getParameter("-i") << std::endl;
-    std::cout << "Iterations: " << args.getIntParameter("-iter") << std::endl;
-    config_search(args);
+int main(int argc, char* argv[]) {
+  gengetopt_args_info args_info;
+  if (cmdline_parser(argc, argv, &args_info) != 0) {
+    std::cerr << "failed parsing command line arguments" << std::endl;
+    return EXIT_FAILURE;
   }
 
+  switch (args_info.function_arg) {
+    case function_arg_checkchar:
+      std::cout << "Checking characteristic ... " << std::endl;
+      std::cout << "Configfile: " << args_info.inputFile_arg << std::endl;
+      checkchar(args_info);
+      break;
+    case function_arg_keccak:
+      std::cout << "Searching ... " << std::endl;
+      std::cout << "Configfile: " << args_info.inputFile_arg << std::endl;
+      std::cout << "Iterations: " << args_info.maxIterations_arg << std::endl;
+      config_search_keccak(args_info);
+      break;
+    case function_arg_search:
+      std::cout << "Searching ... " << std::endl;
+      std::cout << "Configfile: " << args_info.inputFile_arg << std::endl;
+      std::cout << "Iterations: " << args_info.maxIterations_arg << std::endl;
+      config_search(args_info);
+      break;
+    case function__NULL:
+    default:
+      std::cerr << "Invalid choice for -u" << std::endl;
+      break;
+  }
+
+  cmdline_parser_free (&args_info);
   return 0;
 }

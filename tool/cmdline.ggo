@@ -1,0 +1,40 @@
+package "lineartrails"
+version "0.1"
+purpose "Tool to automatically search for linear characteristics"
+
+option "interval"
+		I
+		"Status update interval"
+		int
+		default="2"
+		optional
+
+option "printStatus"
+		S
+		"Multiple of -I where current characteristic is printed"
+		int
+		default="5"
+		optional
+
+option "inputFile"
+		f
+		"Characteristic input file"
+		string
+		typestr="FILENAME"
+		default="examples/ascon_3_rounds_typeI.xml"
+		optional
+
+option "maxIterations"
+		i
+		"Maximal number of iterations (or -1 for unlimited)"
+		int
+		default="-1"
+		optional
+
+option "function"
+		u
+		"Requested function"
+		enum
+		values="checkchar","keccak","search"
+		default="search"
+		optional

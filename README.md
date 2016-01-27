@@ -36,14 +36,14 @@ The folder ./examples contains example search configuration for Ascon, ICEPOLE,
 Keyak, Minalpher and Proest. To start a search simply call for instance:
 
 ```
-./lin -I 10 -S 2 -i examples/ascon_3_rounds_typeI.xml
+./lin -I 10 -S 2 -f examples/ascon_3_rounds_typeI.xml
 ```
 
 * `-I` determines how often status information of the search is displayed.
   `-I -1` deactivates it.
 * `-S` determines how often the current and probably partial determined linear
   characteristic is put out. `-S -1` deactivates it.
-* `-i` specifies the used xml based search file.
+* `-f` specifies the used xml based search file.
 
 The output of the search are linear characteristics, where Round 0 tags the
 linear mask of the input of the first round, Round 1 the output of the first
